@@ -46,7 +46,6 @@ Function Decode(Insn:TInstruction)
 				Case ALU_ADD
 					Insn.Handler = ADDI_Handler
 				Case ALU_SLT
-					Insn.Handler = Test_Handler
 					Return 0
 				Case ALU_SLTU
 					Return 0

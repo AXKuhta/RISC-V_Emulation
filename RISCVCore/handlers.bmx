@@ -17,7 +17,3 @@ Function ADDI_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 End Function
 
-
-Function Test_Handler(Insn:TInstruction, CPU:RV64i_core)
-	Print "123"
-End Function
