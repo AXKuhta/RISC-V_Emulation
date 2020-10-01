@@ -14,6 +14,7 @@ Function Log_SD(InstructionName:String, Insn:TInstruction)
 
 End Function
 
+
 ' Pretty masks
 Const OP_MASK:Int = 		 %00000000000000000000000001111111
 Const DESTINATION_MASK:Int = %00000000000000000000111110000000
@@ -21,6 +22,7 @@ Const FUNCT3_MASK:Int = 	 %00000000000000000111000000000000
 Const SOURCE_A_MASK:Int = 	 %00000000000011111000000000000000
 Const SOURCE_B_MASK:Int = 	 %00000001111100000000000000000000
 Const FUNCT7_MASK:Int = 	 %11111110000000000000000000000000
+
 
 ' Will decode SourceA, SourceB, Dest, etc...
 ' Will then walk the instruction tree to determine the handler
@@ -51,13 +53,11 @@ Function Decode(Insn:TInstruction)
 	Insn.LUI_Argument20 = (Insn.Entire & $FFFFF000) Shr 12
 	'Insn.JMP_Argument20 = ...
 	
-	
 	Insn.Argument12 = SignExt(Insn.Argument12, 12)
 	Insn.SD_Argument12 = SignExt(Insn.SD_Argument12, 12)
 	Insn.LUI_Argument20 = SignExt(Insn.LUI_Argument20, 20)
 	'Insn.JMP_Argument20 = SignExt(...)
 	' =========================================================
-	
 	
 	
 	' Stage 2: determine the handler
@@ -98,7 +98,7 @@ Function Decode(Insn:TInstruction)
 			
 	End Select
 	
-	
+	' Stage 3: Report success
 	Return 1
 End Function
 
