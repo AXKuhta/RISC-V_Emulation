@@ -9,6 +9,18 @@ Function Log_AxR(InstructionName:String, Insn:TInstruction)
 	Print InstructionName + " " + register_name(Insn.Destination) + ", " + register_name(Insn.SourceA) + ", " + Insn.Argument12
 End Function
 
+' Logs SD instructions
+Function Log_SD(InstructionName:String, Insn:TInstruction)
+
+End Function
+
+' Please prettify these to full 32 bit numbers tabulated to align
+Const OP_MASK:Int = %1111111
+Const DESTINATION_MASK:Int = %111110000000
+Const FUNCT3_MASK:Int = %111000000000000
+Const SOURCE_A_MASK:Int = %0000011111000000000000000
+Const SOURCE_B_MASK:Int = %1111100000000000000000000
+Const FUNCT7_MASK:Int = %11111110000000000000000000000000
 
 ' Will decode SourceA, SourceB, Dest, etc...
 ' Will then walk the instruction tree to determine the handler
@@ -19,29 +31,32 @@ Function Decode(Insn:TInstruction)
 	' Stage 1: decode various fields
 	
 	' Basic fields
-	' ====================================================================
-	Insn.OP = (Insn.Entire & %1111111)
+	' =========================================================
+	Insn.OP = (Insn.Entire & OP_MASK)
 	
-	Insn.Destination = (Insn.Entire & %111110000000) Shr 7
+	Insn.Destination = (Insn.Entire & DESTINATION_MASK) Shr 7
 	
-	Insn.Funct3 = (Insn.Entire & %111000000000000) Shr 12
+	Insn.Funct3 = (Insn.Entire & FUNCT3_MASK) Shr 12
 	
-	Insn.SourceA = (Insn.Entire & %0000011111000000000000000) Shr 15
-	Insn.SourceB = (Insn.Entire & %1111100000000000000000000) Shr 20
+	Insn.SourceA = (Insn.Entire & SOURCE_A_MASK) Shr 15
+	Insn.SourceB = (Insn.Entire & SOURCE_B_MASK) Shr 20
 	
-	Insn.Funct7 = (Insn.Entire & %11111110000000000000000000000000) Shr 25
-	' ====================================================================
+	Insn.Funct7 = (Insn.Entire & FUNCT7_MASK) Shr 25
+	' =========================================================
 	
 	' Combo fields
-	' ====================================================================
+	' =========================================================
+	Insn.Argument12 = (Insn.Entire & $FFF00000) Shr 20
+	Insn.SD_Argument12 = (Insn.Funct7 Shl 5) | Insn.Destination
 	Insn.LUI_Argument20 = (Insn.Entire & $FFFFF000) Shr 12
 	'Insn.JMP_Argument20 = ...
-	Insn.Argument12 = (Insn.Entire & $FFF00000) Shr 20
 	
+	
+	Insn.Argument12 = SignExt(Insn.Argument12, 12)
+	Insn.SD_Argument12 = SignExt(Insn.SD_Argument12, 12)
 	Insn.LUI_Argument20 = SignExt(Insn.LUI_Argument20, 20)
 	'Insn.JMP_Argument20 = SignExt(...)
-	Insn.Argument12 = SignExt(Insn.Argument12, 12)
-	' ====================================================================
+	' =========================================================
 	
 	
 	
@@ -70,6 +85,11 @@ Function Decode(Insn:TInstruction)
 				Return 0
 				
 			End Select
+			' =================================
+			
+		Case OP_SD
+			' =================================
+			Return 0
 			' =================================
 		
 		Default
