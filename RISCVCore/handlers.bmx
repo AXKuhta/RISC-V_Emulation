@@ -1,3 +1,4 @@
+Import BRL.Retro
 Import "instruction.bmx"
 
 '
@@ -20,3 +21,22 @@ Function ADDI_Handler(Insn:TInstruction, CPU:RV64i_core)
 	End If
 End Function
 
+' SD, aka Store Data (Full width)
+Function SD_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA ' Register with address where to store
+	Local SrcB:Int = Insn.SourceB ' Register to store
+	
+	' Get the value
+	Local Value:Long = CPU.Registers[SrcB]
+	
+	' Calculate the target addr
+	Local Offset:Int = Insn.SD_Argument12
+	Local Addr:Long = CPU.Registers[SrcA] + Offset
+	
+	If Addr > CPU.MemorySize
+		Print "Out of bounds write!"
+		Print "Offending address: 0x" + LongHex(Addr)
+	End If
+	
+	WriteMemory64BE(Value, CPU.Memory + Addr)
+End Function

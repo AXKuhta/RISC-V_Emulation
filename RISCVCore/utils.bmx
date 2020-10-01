@@ -19,6 +19,20 @@ Function ReadMemory32:Int(Addr:Byte Ptr)
 	Return IntBE[0]
 End Function
 
+' Write a 64 bit value in little-endian order
+Function WriteMemory64BE(Value:Long, Addr:Byte Ptr)
+	Local ValueBytes:Byte Ptr = Varptr Value
+	
+	Addr[0] = ValueBytes[7]
+	Addr[1] = ValueBytes[6]
+	Addr[2] = ValueBytes[5]
+	Addr[3] = ValueBytes[4]
+	Addr[4] = ValueBytes[3]
+	Addr[5] = ValueBytes[2]
+	Addr[6] = ValueBytes[1]
+	Addr[7] = ValueBytes[0]
+End Function
+
 ' Can parse a 12 bit negative value into a coherent representation
 ' Takes the value and the bitcount of the value
 Function SignExt:Long(Value:Long, Bits:Int)

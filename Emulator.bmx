@@ -28,7 +28,12 @@ End If
 Local CPU:RV64i_core = New RV64i_core
 
 ' Allocate some system memory
-CPU.Memory = MemAlloc(8 * 1024 * 1024)
+CPU.MemorySize = 8 * 1024 * 1024
+CPU.Memory = MemAlloc(CPU.MemorySize)
+
+' Init stack pointer
+' Stack grows backwards, so put it at the edge of the memory
+CPU.Registers[2] = 8 * 1024 * 1024
 
 ' Parse and load the sections
 ' Also store the entry point
@@ -64,6 +69,5 @@ While True
 	' Wait for enter key
 	Input("")	
 Wend
-
 
 Input("Press enter to exit")

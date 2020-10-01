@@ -11,7 +11,7 @@ End Function
 
 ' Logs SD instructions
 Function Log_SD(InstructionName:String, Insn:TInstruction)
-
+	Print InstructionName + " " + register_name(Insn.SourceB) + ", (" + Insn.SD_Argument12 + ")" + register_name(Insn.SourceA)
 End Function
 
 
@@ -63,7 +63,9 @@ Function Decode(Insn:TInstruction)
 	' Stage 2: determine the handler
 	Select Insn.OP
 		Case OP_ALU_AxR
+			' Argument + Register operation
 			' =================================
+			' Check the operation type
 			Select Insn.Funct3
 				Case ALU_ADD
 					Insn.Handler = ADDI_Handler
@@ -88,8 +90,29 @@ Function Decode(Insn:TInstruction)
 			' =================================
 			
 		Case OP_SD
+			' Store operation
 			' =================================
-			Return 0
+			' Check the store width
+			Select Insn.Funct3
+				Case %000
+					Log_SD("SDB", Insn)
+					Return 0
+				Case %001
+					Log_SD("SDS", Insn)
+					Return 0
+				Case %010
+					Log_SD("SDW", Insn)
+					Return 0
+				Case %011
+					Insn.Handler = SD_Handler
+					Log_SD("SD", Insn)
+				
+				Default
+					Print "Unacceptable store width"
+					Return 0
+				
+			End Select
+			
 			' =================================
 		
 		Default

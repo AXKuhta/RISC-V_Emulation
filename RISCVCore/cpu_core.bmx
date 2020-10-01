@@ -12,6 +12,9 @@ Type RV64i_core
 	
 	' Memory pointer
 	Field Memory:Byte Ptr
+	
+	' How many bytes of memory is available
+	Field MemorySize:Size_T
 End Type
 
 
