@@ -37,6 +37,9 @@ CPU.PC = LoadELF(ELFFile, CPU.Memory)
 ' Close the ELF file now
 CloseFile(ELFFile)
 
+Print "~r~n~r~n"
+Print "Starting the Fetch-Decode-Execute now!"
+Print "======================================"
 
 Local Status:Int
 Local Insn:TInstruction

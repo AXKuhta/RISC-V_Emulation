@@ -3,6 +3,13 @@ Import BRL.Retro
 Import "instruction.bmx"
 Import "handlers.bmx"
 
+
+' Logs Argument+Register instructions
+Function Log_AxR(InstructionName:String, Insn:TInstruction)
+	Print InstructionName + " " + register_name(Insn.Destination) + ", " + register_name(Insn.SourceA) + ", " + Insn.Argument12
+End Function
+
+
 ' Will decode SourceA, SourceB, Dest, etc...
 ' Will then walk the instruction tree to determine the handler
 '
@@ -45,6 +52,8 @@ Function Decode(Insn:TInstruction)
 			Select Insn.Funct3
 				Case ALU_ADD
 					Insn.Handler = ADDI_Handler
+					Log_AxR("ADDI", Insn)
+										
 				Case ALU_SLT
 					Return 0
 				Case ALU_SLTU
