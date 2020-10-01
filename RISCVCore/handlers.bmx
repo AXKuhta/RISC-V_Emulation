@@ -9,11 +9,14 @@ Import "instruction.bmx"
 
 ' ADDI, aka ADD Intermediate (`Argument12`)
 Function ADDI_Handler(Insn:TInstruction, CPU:RV64i_core)
-	Print "Hello from ADDI"
+	Local Dest:Int = Insn.Destination
+	Local SrcA:Int = Insn.SourceA
 	
-	Print "Source register: " + register_name(Insn.SourceA)
-	Print "Target register: " + register_name(Insn.Destination)
-	Print "Argument value: " + Insn.Argument12
+	Local Arg:Long = Insn.Argument12
 	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = CPU.Registers[SrcA] + Arg	
+	End If
 End Function
 
