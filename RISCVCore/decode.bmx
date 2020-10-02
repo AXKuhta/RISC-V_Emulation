@@ -91,17 +91,33 @@ Function Decode(Insn:TInstruction)
 			Select Insn.Funct3
 				Case ALU_ADD
 					Insn.Handler = ADDI_Handler
-					Log_AxR("ADDI", Insn)		
-				Case ALU_SLT
-					Return 0
-				Case ALU_SLTU
-					Return 0
+					Log_AxR("ADDI", Insn)
+					
 				Case ALU_XOR
+					Log_AxR("XORI", Insn)
 					Return 0
 				Case ALU_OR
+					Log_AxR("ORI", Insn)
 					Return 0
 				Case ALU_AND
+					Log_AxR("ANDI", Insn)
 					Return 0
+					
+				Case ALU_SLT
+					Log_AxR("SLTI", Insn)
+					Return 0
+				Case ALU_SLTU
+					Log_AxR("SLTIU", Insn)
+					Return 0
+				
+				'Case ALU_SLL
+				'	Log_AShift("SLLI", Insn)
+				'	Return 0
+				'	
+				'Case ALU_SRL, ALU_SRA
+				'	Log_AShift("SRLI/SRAI", Insn)
+				'	Return 0
+				
 				
 			Default
 				Print "Unacceptable type of Argument+Register ALU instruction"
@@ -117,18 +133,8 @@ Function Decode(Insn:TInstruction)
 			Select Insn.Funct3
 				Case ALU_ADD
 					Insn.Handler = ADDIW_Handler
-					Log_AxR("ADDIW", Insn)					
-				Case ALU_SLT
-					Return 0
-				Case ALU_SLTU
-					Return 0
-				Case ALU_XOR
-					Return 0
-				Case ALU_OR
-					Return 0
-				Case ALU_AND
-					Return 0
-				
+					Log_AxR("ADDIW", Insn)
+										
 			Default
 				Print "Unacceptable type of Argument+Register 32 bit ALU instruction"
 				Return 0

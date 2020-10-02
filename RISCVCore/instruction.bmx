@@ -53,28 +53,54 @@ End Function
 '
 
 ' ALU-using opcodes
-'
+'=======================================
 Const OP_ALU_AxR = $13
 Const OP_ALU_RxR = $33
 
 Const OP_ALU_AxR_32BIT = $1B
+'=======================================
 
 
 ' ALU operations
-'
+'=======================================
+' Basic math
+' Discern via Funct7
 Const ALU_ADD = %000
-Const ALU_SLT = %010
-Const ALU_SLTU = %011
+Const ALU_SUB = %000
+
+' Bitwise
 Const ALU_XOR = %100
 Const ALU_OR = %110
 Const ALU_AND = %111
 
+' Left shift
+Const ALU_SLL = %001
+
+' Right shift
+' Discern via Funct7
+Const ALU_SRL = %101
+Const ALU_SRA = %101
+
+' Set Less Than / Set Less Than Unsigned
+Const ALU_SLT = %010
+Const ALU_SLTU = %011
+'=======================================
+
+
 ' Memory access opcodes
+'=======================================
 Const OP_LD = $03
 Const OP_SD = $23
+'=======================================
+
 
 ' Call opcodes
+'=======================================
 Const OP_JAL = $6F
+'=======================================
+
 
 ' Value-building opcodes
+'=======================================
 Const OP_LUI = $37
+'=======================================
