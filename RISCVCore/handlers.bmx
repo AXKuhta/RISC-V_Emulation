@@ -46,10 +46,7 @@ Function LW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Offset:Int = Insn.Argument12
 	Local Addr:Long = CPU.Registers[SrcA] + Offset
 	
-	If (Addr > CPU.MemorySize) Or (Addr < 0)
-		Print "Out of bounds read!"
-		Print "Offending address: 0x" + LongHex(Addr)
-	End If
+	CheckAddress(Addr, CPU)
 	
 	Local Value:Long = ReadMemory32LE(CPU.Memory + Addr)
 	
@@ -71,10 +68,7 @@ Function LD_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Offset:Int = Insn.Argument12
 	Local Addr:Long = CPU.Registers[SrcA] + Offset
 	
-	If (Addr > CPU.MemorySize) Or (Addr < 0)
-		Print "Out of bounds read!"
-		Print "Offending address: 0x" + LongHex(Addr)
-	End If
+	CheckAddress(Addr, CPU)
 	
 	Local Value:Long = ReadMemory64LE(CPU.Memory + Addr)
 	
@@ -100,10 +94,7 @@ Function SW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Offset:Int = Insn.SD_Argument12
 	Local Addr:Long = CPU.Registers[SrcA] + Offset
 	
-	If (Addr > CPU.MemorySize) Or (Addr < 0)
-		Print "Out of bounds write!"
-		Print "Offending address: 0x" + LongHex(Addr)
-	End If
+	CheckAddress(Addr, CPU)
 	
 	WriteMemory32LE(Value, CPU.Memory + Addr)
 End Function
@@ -120,10 +111,7 @@ Function SD_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Offset:Int = Insn.SD_Argument12
 	Local Addr:Long = CPU.Registers[SrcA] + Offset
 	
-	If (Addr > CPU.MemorySize) Or (Addr < 0)
-		Print "Out of bounds write!"
-		Print "Offending address: 0x" + LongHex(Addr)
-	End If
+	CheckAddress(Addr, CPU)
 	
 	WriteMemory64LE(Value, CPU.Memory + Addr)
 End Function
@@ -158,10 +146,7 @@ Function JAL_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' But we already made it point to the next instruction, so we have to subtract 4
 	Local Addr:Long = CPU.PC - 4 + Offset
 	
-	If (Addr > CPU.MemorySize) Or (Addr < 0)
-		Print "Out of bounds jump!"
-		Print "Offending address: 0x" + LongHex(Addr)
-	End If
+	CheckAddress(Addr, CPU)
 		
 	' Only store PC if the destination is not the `zero`
 	' Thankfully the adjusted PC is useful here
