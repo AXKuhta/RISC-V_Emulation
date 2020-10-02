@@ -17,7 +17,7 @@ Type TInstruction
 	
 	' Optional combo-fields
 	Field LUI_Argument20:Int ' 20 bit argument for LUI/AUIPC; combo of Funct7 + SrcB + SrcA + Funct3
-	Field JMP_Argument20:Int ' 20 bit with different encoding;
+	Field JAL_Argument20:Int ' 20 bit with different encoding;
 	
 	Field SD_Argument12:Int ' 12 argument for SD; combo of Funct7 + Dest
 	Field Argument12:Int ' 12 bit argument; combo of Funct7 + SrcB
@@ -69,3 +69,6 @@ Const ALU_AND = %111
 ' Memory access opcodes
 Const OP_SD = $23
 Const OP_LD = $03
+
+' Call opcodes
+Const OP_JAL = $6F

@@ -14,6 +14,11 @@ Function Log_SD(InstructionName:String, Insn:TInstruction)
 	Print InstructionName + " " + register_name(Insn.SourceB) + ", (" + Insn.SD_Argument12 + ")" + register_name(Insn.SourceA)
 End Function
 
+' Log Jump And Link instructions
+Function Log_JAL(InstructionName:String, Insn:TInstruction)
+	Print InstructionName + " " + register_name(Insn.Destination) + ", offset " + Insn.JAL_Argument20
+End Function
+
 
 ' Pretty masks
 Const OP_MASK:Int = 		 %00000000000000000000000001111111
@@ -33,7 +38,7 @@ Function Decode(Insn:TInstruction)
 	' Stage 1: decode various fields
 	
 	' Basic fields
-	' =========================================================
+	' ==========================================================
 	Insn.OP = (Insn.Entire & OP_MASK)
 	
 	Insn.Destination = (Insn.Entire & DESTINATION_MASK) Shr 7
@@ -44,20 +49,20 @@ Function Decode(Insn:TInstruction)
 	Insn.SourceB = (Insn.Entire & SOURCE_B_MASK) Shr 20
 	
 	Insn.Funct7 = (Insn.Entire & FUNCT7_MASK) Shr 25
-	' =========================================================
+	' ==========================================================
 	
 	' Combo fields
-	' =========================================================
+	' ==========================================================
 	Insn.Argument12 = (Insn.Entire & $FFF00000) Shr 20
 	Insn.SD_Argument12 = (Insn.Funct7 Shl 5) | Insn.Destination
 	Insn.LUI_Argument20 = (Insn.Entire & $FFFFF000) Shr 12
-	'Insn.JMP_Argument20 = ...
 	
 	Insn.Argument12 = SignExt(Insn.Argument12, 12)
 	Insn.SD_Argument12 = SignExt(Insn.SD_Argument12, 12)
 	Insn.LUI_Argument20 = SignExt(Insn.LUI_Argument20, 20)
-	'Insn.JMP_Argument20 = SignExt(...)
-	' =========================================================
+	
+	Insn.JAL_Argument20 = DecodeJALArgument(Insn.LUI_Argument20)
+	' ==========================================================
 	
 	
 	' Stage 2: determine the handler
@@ -112,8 +117,15 @@ Function Decode(Insn:TInstruction)
 					Return 0
 				
 			End Select
-			
 			' =================================
+			
+		Case OP_JAL
+			' Jump And Link operation
+			' =================================
+			Insn.Handler = JAL_Handler
+			Log_JAL("JAL", Insn)
+			' =================================
+
 		
 		Default
 			Print "Unknown opcode: 0x" + Hex(Insn.OP)
@@ -126,4 +138,34 @@ Function Decode(Insn:TInstruction)
 End Function
 
 
-
+' Performs the magic transformations on the Argument20
+' Note: passed Argument20 must not be sign-extended!  
+Function DecodeJALArgument:Int(Argument20:Int)
+	Local Argument:Int = 0
+	
+	' Cut the slices
+	Local SliceA:Int = Argument20 & %10000000000000000000
+	Local SliceB:Int = Argument20 & %01111111111000000000
+	Local SliceC:Int = Argument20 & %00000000000100000000
+	Local SliceD:Int = Argument20 & %00000000000011111111
+	
+	' Align the slices
+	Local ArgumentA:Int = SliceA
+	Local ArgumentB:Int = SliceD Shl 11
+	Local ArgumentC:Int = SliceC Shl 2
+	Local ArgumentD:Int = SliceB Shr 9
+	
+	' Glue together
+	Argument = ArgumentA | ArgumentB | ArgumentC | ArgumentD
+	
+	' Extend to 21 bits
+	Argument :Shl 1
+	
+	' Critical: rightmost bit always needs to be zero
+	Argument :& %111111111111111111110
+	
+	' Convert to a proper signed value
+	Argument = SignExt(Argument, 21)
+		
+	Return Argument
+End Function

@@ -40,3 +40,28 @@ Function SD_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	WriteMemory64BE(Value, CPU.Memory + Addr)
 End Function
+
+' JAL, aka Jump And Link
+Function JAL_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local Dest:Int = Insn.Destination
+	
+	Local Offset:Int = Insn.JAL_Argument20
+	
+	' The address has to be calculated from the unadjusted PC
+	' But we already made it point to the next instruction, so we have to subtract 4
+	Local Addr:Long = CPU.PC - 4 + Offset
+	
+	If (Addr > CPU.MemorySize) Or (Addr < 0)
+		Print "Out of bounds jump!"
+		Print "Offending address: 0x" + LongHex(Addr)
+	End If
+		
+	' Only store PC if the destination is not the `zero`
+	' Thankfully the adjusted PC is useful here
+	If Dest
+		CPU.Registers[Dest] = CPU.PC
+	End If
+	
+	' Finally perform the jump itself
+	CPU.PC = Addr
+End Function
