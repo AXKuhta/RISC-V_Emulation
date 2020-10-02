@@ -123,8 +123,8 @@ Function Decode(Insn:TInstruction)
 					Log_LD("LH", Insn)
 					Return 0
 				Case %010
+					Insn.Handler = LW_Handler
 					Log_LD("LW", Insn)
-					Return 0
 				Case %011
 					Insn.Handler = LD_Handler
 					Log_LD("LD", Insn)
@@ -148,8 +148,8 @@ Function Decode(Insn:TInstruction)
 					Log_SD("SH", Insn)
 					Return 0
 				Case %010
-					Log_SD("SW", Insn)
 					Insn.Handler = SW_Handler
+					Log_SD("SW", Insn)
 				Case %011
 					Insn.Handler = SD_Handler
 					Log_SD("SD", Insn)
