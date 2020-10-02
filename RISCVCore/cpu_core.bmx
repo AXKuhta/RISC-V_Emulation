@@ -1,4 +1,4 @@
-
+Import "utils.bmx"
 
 Type RV64i_core
 	' Some highlights:
@@ -15,8 +15,16 @@ Type RV64i_core
 	
 	' How many bytes of memory is available
 	Field MemorySize:Size_T
+
 End Type
 
+' Will warn if supplied address is bad
+Function CheckAddress(Addr:Long, CPU:RV64i_core)
+	If (Addr > CPU.MemorySize) Or (Addr < 0)
+		Print "Out of bounds memory access!"
+		Print "Offending address: 0x" + LongHex(Addr)
+	End If
+End Function
 
 '
 ' Naming convention:

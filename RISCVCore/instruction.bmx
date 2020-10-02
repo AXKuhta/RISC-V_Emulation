@@ -17,10 +17,11 @@ Type TInstruction
 	
 	' Optional combo-fields
 	Field LUI_Argument20:Int ' 20 bit argument for LUI/AUIPC; combo of Funct7 + SrcB + SrcA + Funct3
-	Field JAL_Argument20:Int ' 20 bit with different encoding;
+	Field JAL_Argument20:Int ' 21 bit with different encoding;
 	
 	Field SD_Argument12:Int ' 12 argument for SD; combo of Funct7 + Dest
 	Field Argument12:Int ' 12 bit argument; combo of Funct7 + SrcB
+	Field BR_Argument:Int ' 13 bit with different encoding
 	
 	' ========== Proposal ==========
 	' RISC-V encoding is super messy
@@ -104,3 +105,17 @@ Const OP_JAL = $6F
 '=======================================
 Const OP_LUI = $37
 '=======================================
+
+
+' Conditional branch opcodes
+'=======================================
+Const OP_BRANCH = $63
+
+Const BR_BEQ = %000
+Const BR_BNE = %001
+Const BR_BLT = %100
+Const BR_BGE = %101
+Const BR_BLTU = %110
+Const BR_BGEU = %111
+'=======================================
+

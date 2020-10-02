@@ -29,6 +29,11 @@ Function Log_JAL(InstructionName:String, Insn:TInstruction)
 	Print InstructionName + " " + register_name(Insn.Destination) + ", offset " + Insn.JAL_Argument20
 End Function
 
+' Logs BR Conditional Branch instructions
+Function Log_BR(InstructionName:String, Insn:TInstruction)
+	Print InstructionName + " " + register_name(Insn.SourceA) + ", " + register_name(Insn.SourceB) + ", " + Insn.BR_Argument
+End Function
+
 
 ' Pretty masks
 Const OP_MASK:Int = 		 %00000000000000000000000001111111
@@ -63,6 +68,9 @@ Function Decode(Insn:TInstruction)
 	
 	' Combo fields
 	' ==========================================================
+	' Some of these are expensive to calculate
+	' Calculate only on demand?
+
 	Insn.Argument12 = (Insn.Entire & $FFF00000) Shr 20
 	Insn.SD_Argument12 = (Insn.Funct7 Shl 5) | Insn.Destination
 	Insn.LUI_Argument20 = (Insn.Entire & $FFFFF000) Shr 12
@@ -71,6 +79,7 @@ Function Decode(Insn:TInstruction)
 	Insn.SD_Argument12 = SignExt(Insn.SD_Argument12, 12)
 	
 	Insn.JAL_Argument20 = DecodeJALArgument(Insn.LUI_Argument20)
+	Insn.BR_Argument = DecodeBranchArgument(Insn.Entire)
 	' ==========================================================
 	
 	
@@ -199,6 +208,36 @@ Function Decode(Insn:TInstruction)
 			Insn.Handler = JAL_Handler
 			Log_JAL("JAL", Insn)
 			
+			
+		Case OP_BRANCH
+			' Conditional branch operation
+			' =================================
+			' Check the branch type
+			Select Insn.Funct3
+				Case BR_BEQ
+					Log_BR("BEQ", Insn)
+					Return 0
+				Case BR_BNE
+					Log_BR("BNE", Insn)
+					Return 0
+				Case BR_BLT
+					Log_BR("BLT", Insn)
+					Return 0
+				Case BR_BGE
+					Insn.Handler = BGE_Handler
+					Log_BR("BGE", Insn)
+				Case BR_BLTU
+					Log_BR("BLTU", Insn)
+					Return 0
+				Case BR_BGEU
+					Log_BR("BGEU", Insn)
+					Return 0
+			
+				Default
+					Print "Unacceptable branch type width"
+					Return 0
+					
+			End Select
 
 		
 		Default
@@ -243,3 +282,35 @@ Function DecodeJALArgument:Int(Argument20:Int)
 		
 	Return Argument
 End Function
+
+' More magic
+Function DecodeBranchArgument:Int(Entire:Int)
+	Local Argument:Int = 0
+	
+	' Cut the slices
+	Local SliceA:Int = Entire & %10000000000000000000000000000000
+	Local SliceB:Int = Entire & %01111110000000000000000000000000
+	Local SliceC:Int = Entire & %00000000000000000000111100000000
+	Local SliceD:Int = Entire & %00000000000000000000000010000000
+	
+	' Align the slices
+	Local ArgumentA:Int = SliceA Shr 20
+	Local ArgumentB:Int = SliceD Shl 3
+	Local ArgumentC:Int = SliceB Shr 21
+	Local ArgumentD:Int = SliceC Shr 8
+
+	' Glue together
+	Argument = ArgumentA | ArgumentB | ArgumentC | ArgumentD
+	
+	' Extend to 13 bits
+	Argument :Shl 1
+	
+	' Critical: rightmost bit always needs to be zero
+	Argument :& %1111111111110
+	
+	' Convert to a proper signed value
+	Argument = SignExt(Argument, 13)
+	
+	Return Argument
+End Function
+
