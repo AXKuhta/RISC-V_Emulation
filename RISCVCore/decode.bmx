@@ -9,12 +9,17 @@ Function Log_AxR(InstructionName:String, Insn:TInstruction)
 	Print InstructionName + " " + register_name(Insn.Destination) + ", " + register_name(Insn.SourceA) + ", " + Insn.Argument12
 End Function
 
+' Logs LUI instructions
+Function Log_LUI(InstructionName:String, Insn:TInstruction)
+	Print InstructionName + " " + register_name(Insn.Destination) + ", 0x" + Shorten(Hex(Insn.LUI_Argument20))
+End Function
+
 ' Logs SD instructions
 Function Log_SD(InstructionName:String, Insn:TInstruction)
 	Print InstructionName + " " + register_name(Insn.SourceB) + ", (" + Insn.SD_Argument12 + ")" + register_name(Insn.SourceA)
 End Function
 
-' Log Jump And Link instructions
+' Logs Jump And Link instructions
 Function Log_JAL(InstructionName:String, Insn:TInstruction)
 	Print InstructionName + " " + register_name(Insn.Destination) + ", offset " + Insn.JAL_Argument20
 End Function
@@ -59,7 +64,6 @@ Function Decode(Insn:TInstruction)
 	
 	Insn.Argument12 = SignExt(Insn.Argument12, 12)
 	Insn.SD_Argument12 = SignExt(Insn.SD_Argument12, 12)
-	Insn.LUI_Argument20 = SignExt(Insn.LUI_Argument20, 20)
 	
 	Insn.JAL_Argument20 = DecodeJALArgument(Insn.LUI_Argument20)
 	' ==========================================================
@@ -67,6 +71,14 @@ Function Decode(Insn:TInstruction)
 	
 	' Stage 2: determine the handler
 	Select Insn.OP
+		Case OP_LUI
+			' Load Uppper Immediate
+			' =================================
+			Insn.Handler = LUI_Handler
+			Log_LUI("LUI", Insn)
+			' =================================
+			
+	
 		Case OP_ALU_AxR
 			' Argument + Register operation
 			' =================================

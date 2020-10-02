@@ -8,7 +8,7 @@ Import "instruction.bmx"
 '
 
 
-' ADDI, aka ADD Intermediate (`Argument12`)
+' ADDI, aka ADD Immediate (`Argument12`)
 Function ADDI_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Dest:Int = Insn.Destination
 	Local SrcA:Int = Insn.SourceA
@@ -64,4 +64,22 @@ Function JAL_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	' Finally perform the jump itself
 	CPU.PC = Addr
+End Function
+
+' LUI, aka Load Upper Immediate, aka load value into upper bits of the register
+Function LUI_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local Dest:Int = Insn.Destination
+	
+	Local Result:Long = 0
+	Local Zero:Int = 0
+	Local Arg:Int = Insn.LUI_Argument20
+	
+	Arg :Shl 12
+	
+	Result = SignExt(Arg | Zero, 32)
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Result
+	End If
 End Function

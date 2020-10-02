@@ -72,3 +72,6 @@ Const OP_LD = $03
 
 ' Call opcodes
 Const OP_JAL = $6F
+
+' Value-building opcodes
+Const OP_LUI = $37
