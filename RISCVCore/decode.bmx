@@ -149,7 +149,7 @@ Function Decode(Insn:TInstruction)
 					Return 0
 				Case %010
 					Log_SD("SW", Insn)
-					Return 0
+					Insn.Handler = SW_Handler
 				Case %011
 					Insn.Handler = SD_Handler
 					Log_SD("SD", Insn)

@@ -21,6 +21,8 @@ Function ADDI_Handler(Insn:TInstruction, CPU:RV64i_core)
 	End If
 End Function
 
+' Load Data Instructions
+' ======================================================================
 ' LD, aka Load Data (Full width)
 Function LD_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA ' Register with base address from where to load
@@ -42,7 +44,30 @@ Function LD_Handler(Insn:TInstruction, CPU:RV64i_core)
 		CPU.Registers[Dest] = Value
 	End If
 End Function
+' ======================================================================
 
+
+' Store Data Instructions
+' ======================================================================
+' SW, aka Store Data (32 bit)
+Function SW_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA ' Register with address where to store
+	Local SrcB:Int = Insn.SourceB ' Register to store
+	
+	' Get the value (lower bits)
+	Local Value:Int = Int(CPU.Registers[SrcB])
+	
+	' Calculate the target addr
+	Local Offset:Int = Insn.SD_Argument12
+	Local Addr:Long = CPU.Registers[SrcA] + Offset
+	
+	If (Addr > CPU.MemorySize) Or (Addr < 0)
+		Print "Out of bounds write!"
+		Print "Offending address: 0x" + LongHex(Addr)
+	End If
+	
+	WriteMemory32BE(Value, CPU.Memory + Addr)
+End Function
 
 ' SD, aka Store Data (Full width)
 Function SD_Handler(Insn:TInstruction, CPU:RV64i_core)
@@ -63,6 +88,7 @@ Function SD_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	WriteMemory64BE(Value, CPU.Memory + Addr)
 End Function
+' ======================================================================
 
 ' JAL, aka Jump And Link
 Function JAL_Handler(Insn:TInstruction, CPU:RV64i_core)
