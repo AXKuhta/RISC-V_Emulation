@@ -182,6 +182,9 @@ Function LUI_Handler(Insn:TInstruction, CPU:RV64i_core)
 	End If
 End Function
 
+
+' Call and Ret Instructions
+' ======================================================================
 ' JAL, aka Jump And Link
 Function JAL_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Dest:Int = Insn.Destination
@@ -203,7 +206,11 @@ Function JAL_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' Finally perform the jump itself
 	CPU.PC = Addr
 End Function
+' ======================================================================
 
+
+' Conditional Branch Instructions
+' ======================================================================
 ' BGE, aka Branch If Greater or Equal
 Function BGE_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
@@ -219,3 +226,20 @@ Function BGE_Handler(Insn:TInstruction, CPU:RV64i_core)
 		CPU.PC = Addr
 	End If
 End Function
+
+' BGE, aka Branch If Not Equal
+Function BNE_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	
+	' The address has to be calculated from the unadjusted PC
+	' But we already made it point to the next instruction, so we have to subtract 4
+	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
+	
+	CheckAddress(Addr, CPU)
+	
+	If CPU.Registers[SrcA] <> CPU.Registers[SrcB]
+		CPU.PC = Addr
+	End If
+End Function
+' ======================================================================

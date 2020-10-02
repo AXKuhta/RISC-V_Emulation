@@ -224,8 +224,8 @@ Function Decode(Insn:TInstruction)
 					Log_BR("BEQ", Insn)
 					Return 0
 				Case BR_BNE
+					Insn.Handler = BNE_Handler
 					Log_BR("BNE", Insn)
-					Return 0
 				Case BR_BLT
 					Log_BR("BLT", Insn)
 					Return 0
