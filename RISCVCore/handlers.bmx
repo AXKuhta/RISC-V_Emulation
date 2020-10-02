@@ -62,7 +62,7 @@ Function LD_Handler(Insn:TInstruction, CPU:RV64i_core)
 		Print "Offending address: 0x" + LongHex(Addr)
 	End If
 	
-	Local Value:Long = ReadMemory64BE(CPU.Memory + Addr)
+	Local Value:Long = ReadMemory64LE(CPU.Memory + Addr)
 	
 	' Only write if the destination is not the `zero`
 	If Dest
@@ -91,7 +91,7 @@ Function SW_Handler(Insn:TInstruction, CPU:RV64i_core)
 		Print "Offending address: 0x" + LongHex(Addr)
 	End If
 	
-	WriteMemory32BE(Value, CPU.Memory + Addr)
+	WriteMemory32LE(Value, CPU.Memory + Addr)
 End Function
 
 ' SD, aka Store Data (Full width)
@@ -111,7 +111,7 @@ Function SD_Handler(Insn:TInstruction, CPU:RV64i_core)
 		Print "Offending address: 0x" + LongHex(Addr)
 	End If
 	
-	WriteMemory64BE(Value, CPU.Memory + Addr)
+	WriteMemory64LE(Value, CPU.Memory + Addr)
 End Function
 ' ======================================================================
 

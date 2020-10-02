@@ -1,6 +1,6 @@
 Import BRL.Retro
 
-' Read a 32 bit value
+' Read a 32 bit value (normal)
 Function ReadMemory32:Int(Addr:Byte Ptr)
 	Local IntBE:Int Ptr = Int Ptr(Addr)
 	
@@ -21,44 +21,44 @@ Function ReadMemory32LE:Int(Addr:Byte Ptr)
 End Function
 
 ' Write a 32 bit value in little-endian order
-Function WriteMemory32BE(Value:Int, Addr:Byte Ptr)
-	Local ValueBytes:Byte Ptr = Varptr Value
+Function WriteMemory32LE(IntBE:Int, Addr:Byte Ptr)
+	Local IntBEPtr:Byte Ptr = Varptr IntBE
 	
-	Addr[0] = ValueBytes[3]
-	Addr[1] = ValueBytes[2]
-	Addr[2] = ValueBytes[1]
-	Addr[3] = ValueBytes[0]
+	Addr[0] = IntBEPtr[3]
+	Addr[1] = IntBEPtr[2]
+	Addr[2] = IntBEPtr[1]
+	Addr[3] = IntBEPtr[0]
 End Function
 
 ' Read a 64 bit value in little-endian order
-Function ReadMemory64BE:Long(Addr:Byte Ptr)
-	Local Value:Long = 0
-	Local ValueBytes:Byte Ptr = Varptr Value
+Function ReadMemory64LE:Long(Addr:Byte Ptr)
+	Local LongBE:Long = 0
+	Local LongBEPtr:Byte Ptr = Varptr LongBE
 	
-	ValueBytes[7] = Addr[0]
-	ValueBytes[6] = Addr[1]
-	ValueBytes[5] = Addr[2]
-	ValueBytes[4] = Addr[3]
-	ValueBytes[3] = Addr[4]
-	ValueBytes[2] = Addr[5]
-	ValueBytes[1] = Addr[6]
-	ValueBytes[0] = Addr[7]
+	LongBEPtr[0] = Addr[7]
+	LongBEPtr[1] = Addr[6]
+	LongBEPtr[2] = Addr[5]
+	LongBEPtr[3] = Addr[4]
+	LongBEPtr[4] = Addr[3]
+	LongBEPtr[5] = Addr[2]
+	LongBEPtr[6] = Addr[1]
+	LongBEPtr[7] = Addr[0]
 		
-	Return Value
+	Return LongBE
 End Function
 
 ' Write a 64 bit value in little-endian order
-Function WriteMemory64BE(Value:Long, Addr:Byte Ptr)
-	Local ValueBytes:Byte Ptr = Varptr Value
+Function WriteMemory64LE(LongBE:Long, Addr:Byte Ptr)
+	Local LongBEPtr:Byte Ptr = Varptr LongBE
 	
-	Addr[0] = ValueBytes[7]
-	Addr[1] = ValueBytes[6]
-	Addr[2] = ValueBytes[5]
-	Addr[3] = ValueBytes[4]
-	Addr[4] = ValueBytes[3]
-	Addr[5] = ValueBytes[2]
-	Addr[6] = ValueBytes[1]
-	Addr[7] = ValueBytes[0]
+	Addr[0] = LongBEPtr[7]
+	Addr[1] = LongBEPtr[6]
+	Addr[2] = LongBEPtr[5]
+	Addr[3] = LongBEPtr[4]
+	Addr[4] = LongBEPtr[3]
+	Addr[5] = LongBEPtr[2]
+	Addr[6] = LongBEPtr[1]
+	Addr[7] = LongBEPtr[0]
 End Function
 
 ' Can parse a 12 bit negative value into a coherent representation
