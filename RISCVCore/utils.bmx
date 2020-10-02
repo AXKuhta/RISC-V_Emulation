@@ -1,5 +1,24 @@
 Import BRL.Retro
 
+' Read a 16 bit value in little-endian order
+Function ReadMemory16LE:Short(Addr:Byte Ptr)
+	Local ShortBE:Short = 0
+	Local ShortBEPtr:Byte Ptr = Varptr ShortBE
+	
+	ShortBEPtr[0] = Addr[1]
+	ShortBEPtr[1] = Addr[0]
+		
+	Return ShortBE
+End Function
+
+' Write a 16 bit value in little-endian order
+Function WriteMemory16LE(ShortBE:Short, Addr:Byte Ptr)
+	Local ShortBEPtr:Byte Ptr = Varptr ShortBE
+	
+	Addr[0] = ShortBEPtr[1]
+	Addr[1] = ShortBEPtr[0]
+End Function
+
 ' Read a 32 bit value (normal)
 Function ReadMemory32:Int(Addr:Byte Ptr)
 	Local IntBE:Int Ptr = Int Ptr(Addr)

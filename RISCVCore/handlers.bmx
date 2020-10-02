@@ -37,7 +37,53 @@ End Function
 
 ' Load Data Instructions
 ' ======================================================================
-' LW, aka Load Data (32 bit)
+' LBU, aka Load Data (8 bit)
+Function LBU_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA ' Register with base address from where to load
+	Local Dest:Int = Insn.Destination ' Where to load
+		
+	' Calculate the target addr
+	Local Offset:Int = Insn.Argument12
+	Local Addr:Long = CPU.Registers[SrcA] + Offset
+	
+	CheckAddress(Addr, CPU)
+	
+	' Make sure we init to 0
+	Local Value:Long = 0
+	
+	' We can then read 8 bits directly
+	Value = CPU.Memory[Addr]
+		
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Value
+	End If
+End Function
+
+' LHU, aka Load Data (16 bit)
+Function LHU_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA ' Register with base address from where to load
+	Local Dest:Int = Insn.Destination ' Where to load
+		
+	' Calculate the target addr
+	Local Offset:Int = Insn.Argument12
+	Local Addr:Long = CPU.Registers[SrcA] + Offset
+	
+	CheckAddress(Addr, CPU)
+	
+	' Make sure we init to 0
+	Local Value:Long = 0
+	
+	' We can then read 8 bits directly
+	Value = ReadMemory16LE(CPU.Memory + Addr)
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Value
+	End If
+End Function
+
+' LW, aka Load Data (32 bit; sign extended)
 Function LW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA ' Register with base address from where to load
 	Local Dest:Int = Insn.Destination ' Where to load

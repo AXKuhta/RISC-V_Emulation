@@ -169,6 +169,12 @@ Function Decode(Insn:TInstruction)
 				Case %011
 					Insn.Handler = LD_Handler
 					Log_LD("LD", Insn)
+				Case %100
+					Insn.Handler = LBU_Handler
+					Log_LD("LBU", Insn)
+				Case %101
+					Insn.Handler = LHU_Handler
+					Log_LD("LHU", Insn)
 				
 				Default
 					Print "Unacceptable load width"
