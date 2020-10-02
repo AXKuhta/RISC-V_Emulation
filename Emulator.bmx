@@ -51,6 +51,9 @@ Local Insn:TInstruction
 
 ' Main loop (No support for translation blocks/handler chaining yet)
 While True
+	' Print the address
+	WriteStdout("0x" + Shorten(LongHex(CPU.PC)) + " : ")
+
 	' Fetch
 	Insn = Fetch(CPU)
 	CPU.PC :+ 4

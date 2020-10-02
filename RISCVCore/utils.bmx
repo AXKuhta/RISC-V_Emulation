@@ -1,3 +1,4 @@
+Import BRL.Retro
 
 ' Read a little-endian 32 bit value
 Function ReadMemory32LE:Int(Addr:Byte Ptr)
@@ -41,4 +42,16 @@ Function SignExt:Long(Value:Long, Bits:Int)
 	Else
 		Return Value
 	End If
+End Function
+
+' Shortens hex strings by removing all the leading zeroes from the string
+Function Shorten:String(HexText:String)
+	Local CHR_0:Int = Asc("0")
+	Local i:Int = 0
+	
+	While (HexText[i] = CHR_0)
+		i :+ 1
+	Wend
+	
+	Return Mid(HexText, i + 1)
 End Function
