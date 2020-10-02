@@ -20,6 +20,23 @@ Function ReadMemory32:Int(Addr:Byte Ptr)
 	Return IntBE[0]
 End Function
 
+' Read a 64 bit value in little-endian order
+Function ReadMemory64BE:Long(Addr:Byte Ptr)
+	Local Value:Long = 0
+	Local ValueBytes:Byte Ptr = Varptr Value
+	
+	ValueBytes[7] = Addr[0]
+	ValueBytes[6] = Addr[1]
+	ValueBytes[5] = Addr[2]
+	ValueBytes[4] = Addr[3]
+	ValueBytes[3] = Addr[4]
+	ValueBytes[2] = Addr[5]
+	ValueBytes[1] = Addr[6]
+	ValueBytes[0] = Addr[7]
+		
+	Return Value
+End Function
+
 ' Write a 64 bit value in little-endian order
 Function WriteMemory64BE(Value:Long, Addr:Byte Ptr)
 	Local ValueBytes:Byte Ptr = Varptr Value

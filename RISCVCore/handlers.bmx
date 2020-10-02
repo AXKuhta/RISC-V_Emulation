@@ -21,6 +21,29 @@ Function ADDI_Handler(Insn:TInstruction, CPU:RV64i_core)
 	End If
 End Function
 
+' LD, aka Load Data (Full width)
+Function LD_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA ' Register with base address from where to load
+	Local Dest:Int = Insn.Destination ' Where to load
+		
+	' Calculate the target addr
+	Local Offset:Int = Insn.Argument12
+	Local Addr:Long = CPU.Registers[SrcA] + Offset
+	
+	If (Addr > CPU.MemorySize) Or (Addr < 0)
+		Print "Out of bounds read!"
+		Print "Offending address: 0x" + LongHex(Addr)
+	End If
+	
+	Local Value:Long = ReadMemory64BE(CPU.Memory + Addr)
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Value
+	End If
+End Function
+
+
 ' SD, aka Store Data (Full width)
 Function SD_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA ' Register with address where to store

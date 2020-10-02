@@ -67,8 +67,8 @@ Const ALU_OR = %110
 Const ALU_AND = %111
 
 ' Memory access opcodes
-Const OP_SD = $23
 Const OP_LD = $03
+Const OP_SD = $23
 
 ' Call opcodes
 Const OP_JAL = $6F

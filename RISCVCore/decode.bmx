@@ -14,9 +14,14 @@ Function Log_LUI(InstructionName:String, Insn:TInstruction)
 	Print InstructionName + " " + register_name(Insn.Destination) + ", 0x" + Shorten(Hex(Insn.LUI_Argument20))
 End Function
 
+' Logs LD instructions
+Function Log_LD(InstructionName:String, Insn:TInstruction)
+	Print InstructionName + " " + register_name(Insn.Destination) + ", " + Insn.Argument12 + "(" + register_name(Insn.SourceA) + ")"
+End Function
+
 ' Logs SD instructions
 Function Log_SD(InstructionName:String, Insn:TInstruction)
-	Print InstructionName + " " + register_name(Insn.SourceB) + ", (" + Insn.SD_Argument12 + ")" + register_name(Insn.SourceA)
+	Print InstructionName + " " + register_name(Insn.SourceB) + ", " + Insn.SD_Argument12 + "(" + register_name(Insn.SourceA) + ")"
 End Function
 
 ' Logs Jump And Link instructions
@@ -76,7 +81,7 @@ Function Decode(Insn:TInstruction)
 			' =================================
 			Insn.Handler = LUI_Handler
 			Log_LUI("LUI", Insn)
-			' =================================
+			
 			
 	
 		Case OP_ALU_AxR
@@ -104,21 +109,46 @@ Function Decode(Insn:TInstruction)
 				Return 0
 				
 			End Select
+		
+		
+		Case OP_LD
+			' Load operation
 			' =================================
-			
+			' Check the load width
+			Select Insn.Funct3
+				Case %000
+					Log_LD("LB", Insn)
+					Return 0
+				Case %001
+					Log_LD("LH", Insn)
+					Return 0
+				Case %010
+					Log_LD("LW", Insn)
+					Return 0
+				Case %011
+					Insn.Handler = LD_Handler
+					Log_LD("LD", Insn)
+				
+				Default
+					Print "Unacceptable load width"
+					Return 0
+
+			End Select
+		
+		
 		Case OP_SD
 			' Store operation
 			' =================================
 			' Check the store width
 			Select Insn.Funct3
 				Case %000
-					Log_SD("SDB", Insn)
+					Log_SD("SB", Insn)
 					Return 0
 				Case %001
-					Log_SD("SDS", Insn)
+					Log_SD("SH", Insn)
 					Return 0
 				Case %010
-					Log_SD("SDW", Insn)
+					Log_SD("SW", Insn)
 					Return 0
 				Case %011
 					Insn.Handler = SD_Handler
@@ -129,14 +159,14 @@ Function Decode(Insn:TInstruction)
 					Return 0
 				
 			End Select
-			' =================================
+			
 			
 		Case OP_JAL
 			' Jump And Link operation
 			' =================================
 			Insn.Handler = JAL_Handler
 			Log_JAL("JAL", Insn)
-			' =================================
+			
 
 		
 		Default
