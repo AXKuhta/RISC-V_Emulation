@@ -46,16 +46,22 @@ Print "~r~n~r~n"
 Print "Starting the Fetch-Decode-Execute now!"
 Print "======================================"
 
-Local Status:Int
+' Jump notification system
+Local PreviousPC:Long
+Local JumpWarning:String = "[e]"
+
 Local Insn:TInstruction
+Local Status:Int
+
 
 ' Main loop (No support for translation blocks/handler chaining yet)
 While True
 	' Print the address
-	WriteStdout("0x" + Shorten(LongHex(CPU.PC)) + " : ")
+	WriteStdout("0x" + Shorten(LongHex(CPU.PC)) + " : " + JumpWarning + " : ")
 
 	' Fetch
 	Insn = Fetch(CPU)
+	PreviousPC = CPU.PC
 	CPU.PC :+ 4
 	
 	' Decode
@@ -68,6 +74,13 @@ While True
 	
 	' Execute
 	Insn.Handler(Insn, CPU)
+	
+	' Check if PC is intact
+	If (PreviousPC + 4 = CPU.PC)
+		JumpWarning = "[ ]"
+	Else
+		JumpWarning = "[x]"
+	End If
 Wend
 
 Input("Press enter to exit")
