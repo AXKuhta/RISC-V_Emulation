@@ -68,9 +68,6 @@ While True
 	
 	' Execute
 	Insn.Handler(Insn, CPU)
-	
-	' Wait for enter key
-	Input("")	
 Wend
 
 Input("Press enter to exit")

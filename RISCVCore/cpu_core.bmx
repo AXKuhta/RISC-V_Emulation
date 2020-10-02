@@ -23,6 +23,8 @@ Function CheckAddress(Addr:Long, CPU:RV64i_core)
 	If (Addr > CPU.MemorySize) Or (Addr < 0)
 		Print "Out of bounds memory access!"
 		Print "Offending address: 0x" + LongHex(Addr)
+		
+		Input "(Press Enter to continue)"
 	End If
 End Function
 
