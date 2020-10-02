@@ -57,6 +57,9 @@ End Function
 Const OP_ALU_AxR = $13
 Const OP_ALU_RxR = $33
 
+Const OP_ALU_AxR_32BIT = $1B
+
+
 ' ALU operations
 '
 Const ALU_ADD = %000

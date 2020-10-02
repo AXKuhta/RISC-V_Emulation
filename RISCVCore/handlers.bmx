@@ -21,6 +21,20 @@ Function ADDI_Handler(Insn:TInstruction, CPU:RV64i_core)
 	End If
 End Function
 
+' ADDIW, aka ADD Immediate (`Argument12`) and 32 bit sign extend
+Function ADDIW_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local Dest:Int = Insn.Destination
+	Local SrcA:Int = Insn.SourceA
+	
+	Local Arg:Long = Insn.Argument12
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = SignExt(CPU.Registers[SrcA] + Arg, 32)
+	End If
+End Function
+
+
 ' Load Data Instructions
 ' ======================================================================
 ' LW, aka Load Data (32 bit)
