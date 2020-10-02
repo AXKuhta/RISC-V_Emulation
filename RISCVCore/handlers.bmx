@@ -56,7 +56,7 @@ Function SD_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Offset:Int = Insn.SD_Argument12
 	Local Addr:Long = CPU.Registers[SrcA] + Offset
 	
-	If Addr > CPU.MemorySize
+	If (Addr > CPU.MemorySize) Or (Addr < 0)
 		Print "Out of bounds write!"
 		Print "Offending address: 0x" + LongHex(Addr)
 	End If
