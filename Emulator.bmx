@@ -40,6 +40,9 @@ CPU.Registers[2] = 8 * 1024 * 1024
 ' Also store the entry point
 CPU.PC = LoadELF(ELFFile, CPU.Memory)
 
+' Hack for vmlinux
+CPU.PC = 0
+
 ' Close the ELF file now
 CloseFile(ELFFile)
 
