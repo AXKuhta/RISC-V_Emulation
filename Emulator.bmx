@@ -83,4 +83,34 @@ While True
 	End If
 Wend
 
+Print "Providing the screen dump..."
+
+ShowScreen(CPU)
+
 Input("Press enter to exit")
+
+
+' Shows a 80x25 screendump directly in the terminal
+Function ShowScreen(CPU:RV64i_core)
+	Local SCREEN_BASE:Int = $8B00
+	Local Character:String
+	
+	' Return the cursor
+	Print ""
+
+	For Local j:Int = 0 To 25
+		For Local i:Int = 0 To 80
+			Character = Chr(CPU.Memory[SCREEN_BASE + 80*j + i])
+			
+			Select Character
+				Case "~0"
+					WriteStdout("-")
+				Case "~n"
+					WriteStdout("-")
+				
+				Default
+					WriteStdout(Character)
+			End Select
+		Next
+	Next
+End Function
