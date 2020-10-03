@@ -128,6 +128,41 @@ End Function
 
 ' Store Data Instructions
 ' ======================================================================
+' SB, aka Store Data (8 bit)
+Function SB_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA ' Register with address where to store
+	Local SrcB:Int = Insn.SourceB ' Register to store
+	
+	' Get the value (lower bits)
+	Local Value:Byte = Byte(CPU.Registers[SrcB])
+	
+	' Calculate the target addr
+	Local Offset:Int = Insn.SD_Argument12
+	Local Addr:Long = CPU.Registers[SrcA] + Offset
+	
+	CheckAddress(Addr, CPU)
+	
+	' We can store 8 bits directly
+	CPU.Memory[Addr] = Value
+End Function
+
+' SH, aka Store Data (16 bit)
+Function SH_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA ' Register with address where to store
+	Local SrcB:Int = Insn.SourceB ' Register to store
+	
+	' Get the value (lower bits)
+	Local Value:Short = Short(CPU.Registers[SrcB])
+	
+	' Calculate the target addr
+	Local Offset:Int = Insn.SD_Argument12
+	Local Addr:Long = CPU.Registers[SrcA] + Offset
+	
+	CheckAddress(Addr, CPU)
+	
+	WriteMemory16LE(Value, CPU.Memory + Addr)
+End Function
+
 ' SW, aka Store Data (32 bit)
 Function SW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA ' Register with address where to store
@@ -244,6 +279,22 @@ Function BGE_Handler(Insn:TInstruction, CPU:RV64i_core)
 	CheckAddress(Addr, CPU)
 	
 	If CPU.Registers[SrcA] >= CPU.Registers[SrcB]
+		CPU.PC = Addr
+	End If
+End Function
+
+' BLT, aka Branch If Less Than
+Function BLT_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	
+	' The address has to be calculated from the unadjusted PC
+	' But we already made it point to the next instruction, so we have to subtract 4
+	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
+	
+	CheckAddress(Addr, CPU)
+	
+	If CPU.Registers[SrcA] < CPU.Registers[SrcB]
 		CPU.PC = Addr
 	End If
 End Function
