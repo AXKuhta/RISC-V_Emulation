@@ -196,11 +196,11 @@ Function Decode(Insn:TInstruction)
 			' Check the store width
 			Select Insn.Funct3
 				Case %000
+					Insn.Handler = SB_Handler
 					Log_SD("SB", Insn)
-					Return 0
 				Case %001
+					Insn.Handler = SH_Handler
 					Log_SD("SH", Insn)
-					Return 0
 				Case %010
 					Insn.Handler = SW_Handler
 					Log_SD("SW", Insn)
