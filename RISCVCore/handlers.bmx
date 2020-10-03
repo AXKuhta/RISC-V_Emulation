@@ -390,3 +390,21 @@ Function BNE_Handler(Insn:TInstruction, CPU:RV64i_core)
 	End If
 End Function
 ' ======================================================================
+
+
+' Control and Status Registers Read/Write
+' ======================================================================
+Function CSRW_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local TargetCSR:Int = Insn.CSR_Argument12
+	Local SrcA:Int = Insn.SourceA
+	Local Dest:Int = Insn.Destination
+
+	' We must only read the CSR if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = CPU.CSR[TargetCSR]
+	End If
+	
+	' We then overwrite the CSR
+	CPU.CSR[TargetCSR] = CPU.Registers[SrcA]
+End Function
+' ======================================================================

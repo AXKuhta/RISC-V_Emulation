@@ -10,6 +10,9 @@ Type RV64i_core
 	' Additional Program Counter register
 	Field PC:Long
 	
+	' Control and Status registers
+	Field CSR:Long[1024]
+	
 	' Memory pointer
 	Field Memory:Byte Ptr
 	

@@ -51,6 +51,17 @@ Function Log_BR(InstructionName:String, Insn:TInstruction)
 	Print InstructionName + " " + register_name(Insn.SourceA) + ", " + register_name(Insn.SourceB) + ", " + Insn.BR_Argument
 End Function
 
+' Logs `register <- CSR <- register` operations
+Function Log_RxR_CSR(InstructionName:String, Insn:TInstruction)
+	Print InstructionName + " " + register_name(Insn.Destination) + ", " + Insn.CSR_Argument12 + ", " + register_name(Insn.SourceA)
+End Function
+
+' Logs `register <- CSR <- argument` operations
+Function Log_AxR_CSR(InstructionName:String, Insn:TInstruction)
+	Print InstructionName + " " + register_name(Insn.Destination) + ", " + Insn.CSR_Argument12 + ", " + Insn.SourceA
+End Function
+
+
 
 ' Pretty masks
 Const OP_MASK:Int = 		 %00000000000000000000000001111111
@@ -90,6 +101,7 @@ Function Decode(Insn:TInstruction)
 
 	Insn.Argument12 = (Insn.Entire & $FFF00000) Shr 20
 	Insn.SD_Argument12 = (Insn.Funct7 Shl 5) | Insn.Destination
+	Insn.CSR_Argument12 = Insn.Argument12
 	Insn.LUI_Argument20 = (Insn.Entire & $FFFFF000) Shr 12
 	
 	Insn.Argument12 = SignExt(Insn.Argument12, 12)
@@ -331,6 +343,38 @@ Function Decode(Insn:TInstruction)
 			
 				Default
 					Print "Unacceptable branch type width"
+					Return 0
+					
+			End Select
+			
+		
+		Case OP_CSR
+			' CSR register read/write
+			' =================================
+			' Check for the operation type
+			Select Insn.Funct3
+				Case CSR_RW
+					Insn.Handler = CSRW_Handler
+					Log_RxR_CSR("CSRW", Insn)
+				Case CSR_RS
+					Log_RxR_CSR("CSRS", Insn)
+					Return 0
+				Case CSR_RC
+					Log_RxR_CSR("CSRC", Insn)
+					Return 0
+					
+				Case CSR_RWI
+					Log_RxR_CSR("CSRWI", Insn)
+					Return 0
+				Case CSR_RSI
+					Log_RxR_CSR("CSRSI", Insn)
+					Return 0
+				Case CSR_RCI
+					Log_RxR_CSR("CSRCI", Insn)
+					Return 0
+				
+				Default
+					Print "Unacceptable type of CSR instruction"
 					Return 0
 					
 			End Select

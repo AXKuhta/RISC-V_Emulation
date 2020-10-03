@@ -19,8 +19,9 @@ Type TInstruction
 	Field LUI_Argument20:Int ' 20 bit argument for LUI/AUIPC; combo of Funct7 + SrcB + SrcA + Funct3
 	Field JAL_Argument20:Int ' 21 bit with different encoding;
 	
-	Field SD_Argument12:Int ' 12 argument for SD; combo of Funct7 + Dest
 	Field Argument12:Int ' 12 bit argument; combo of Funct7 + SrcB
+	Field CSR_Argument12:Int ' 12 bit argument, not sign extented
+	Field SD_Argument12:Int ' 12 argument for SD; combo of Funct7 + Dest
 	Field BR_Argument:Int ' 13 bit with different encoding
 	
 	' Special encoding for shifts unique to RV64
@@ -124,3 +125,15 @@ Const BR_BLTU = %110
 Const BR_BGEU = %111
 '=======================================
 
+
+' Control and Status registers read/write
+'=========================================
+Const OP_CSR = $73
+
+Const CSR_RW = %001
+Const CSR_RS = %010
+Const CSR_RC = %011
+Const CSR_RWI = %101
+Const CSR_RSI = %110
+Const CSR_RCI = %110
+'=========================================
