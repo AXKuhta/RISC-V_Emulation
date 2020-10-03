@@ -399,14 +399,16 @@ Function CSRRW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local TargetCSR:Int = Insn.CSR_Argument12
 	Local SrcA:Int = Insn.SourceA
 	Local Dest:Int = Insn.Destination
-
+	
+	Local Value:Byte = CPU.Registers[SrcA]
+	
 	' We must only read the CSR if the destination is not the `zero`
 	If Dest
 		CPU.Registers[Dest] = CPU.CSR[TargetCSR]
 	End If
 	
 	' We then overwrite the CSR
-	CPU.CSR[TargetCSR] = CPU.Registers[SrcA]
+	CPU.CSR[TargetCSR] = Value
 End Function
 
 ' CSR Save into register and [logical OR with register]
@@ -415,7 +417,7 @@ Function CSRRS_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
 	Local Dest:Int = Insn.Destination
 
-	Local Value:Long = CPU.Registers[Insn.SourceA]
+	Local Value:Byte = CPU.Registers[Insn.SourceA]
 
 	' Spec says we must always read the CSR with this instruction
 	' But doing so would taint our `zero` register
@@ -438,7 +440,7 @@ Function CSRRWI_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Dest:Int = Insn.Destination
 	
 	' The value to load is stored in the SourceA field
-	Local Value:Long = Insn.SourceA
+	Local Value:Byte = Insn.SourceA
 
 	' We must only read the CSR if the destination is not the `zero`
 	If Dest

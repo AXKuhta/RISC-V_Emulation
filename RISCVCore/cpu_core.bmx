@@ -11,7 +11,7 @@ Type RV64i_core
 	Field PC:Long
 	
 	' Control and Status registers
-	Field CSR:Long[1024]
+	Field CSR:Byte[1024]
 	
 	' Memory pointer
 	Field Memory:Byte Ptr
