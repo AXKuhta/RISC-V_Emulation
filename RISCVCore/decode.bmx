@@ -61,6 +61,12 @@ Function Log_AxR_CSR(InstructionName:String, Insn:TInstruction)
 	Print InstructionName + " " + register_name(Insn.Destination) + ", " + Insn.CSR_Argument12 + ", " + Insn.SourceA
 End Function
 
+' Logs FENCE instructions
+' Dummy log
+Function Log_FENCE(InstructionName:String, Insn:TInstruction)
+	Print InstructionName
+End Function
+
 
 
 ' Pretty masks
@@ -378,6 +384,14 @@ Function Decode(Insn:TInstruction)
 					Return 0
 					
 			End Select
+			
+			
+		Case OP_FENCE
+			' Multiprocessor synchronization?
+			' =================================
+			' Dummy handler for now
+			Insn.Handler = FENCE_Handler
+			Log_FENCE("FENCE", Insn)
 
 		
 		Default

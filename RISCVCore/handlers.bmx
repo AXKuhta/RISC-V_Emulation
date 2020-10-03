@@ -408,3 +408,13 @@ Function CSRW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	CPU.CSR[TargetCSR] = CPU.Registers[SrcA]
 End Function
 ' ======================================================================
+
+
+' Multiprocessor synchronization
+' ======================================================================
+' Dummy handler for now
+Function FENCE_Handler(Insn:TInstruction, CPU:RV64i_core)
+
+End Function
+' ======================================================================
+

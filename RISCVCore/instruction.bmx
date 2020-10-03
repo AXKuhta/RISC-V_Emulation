@@ -137,3 +137,9 @@ Const CSR_RWI = %101
 Const CSR_RSI = %110
 Const CSR_RCI = %110
 '=========================================
+
+
+' Multiprocessor / IO synchronization
+'=========================================
+Const OP_FENCE = $0F
+'=========================================
