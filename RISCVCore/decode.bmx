@@ -363,8 +363,8 @@ Function Decode(Insn:TInstruction)
 					Insn.Handler = CSRRW_Handler
 					Log_RxR_CSR("CSRRW", Insn)
 				Case CSR_RS
+					Insn.Handler = CSRRS_Handler
 					Log_RxR_CSR("CSRRS", Insn)
-					Return 0
 				Case CSR_RC
 					Log_RxR_CSR("CSRRC", Insn)
 					Return 0
