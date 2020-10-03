@@ -370,13 +370,13 @@ Function Decode(Insn:TInstruction)
 					Return 0
 					
 				Case CSR_RWI
-					Log_RxR_CSR("CSRWI", Insn)
-					Return 0
+					Insn.Handler = CSRWI_Handler
+					Log_AxR_CSR("CSRWI", Insn)
 				Case CSR_RSI
-					Log_RxR_CSR("CSRSI", Insn)
+					Log_AxR_CSR("CSRSI", Insn)
 					Return 0
 				Case CSR_RCI
-					Log_RxR_CSR("CSRCI", Insn)
+					Log_AxR_CSR("CSRCI", Insn)
 					Return 0
 				
 				Default

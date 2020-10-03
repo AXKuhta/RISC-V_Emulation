@@ -394,6 +394,7 @@ End Function
 
 ' Control and Status Registers Read/Write
 ' ======================================================================
+' CSR [Save into register] and load from register
 Function CSRW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local TargetCSR:Int = Insn.CSR_Argument12
 	Local SrcA:Int = Insn.SourceA
@@ -406,6 +407,24 @@ Function CSRW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	' We then overwrite the CSR
 	CPU.CSR[TargetCSR] = CPU.Registers[SrcA]
+End Function
+
+' CSR [Save into register] and load from argument
+Function CSRWI_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local TargetCSR:Int = Insn.CSR_Argument12
+	Local SrcA:Int = Insn.SourceA
+	Local Dest:Int = Insn.Destination
+	
+	' The value to load is stored in the SourceA field
+	Local Value:Long = Insn.SourceA
+
+	' We must only read the CSR if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = CPU.CSR[TargetCSR]
+	End If
+	
+	' We then overwrite the CSR
+	CPU.CSR[TargetCSR] = Value
 End Function
 ' ======================================================================
 
