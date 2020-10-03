@@ -40,8 +40,14 @@ CPU.Registers[2] = 8 * 1024 * 1024
 ' Also store the entry point
 CPU.PC = LoadELF(ELFFile, CPU.Memory)
 
-' Hack for vmlinux
-CPU.PC = 0
+' Check for invalid entry point info
+' Attempt to execute from 0x0 if invalid
+' Required to run `vmlinux`
+If CPU.PC > CPU.MemorySize
+	Print "Invalid entry point: 0x" + Shorten(LongHex(CPU.PC))
+	Print "Will start execution from 0x0"
+	CPU.PC = 0
+End If
 
 ' Close the ELF file now
 CloseFile(ELFFile)
