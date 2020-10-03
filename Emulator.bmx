@@ -1,5 +1,6 @@
 Framework BRL.StandardIO
 Import BRL.Retro
+Import BRL.GLMax2D
 
 Import "ELFLoader/elfloader.bmx"
 Import "RISCVCore/utils.bmx"
@@ -42,6 +43,10 @@ CPU.PC = LoadELF(ELFFile, CPU.Memory)
 ' Close the ELF file now
 CloseFile(ELFFile)
 
+
+' Graphics startup
+Graphics 80*10, 25*10
+
 Print "~r~n~r~n"
 Print "Starting the Fetch-Decode-Execute now!"
 Print "======================================"
@@ -81,35 +86,35 @@ While True
 	Else
 		JumpWarning = "[x]"
 	End If
+	
+	' Graphics
+	Cls
+	
+	ShowScreen(CPU)
+	
+	Flip
 Wend
-
-Print "Providing the screen dump..."
-
-ShowScreen(CPU)
 
 Input("Press enter to exit")
 
 
-' Shows a 80x25 screendump directly in the terminal
+' Draw a 80x25 screendump
 Function ShowScreen(CPU:RV64i_core)
 	Local SCREEN_BASE:Int = $8B00
 	Local Character:String
 	
-	' Return the cursor
-	Print ""
-
 	For Local j:Int = 0 To 25
 		For Local i:Int = 0 To 80
 			Character = Chr(CPU.Memory[SCREEN_BASE + 80*j + i])
 			
 			Select Character
 				Case "~0"
-					WriteStdout("-")
+					Continue
 				Case "~n"
-					WriteStdout("-")
+					Continue
 				
 				Default
-					WriteStdout(Character)
+					DrawText Character, i*10, j*10
 			End Select
 		Next
 	Next
