@@ -129,6 +129,14 @@ Function Decode(Insn:TInstruction)
 			Insn.Handler = LUI_Handler
 			Log_LUI("LUI", Insn)
 			
+		Case OP_AUIPC
+			' Add Uppper Immediate to PC
+			' (And store into a register)
+			' =================================
+			Insn.Handler = AUIPC_Handler
+			Log_LUI("AUIPC", Insn)
+			
+			
 		Case OP_ALU_RxR
 			' Register + Register operation
 			' =================================

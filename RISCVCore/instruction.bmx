@@ -110,6 +110,7 @@ Const OP_JALR = $67
 ' Value-building opcodes
 '=======================================
 Const OP_LUI = $37
+Const OP_AUIPC = $17
 '=======================================
 
 

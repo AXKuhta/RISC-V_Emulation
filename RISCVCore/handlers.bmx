@@ -299,6 +299,8 @@ End Function
 ' ======================================================================
 
 
+' Address Building Instructions
+' ======================================================================
 ' LUI, aka Load Upper Immediate, aka load value into upper bits of the register
 Function LUI_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Dest:Int = Insn.Destination
@@ -316,6 +318,31 @@ Function LUI_Handler(Insn:TInstruction, CPU:RV64i_core)
 		CPU.Registers[Dest] = Result
 	End If
 End Function
+
+' AUIPC, aka Add Upper Immediate and PC (and store the result into a register)
+Function AUIPC_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local Dest:Int = Insn.Destination
+	
+	Local Result:Long = 0
+	Local Zero:Int = 0
+	Local Arg:Int = Insn.LUI_Argument20
+	Local LongArg:Long = 0
+	
+	' Shift higher, will zero-extend
+	Arg :Shl 12
+	
+	' Sign-extension to 64 bits is required
+	LongArg = SignExt(Arg, 32)
+	
+	' Extended Immediate + PC
+	Result = LongArg + CPU.PC
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Result
+	End If
+End Function
+' ======================================================================
 
 
 ' Call and Ret Instructions
