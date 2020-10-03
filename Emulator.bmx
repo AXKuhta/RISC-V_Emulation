@@ -92,6 +92,9 @@ While True
 	
 	ShowScreen(CPU)
 	
+	' By default Flip will limit the main loop to 60 Hz (Or whatever the monitor refresh rate is)
+	' You can disable than by passing 0 as an argument
+	' But we'll leave it at 60 Hz for now for the aesthetic value
 	Flip
 Wend
 
