@@ -34,6 +34,34 @@ Function ADDIW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	End If
 End Function
 
+' Bit shifts
+' ======================================================================
+' Shift Right Logical Immediate
+Function SRLI_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local Dest:Int = Insn.Destination
+	Local SrcA:Int = Insn.SourceA
+	
+	Local Amount:Int = Insn.AxR_Shift_Amount
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = CPU.Registers[SrcA] Shr Amount
+	End If
+End Function
+
+' Shift Left Logical Immediate
+Function SLLI_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local Dest:Int = Insn.Destination
+	Local SrcA:Int = Insn.SourceA
+	
+	Local Amount:Int = Insn.AxR_Shift_Amount
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = CPU.Registers[SrcA] Shl Amount
+	End If
+End Function
+' ======================================================================
 
 ' Load Data Instructions
 ' ======================================================================

@@ -23,6 +23,10 @@ Type TInstruction
 	Field Argument12:Int ' 12 bit argument; combo of Funct7 + SrcB
 	Field BR_Argument:Int ' 13 bit with different encoding
 	
+	' Special encoding for shifts unique to RV64
+	Field AxR_Shift_Mode:Int ' 6 bit
+	Field AxR_Shift_Amount:Int ' 6 bit
+	
 	' ========== Proposal ==========
 	' RISC-V encoding is super messy
 	' I propose a rework:

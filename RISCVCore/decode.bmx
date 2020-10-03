@@ -11,6 +11,11 @@ Function Log_AxR(InstructionName:String, Insn:TInstruction)
 	Print InstructionName + " " + register_name(Insn.Destination) + ", " + register_name(Insn.SourceA) + ", " + Insn.Argument12
 End Function
 
+' Logs Argument+Register Shift instructions
+Function Log_AxR_Shift(InstructionName:String, Insn:TInstruction)
+	Print InstructionName + " " + register_name(Insn.Destination) + ", " + register_name(Insn.SourceA) + ", " + Insn.AxR_Shift_Amount
+End Function
+
 ' Logs LUI instructions
 Function Log_LUI(InstructionName:String, Insn:TInstruction)
 	Print InstructionName + " " + register_name(Insn.Destination) + ", 0x" + Shorten(Hex(Insn.LUI_Argument20))
@@ -87,6 +92,9 @@ Function Decode(Insn:TInstruction)
 	
 	Insn.JAL_Argument20 = DecodeJALArgument(Insn.LUI_Argument20)
 	Insn.BR_Argument = DecodeBranchArgument(Insn.Entire)
+	
+	Insn.AxR_Shift_Mode = Insn.Funct7 Shr 1
+	Insn.AxR_Shift_Amount = (Insn.Entire & $03F00000) Shr 20
 	' ==========================================================
 	
 	
@@ -126,14 +134,27 @@ Function Decode(Insn:TInstruction)
 					Log_AxR("SLTIU", Insn)
 					Return 0
 				
-				'Case ALU_SLL
-				'	Log_AShift("SLLI", Insn)
-				'	Return 0
-				'	
-				'Case ALU_SRL, ALU_SRA
-				'	Log_AShift("SRLI/SRAI", Insn)
-				'	Return 0
-				
+				Case ALU_SLL
+					Insn.Handler = SLLI_Handler
+					Log_AxR_Shift("SLLI", Insn)
+					
+				Case ALU_SRL, ALU_SRA
+					' Check the type of shift
+					' Logical / Arithmetic
+					Select Insn.AxR_Shift_Mode
+						Case %000000
+							Insn.Handler = SRLI_Handler
+							Log_AxR_Shift("SRLI", Insn)
+						Case %010000
+							Log_AxR_Shift("SRAI", Insn)
+							Return 0
+						
+						Default
+							Print "Unacceptable type of shift"
+							Return 0
+							
+					End Select
+							
 				
 			Default
 				Print "Unacceptable type of Argument+Register ALU instruction"
