@@ -360,23 +360,23 @@ Function Decode(Insn:TInstruction)
 			' Check for the operation type
 			Select Insn.Funct3
 				Case CSR_RW
-					Insn.Handler = CSRW_Handler
-					Log_RxR_CSR("CSRW", Insn)
+					Insn.Handler = CSRRW_Handler
+					Log_RxR_CSR("CSRRW", Insn)
 				Case CSR_RS
-					Log_RxR_CSR("CSRS", Insn)
+					Log_RxR_CSR("CSRRS", Insn)
 					Return 0
 				Case CSR_RC
-					Log_RxR_CSR("CSRC", Insn)
+					Log_RxR_CSR("CSRRC", Insn)
 					Return 0
 					
 				Case CSR_RWI
-					Insn.Handler = CSRWI_Handler
-					Log_AxR_CSR("CSRWI", Insn)
+					Insn.Handler = CSRRWI_Handler
+					Log_AxR_CSR("CSRRWI", Insn)
 				Case CSR_RSI
-					Log_AxR_CSR("CSRSI", Insn)
+					Log_AxR_CSR("CSRRSI", Insn)
 					Return 0
 				Case CSR_RCI
-					Log_AxR_CSR("CSRCI", Insn)
+					Log_AxR_CSR("CSRRCI", Insn)
 					Return 0
 				
 				Default

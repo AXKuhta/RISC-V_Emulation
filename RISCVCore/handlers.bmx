@@ -395,7 +395,7 @@ End Function
 ' Control and Status Registers Read/Write
 ' ======================================================================
 ' CSR [Save into register] and load from register
-Function CSRW_Handler(Insn:TInstruction, CPU:RV64i_core)
+Function CSRRW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local TargetCSR:Int = Insn.CSR_Argument12
 	Local SrcA:Int = Insn.SourceA
 	Local Dest:Int = Insn.Destination
@@ -410,7 +410,7 @@ Function CSRW_Handler(Insn:TInstruction, CPU:RV64i_core)
 End Function
 
 ' CSR [Save into register] and load from argument
-Function CSRWI_Handler(Insn:TInstruction, CPU:RV64i_core)
+Function CSRRWI_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local TargetCSR:Int = Insn.CSR_Argument12
 	Local SrcA:Int = Insn.SourceA
 	Local Dest:Int = Insn.Destination
