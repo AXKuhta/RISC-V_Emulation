@@ -61,6 +61,47 @@ Function ADDIW_Handler(Insn:TInstruction, CPU:RV64i_core)
 		CPU.Registers[Dest] = SignExt(CPU.Registers[SrcA] + Arg, 32)
 	End If
 End Function
+
+' XORI, aka logical XOR Immediate (`Argument12`)
+' TODO: xor -1 should perform inversion
+' Check if that's actually the case with BlitzMax
+Function XORI_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local Dest:Int = Insn.Destination
+	Local SrcA:Int = Insn.SourceA
+	
+	Local Arg:Long = Insn.Argument12
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = CPU.Registers[SrcA] ~ Arg	
+	End If
+End Function
+
+' ORI, aka logical OR Immediate (`Argument12`)
+Function ORI_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local Dest:Int = Insn.Destination
+	Local SrcA:Int = Insn.SourceA
+	
+	Local Arg:Long = Insn.Argument12
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = CPU.Registers[SrcA] | Arg	
+	End If
+End Function
+
+' ANDI, aka logical AND Immediate (`Argument12`)
+Function ANDI_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local Dest:Int = Insn.Destination
+	Local SrcA:Int = Insn.SourceA
+	
+	Local Arg:Long = Insn.Argument12
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = CPU.Registers[SrcA] & Arg	
+	End If
+End Function
 ' ======================================================================
 
 

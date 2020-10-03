@@ -191,14 +191,14 @@ Function Decode(Insn:TInstruction)
 					Log_AxR("ADDI", Insn)
 					
 				Case ALU_XOR
+					Insn.Handler = XORI_Handler
 					Log_AxR("XORI", Insn)
-					Return 0
 				Case ALU_OR
+					Insn.Handler = ORI_Handler
 					Log_AxR("ORI", Insn)
-					Return 0
 				Case ALU_AND
+					Insn.Handler = ANDI_Handler
 					Log_AxR("ANDI", Insn)
-					Return 0
 					
 				Case ALU_SLT
 					Log_AxR("SLTI", Insn)
