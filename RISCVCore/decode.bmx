@@ -3,6 +3,8 @@ Import BRL.Retro
 Import "instruction.bmx"
 Import "handlers.bmx"
 
+' TODO: Move the InstuctionName selection into the Log_###() functions themselves
+' Would allow us to detect and print pseudoinstructions like `ret` and `sext`
 
 ' Logs Argument+Register instructions
 Function Log_AxR(InstructionName:String, Insn:TInstruction)
@@ -27,6 +29,11 @@ End Function
 ' Logs Jump And Link instructions
 Function Log_JAL(InstructionName:String, Insn:TInstruction)
 	Print InstructionName + " " + register_name(Insn.Destination) + ", offset " + Insn.JAL_Argument20
+End Function
+
+' Logs Jump And Link Register instructions
+Function Log_JALR(InstructionName:String, Insn:TInstruction)
+	Print InstructionName + " " + register_name(Insn.Destination) + ", addr (" + register_name(Insn.SourceA) + " + " + Insn.Argument12 + ")"
 End Function
 
 ' Logs BR Conditional Branch instructions
@@ -213,6 +220,13 @@ Function Decode(Insn:TInstruction)
 			' =================================
 			Insn.Handler = JAL_Handler
 			Log_JAL("JAL", Insn)
+			
+			
+		Case OP_JALR
+			' Register Jump And Link operation
+			' =================================
+			Insn.Handler = JALR_Handler
+			Log_JALR("JALR", Insn)
 			
 			
 		Case OP_BRANCH

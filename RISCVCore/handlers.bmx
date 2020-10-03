@@ -186,6 +186,7 @@ End Function
 ' Call and Ret Instructions
 ' ======================================================================
 ' JAL, aka Jump And Link
+' Offset based
 Function JAL_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Dest:Int = Insn.Destination
 	
@@ -194,6 +195,26 @@ Function JAL_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' The address has to be calculated from the unadjusted PC
 	' But we already made it point to the next instruction, so we have to subtract 4
 	Local Addr:Long = CPU.PC - 4 + Offset
+	
+	CheckAddress(Addr, CPU)
+		
+	' Only store PC if the destination is not the `zero`
+	' Thankfully the adjusted PC is useful here
+	If Dest
+		CPU.Registers[Dest] = CPU.PC
+	End If
+	
+	' Finally perform the jump itself
+	CPU.PC = Addr
+End Function
+
+' JAL, aka RET, aka Register Jump And Link 
+' Absolute based
+Function JALR_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local Dest:Int = Insn.Destination
+	
+	Local Addr:Long = CPU.Registers[SrcA] + Insn.Argument12
 	
 	CheckAddress(Addr, CPU)
 		

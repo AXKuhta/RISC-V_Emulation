@@ -28,6 +28,9 @@ Function CheckAddress(Addr:Long, CPU:RV64i_core)
 	End If
 End Function
 
+' TODO: When we convert the thing to proper object oriented style, with functions like CheckAddress() a method, we need to compare the performance with the old-style version
+' So please implement anything with high impact on performance, like Translation Blocks, BEFORE starting to cram functions into types
+
 '
 ' Naming convention:
 ' - Constants are in all caps
