@@ -94,9 +94,14 @@ End Function
 Function Shorten:String(HexText:String)
 	Local CHR_0:Int = Asc("0")
 	Local i:Int = 0
-	
+		
 	While (HexText[i] = CHR_0)
 		i :+ 1
+		
+		' If the entire string turned out to be made of zeroes, return a single zero
+		If i >= HexText.length
+			Return "0"
+		End If
 	Wend
 	
 	Return Mid(HexText, i + 1)
