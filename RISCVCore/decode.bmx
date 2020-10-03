@@ -235,8 +235,8 @@ Function Decode(Insn:TInstruction)
 			' Check the branch type
 			Select Insn.Funct3
 				Case BR_BEQ
+					Insn.Handler = BEQ_Handler
 					Log_BR("BEQ", Insn)
-					Return 0
 				Case BR_BNE
 					Insn.Handler = BNE_Handler
 					Log_BR("BNE", Insn)
