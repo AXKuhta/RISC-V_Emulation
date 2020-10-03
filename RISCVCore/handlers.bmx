@@ -8,6 +8,34 @@ Import "instruction.bmx"
 '
 
 
+' Register + Register ALU Operations
+' ======================================================================
+Function ADD_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = CPU.Registers[SrcA] + CPU.Registers[SrcB]
+	End If
+End Function
+
+Function SUB_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = CPU.Registers[SrcA] - CPU.Registers[SrcB]
+	End If
+End Function
+' ======================================================================
+
+
+' Argument + Register ALU Operations
+' ======================================================================
 ' ADDI, aka ADD Immediate (`Argument12`)
 Function ADDI_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Dest:Int = Insn.Destination
@@ -33,6 +61,8 @@ Function ADDIW_Handler(Insn:TInstruction, CPU:RV64i_core)
 		CPU.Registers[Dest] = SignExt(CPU.Registers[SrcA] + Arg, 32)
 	End If
 End Function
+' ======================================================================
+
 
 ' Bit shifts
 ' ======================================================================
@@ -62,6 +92,7 @@ Function SLLI_Handler(Insn:TInstruction, CPU:RV64i_core)
 	End If
 End Function
 ' ======================================================================
+
 
 ' Load Data Instructions
 ' ======================================================================

@@ -6,6 +6,11 @@ Import "handlers.bmx"
 ' TODO: Move the InstuctionName selection into the Log_###() functions themselves
 ' Would allow us to detect and print pseudoinstructions like `ret` and `sext`
 
+' Logs Register+Register instructions
+Function Log_RxR(InstructionName:String, Insn:TInstruction)
+	Print InstructionName + " " + register_name(Insn.Destination) + ", " + register_name(Insn.SourceA) + ", " + register_name(Insn.SourceB)
+End Function
+
 ' Logs Argument+Register instructions
 Function Log_AxR(InstructionName:String, Insn:TInstruction)
 	Print InstructionName + " " + register_name(Insn.Destination) + ", " + register_name(Insn.SourceA) + ", " + Insn.Argument12
@@ -106,7 +111,57 @@ Function Decode(Insn:TInstruction)
 			Insn.Handler = LUI_Handler
 			Log_LUI("LUI", Insn)
 			
-			
+		Case OP_ALU_RxR
+			' Register + Register operation
+			' =================================
+			' Check the operation type
+			Select Insn.Funct3
+				Case ALU_ADD, ALU_SUB
+					Select Insn.Funct7
+						Case %0000000
+							Insn.Handler = ADD_Handler
+							Log_RxR("ADD", Insn)
+							
+						Case %0100000
+							Insn.Handler = SUB_Handler
+							Log_RxR("SUB", Insn)
+						
+						Default
+							Print "Unacceptable type of ADD/SUB"
+							Return 0
+							
+					End Select
+					
+					
+				Case ALU_XOR
+					Log_RxR("XOR", Insn)
+					Return 0
+				Case ALU_OR
+					Log_RxR("OR", Insn)
+					Return 0
+				Case ALU_AND
+					Log_RxR("AND", Insn)
+					Return 0
+					
+				Case ALU_SLT
+					Log_RxR("SLT", Insn)
+					Return 0
+				Case ALU_SLTU
+					Log_RxR("SLTU", Insn)
+					Return 0
+				
+				Case ALU_SLL
+					Return 0
+					
+				Case ALU_SRL, ALU_SRA
+					Return 0							
+				
+			Default
+				Print "Unacceptable type of Register+Register ALU instruction"
+				Return 0
+				
+			End Select
+	
 	
 		Case OP_ALU_AxR
 			' Argument + Register operation
