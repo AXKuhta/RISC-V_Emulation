@@ -29,6 +29,12 @@ Function CheckAddress(Addr:Long, CPU:RV64i_core)
 		
 		Input "(Press Enter to continue)"
 	End If
+	
+	If (Addr = 0)
+		Print "Access to 0x0! Null pointer error?"
+		
+		Input "(Press Enter to continue)"
+	End If
 End Function
 
 ' TODO: When we convert the thing to proper object oriented style, with functions like CheckAddress() a method, we need to compare the performance with the old-style version
