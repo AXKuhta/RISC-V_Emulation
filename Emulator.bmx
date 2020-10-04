@@ -135,14 +135,14 @@ Input("Press enter to exit")
 
 ' Draw a 80x25 screendump
 Function ShowScreen(CPU:RV64i_core)
-	Local SCREEN_BASE:Int = $1DFE00
+	Local SCREEN_BASE:Int = $1C4460
 	Local Character:String
 	
-	DrawLine 0, 250, 800, 250
-	DrawLine 800, 0, 800, 250
+	DrawLine 0, 260, 800, 260
+	DrawLine 800, 0, 800, 260
 	
-	For Local j:Int = 0 To 25
-		For Local i:Int = 0 To 80
+	For Local j:Int = 0 To (25 - 1)
+		For Local i:Int = 0 To (80 - 1)
 			Character = Chr(CPU.Memory[SCREEN_BASE + 80*j + i])
 			
 			Select Character
