@@ -314,12 +314,12 @@ Function Decode(Insn:TInstruction)
 					
 				Case ALU_SLL
 					Log_AxR_Shift_32bit("SLLIW", Insn)
-					Return 0
+					Insn.Handler = SLLIW_Handler
 				Case ALU_SRL, ALU_SRA
 					Select Insn.Funct7
 						Case %0000000
+							Insn.Handler = SRLIW_Handler
 							Log_AxR_Shift_32bit("SRLIW", Insn)
-							Return 0
 						Case %0100000
 							Log_AxR_Shift_32bit("SRAIW", Insn)
 							Return 0

@@ -202,6 +202,44 @@ End Function
 ' ======================================================================
 
 
+' Bit shifts (32 bit)
+' ======================================================================
+' Shift Right Logical Immediate (32 bit)
+Function SRLIW_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local Dest:Int = Insn.Destination
+	Local SrcA:Int = Insn.SourceA
+	
+	' Amount is stored in the SourceB field
+	Local Amount:Int = Insn.SourceB
+	
+	' Calculate into ULong to prevent BlitzMax from sign-extending
+	Local Result:ULong = Int(CPU.Registers[SrcA]) Shr Amount
+		
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Result
+	End If
+End Function
+
+' Shift Left Logical Immediate (32 bit)
+Function SLLIW_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local Dest:Int = Insn.Destination
+	Local SrcA:Int = Insn.SourceA
+	
+	' Amount is stored in the SourceB field
+	Local Amount:Int = Insn.SourceB
+	
+	' Calculate into ULong to prevent BlitzMax from sign-extending
+	Local Result:ULong = Int(CPU.Registers[SrcA]) Shl Amount
+		
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Result
+	End If
+End Function
+' ======================================================================
+
+
 ' Load Data Instructions
 ' ======================================================================
 ' LBU, aka Load Data (8 bit)
