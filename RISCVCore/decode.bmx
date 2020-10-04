@@ -104,6 +104,7 @@ Function Decode(Insn:TInstruction)
 	' ==========================================================
 	' Some of these are expensive to calculate
 	' Calculate only on demand?
+	Insn.AMO_Funct5 = Insn.Funct7 Shr 2
 
 	Insn.Argument12 = (Insn.Entire & $FFF00000) Shr 20
 	Insn.SD_Argument12 = (Insn.Funct7 Shl 5) | Insn.Destination

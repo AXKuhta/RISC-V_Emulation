@@ -16,6 +16,8 @@ Type TInstruction
 	Field Funct7:Int
 	
 	' Optional combo-fields
+	Field AMO_Funct5:Int ' 5 bit options for Atomic Operations
+	
 	Field LUI_Argument20:Int ' 20 bit argument for LUI/AUIPC; combo of Funct7 + SrcB + SrcA + Funct3
 	Field JAL_Argument20:Int ' 21 bit with different encoding;
 	
