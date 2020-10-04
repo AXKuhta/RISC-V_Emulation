@@ -220,11 +220,11 @@ Function Decode(Insn:TInstruction)
 					Log_AxR("ANDI", Insn)
 					
 				Case ALU_SLT
+					Insn.Handler = SLTI_Handler
 					Log_AxR("SLTI", Insn)
-					Return 0
 				Case ALU_SLTU
+					Insn.Handler = SLTIU_Handler
 					Log_AxR("SLTIU", Insn)
-					Return 0
 				
 				Case ALU_SLL
 					Insn.Handler = SLLI_Handler

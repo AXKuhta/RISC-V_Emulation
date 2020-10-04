@@ -169,6 +169,39 @@ Function ANDI_Handler(Insn:TInstruction, CPU:RV64i_core)
 		CPU.Registers[Dest] = CPU.Registers[SrcA] & Arg	
 	End If
 End Function
+
+' SLTI, aka Set if Less Than Immediate (`Argument12`)
+Function SLTI_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local Dest:Int = Insn.Destination
+	Local SrcA:Int = Insn.SourceA
+	
+	Local Arg1:Long = CPU.Registers[SrcA]
+	Local Arg2:Long = Insn.Argument12
+	
+	Local Result:Int = 1 & (Arg1 < Arg2)
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Result	
+	End If
+End Function
+
+' SLTIU, aka Set if Less Than Immediate (`Argument12`) (unsigned)
+Function SLTIU_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local Dest:Int = Insn.Destination
+	Local SrcA:Int = Insn.SourceA
+	
+	' Note the cast to ULong
+	Local Arg1:ULong = CPU.Registers[SrcA]
+	Local Arg2:ULong = Insn.Argument12
+	
+	Local Result:Int = 1 & (Arg1 < Arg2)
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Result	
+	End If
+End Function
 ' ======================================================================
 
 
