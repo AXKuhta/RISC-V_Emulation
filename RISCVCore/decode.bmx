@@ -390,8 +390,8 @@ Function Decode(Insn:TInstruction)
 					Log_AxR_CSR("CSRRSI", Insn)
 					Return 0
 				Case CSR_RCI
+					Insn.Handler = CSRRCI_Handler
 					Log_AxR_CSR("CSRRCI", Insn)
-					Return 0
 				
 				Default
 					Print "Unacceptable type of CSR instruction"
