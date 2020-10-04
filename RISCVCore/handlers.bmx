@@ -548,5 +548,29 @@ End Function
 Function FENCE_Handler(Insn:TInstruction, CPU:RV64i_core)
 
 End Function
+
+' Atomic ADD (32 bit)
+' 1. Addr = SrcA
+' 2. Value = [Addr]
+' 3. rd = SignExt( Value, 32 )
+' 4. [Addr] = Value + SrcB
+Function AMOADD_W_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+
+	Local Addr:Long = CPU.Registers[SrcA]
+	
+	CheckAddress(Addr, CPU)
+	
+	Local Value:Long = ReadMemory32LE(CPU.Memory + Addr)
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = SignExt(Value, 32)
+	End If
+	
+	WriteMemory32LE(Int(Value + CPU.Registers[SrcB]), CPU.Memory + Addr)
+End Function
 ' ======================================================================
 
