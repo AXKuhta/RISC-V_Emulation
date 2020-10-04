@@ -1,90 +1,118 @@
 Import BRL.Retro
 
-' Read a 16 bit value in little-endian order
-Function ReadMemory16LE:Short(Addr:Byte Ptr)
-	Local ShortBE:Short = 0
-	Local ShortBEPtr:Byte Ptr = Varptr ShortBE
+' Read a 16 bit value (normal)
+Function ReadMemory16:Short(Addr:Byte Ptr)
+	Local ShortPtr:Short Ptr = Short Ptr(Addr)
 	
-	ShortBEPtr[0] = Addr[1]
-	ShortBEPtr[1] = Addr[0]
-		
-	Return ShortBE
+	Return ShortPtr[0]
 End Function
 
-' Write a 16 bit value in little-endian order
-Function WriteMemory16LE(ShortBE:Short, Addr:Byte Ptr)
-	Local ShortBEPtr:Byte Ptr = Varptr ShortBE
+' Read a 16 bit value in reverse endian order
+Function ReadMemory16RE:Short(Addr:Byte Ptr)
+	Local ShortValue:Short = 0
+	Local ShortPtr:Byte Ptr = Varptr ShortValue
 	
-	Addr[0] = ShortBEPtr[1]
-	Addr[1] = ShortBEPtr[0]
+	ShortPtr[0] = Addr[1]
+	ShortPtr[1] = Addr[0]
+		
+	Return ShortValue
+End Function
+
+' Write a 16 bit value (normal)
+Function WriteMemory16(ShortValue:Short, Addr:Byte Ptr)
+	Local MemPtr:Short Ptr = Short Ptr(Addr)
+	
+	MemPtr[0] = ShortValue
+End Function
+
+' Write a 16 bit value in reverse endian order
+Function WriteMemory16RE(ShortValue:Short, Addr:Byte Ptr)
+	Local ShortPtr:Short Ptr = Varptr ShortValue
+	
+	Addr[0] = ShortPtr[1]
+	Addr[1] = ShortPtr[0]
 End Function
 
 ' Read a 32 bit value (normal)
 Function ReadMemory32:Int(Addr:Byte Ptr)
-	Local IntBE:Int Ptr = Int Ptr(Addr)
+	Local IntPtr:Int Ptr = Int Ptr(Addr)
 	
-	Return IntBE[0]
+	Return IntPtr[0]
 End Function
 
-' Read a 32 bit value in little-endian order
-Function ReadMemory32LE:Int(Addr:Byte Ptr)
-	Local IntBE:Int = 0
-	Local IntBEPtr:Byte Ptr = Varptr IntBE
+' Read a 32 bit value in reverse endian order
+Function ReadMemory32RE:Int(Addr:Byte Ptr)
+	Local IntValue:Int = 0
+	Local IntPtr:Byte Ptr = Varptr IntValue
 	
-	IntBEPtr[0] = Addr[3]
-	IntBEPtr[1] = Addr[2]
-	IntBEPtr[2] = Addr[1]
-	IntBEPtr[3] = Addr[0]
+	IntPtr[0] = Addr[3]
+	IntPtr[1] = Addr[2]
+	IntPtr[2] = Addr[1]
+	IntPtr[3] = Addr[0]
 	
-	Return IntBE
+	Return IntValue
 End Function
 
 ' Write a 32 bit value (normal)
-Function WriteMemory32:Int(IntBE:Int, Addr:Byte Ptr)
+Function WriteMemory32(IntValue:Int, Addr:Byte Ptr)
 	Local MemPtr:Int Ptr = Int Ptr(Addr)
 	
-	MemPtr[0] = IntBE
+	MemPtr[0] = IntValue
 End Function
 
-' Write a 32 bit value in little-endian order
-Function WriteMemory32LE(IntBE:Int, Addr:Byte Ptr)
-	Local IntBEPtr:Byte Ptr = Varptr IntBE
+' Write a 32 bit value in reverse endian order
+Function WriteMemory32RE(IntValue:Int, Addr:Byte Ptr)
+	Local IntPtr:Byte Ptr = Varptr IntValue
 	
-	Addr[0] = IntBEPtr[3]
-	Addr[1] = IntBEPtr[2]
-	Addr[2] = IntBEPtr[1]
-	Addr[3] = IntBEPtr[0]
+	Addr[0] = IntPtr[3]
+	Addr[1] = IntPtr[2]
+	Addr[2] = IntPtr[1]
+	Addr[3] = IntPtr[0]
 End Function
 
-' Read a 64 bit value in little-endian order
-Function ReadMemory64LE:Long(Addr:Byte Ptr)
-	Local LongBE:Long = 0
-	Local LongBEPtr:Byte Ptr = Varptr LongBE
+' Read a 64 bit value (normal)
+Function ReadMemory64:Long(Addr:Byte Ptr)
+	Local LongPtr:Long Ptr = Long Ptr(Addr)
 	
-	LongBEPtr[0] = Addr[7]
-	LongBEPtr[1] = Addr[6]
-	LongBEPtr[2] = Addr[5]
-	LongBEPtr[3] = Addr[4]
-	LongBEPtr[4] = Addr[3]
-	LongBEPtr[5] = Addr[2]
-	LongBEPtr[6] = Addr[1]
-	LongBEPtr[7] = Addr[0]
+	Return LongPtr[0]
+End Function
+
+' Read a 64 bit value in reverse endian order
+Function ReadMemory64RE:Long(Addr:Byte Ptr)
+	Local LongValue:Long = 0
+	Local LongPtr:Byte Ptr = Varptr LongValue
+	
+	LongPtr[0] = Addr[7]
+	LongPtr[1] = Addr[6]
+	LongPtr[2] = Addr[5]
+	LongPtr[3] = Addr[4]
+	LongPtr[4] = Addr[3]
+	LongPtr[5] = Addr[2]
+	LongPtr[6] = Addr[1]
+	LongPtr[7] = Addr[0]
 		
-	Return LongBE
+	Return LongValue
 End Function
 
-' Write a 64 bit value in little-endian order
-Function WriteMemory64LE(LongBE:Long, Addr:Byte Ptr)
-	Local LongBEPtr:Byte Ptr = Varptr LongBE
+' Write a 64 bit value (normal)
+Function WriteMemory64(LongValue:Long, Addr:Byte Ptr)
+	Local MemPtr:Long Ptr = Long Ptr(Addr)
 	
-	Addr[0] = LongBEPtr[7]
-	Addr[1] = LongBEPtr[6]
-	Addr[2] = LongBEPtr[5]
-	Addr[3] = LongBEPtr[4]
-	Addr[4] = LongBEPtr[3]
-	Addr[5] = LongBEPtr[2]
-	Addr[6] = LongBEPtr[1]
-	Addr[7] = LongBEPtr[0]
+	MemPtr[0] = LongValue
+End Function
+
+' Write a 64 bit value in reverse endian order
+Function WriteMemory64RE(LongValue:Long, Addr:Byte Ptr)
+	Local LongPtr:Byte Ptr = Varptr LongValue
+	
+	Addr[0] = LongPtr[7]
+	Addr[1] = LongPtr[6]
+	Addr[2] = LongPtr[5]
+	Addr[3] = LongPtr[4]
+	Addr[4] = LongPtr[3]
+	Addr[5] = LongPtr[2]
+	Addr[6] = LongPtr[1]
+	Addr[7] = LongPtr[0]
 End Function
 
 ' Can parse a 12 bit negative value into a coherent representation
