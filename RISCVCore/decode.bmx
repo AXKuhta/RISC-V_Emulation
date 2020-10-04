@@ -261,8 +261,8 @@ Function Decode(Insn:TInstruction)
 							Insn.Handler = ADDW_Handler
 							Log_RxR("ADDW", Insn)
 						Case %0100000
+							Insn.Handler = SUBW_Handler
 							Log_RxR("SUBW", Insn)
-							Return 0
 						
 						Default
 							Print "Unacceptable type of ADDW/SUBW"

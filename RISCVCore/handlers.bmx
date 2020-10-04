@@ -85,6 +85,19 @@ Function ADDW_Handler(Insn:TInstruction, CPU:RV64i_core)
 		CPU.Registers[Dest] = Result
 	End If
 End Function
+
+Function SUBW_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+		
+	Local Result:Long = SignExt(Int(CPU.Registers[SrcA]) - Int(CPU.Registers[SrcB]), 32)
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Result
+	End If
+End Function
 ' ======================================================================
 
 
