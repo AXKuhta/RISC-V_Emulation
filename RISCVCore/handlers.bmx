@@ -67,6 +67,27 @@ End Function
 ' ======================================================================
 
 
+' Register + Register ALU Operations (32 bit)
+' ======================================================================
+Function ADDW_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+	
+	' 1. Cast the sources to Int (Will lose upper bits)
+	' 2. Perform the operation
+	' 3. Sign extend the result before storing it
+	
+	Local Result:Long = SignExt(Int(CPU.Registers[SrcA]) + Int(CPU.Registers[SrcB]), 32)
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Result
+	End If
+End Function
+' ======================================================================
+
+
 ' Argument + Register ALU Operations
 ' ======================================================================
 ' ADDI, aka ADD Immediate (`Argument12`)

@@ -258,8 +258,8 @@ Function Decode(Insn:TInstruction)
 				Case ALU_ADD, ALU_SUB
 					Select Insn.Funct7
 						Case %0000000
+							Insn.Handler = ADDW_Handler
 							Log_RxR("ADDW", Insn)
-							Return 0
 						Case %0100000
 							Log_RxR("SUBW", Insn)
 							Return 0
