@@ -90,15 +90,20 @@ Function LoadELF:Long(FileStream:TStream, Memory:Byte Ptr)
 	
 		If (Header.Flags & $2) <> 0
 			Print "Section size: " + Unit(Header.Size)
-			Print "Loading at: " + Unit(Header.MemAddr)
+			Print "Located at: " + Unit(Header.MemAddr)
 			Print "Address: 0x" + LongHex(Header.MemAddr)
 			
-			' Dump section flags
+			' Dump section type and flags
+			Print "Section type: " + LongBin(Header.SType)
 			Print "Flags: " + LongBin(Header.Flags)
 			
-			SeekStream(FileStream, Header.FileOffset)
-			
-			FileStream.Read(Memory + Header.MemAddr, Header.Size)
+			' Only attempt to read the section from file if it's marked as PROGBITS
+			If Header.SType = 1
+				SeekStream(FileStream, Header.FileOffset)
+				FileStream.Read(Memory + Header.MemAddr, Header.Size)
+			Else
+				Print "Not a code section. Not loading it."
+			End If
 		Else
 			Print "Non-alloc section, ignoring it"
 		End If
