@@ -479,7 +479,7 @@ Function CSRRW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	CPU.CSR[TargetCSR] = Value
 End Function
 
-' CSR Save into register and [logical OR with register]
+' CSR Save into register and [SET BITS with register]
 Function CSRRS_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local TargetCSR:Int = Insn.CSR_Argument12
 	Local SrcA:Int = Insn.SourceA
@@ -500,6 +500,27 @@ Function CSRRS_Handler(Insn:TInstruction, CPU:RV64i_core)
 	End If
 End Function
 
+' CSR Save into register and [CLEAR BITS with register]
+Function CSRRC_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local TargetCSR:Int = Insn.CSR_Argument12
+	Local SrcA:Int = Insn.SourceA
+	Local Dest:Int = Insn.Destination
+	
+	Local Value:Byte = CPU.Registers[Insn.SourceA]
+
+	' Spec says we must always read the CSR with this instruction
+	' But doing so would taint our `zero` register
+	' So don't do it!
+	If Dest
+		CPU.Registers[Dest] = CPU.CSR[TargetCSR]
+	End If
+	
+	' Write only if the source is not `zero`
+	If SrcA
+		' Notice that we invert the value
+		CPU.CSR[TargetCSR] = CPU.CSR[TargetCSR] & (Value ~ $FF)
+	End If
+End Function
 
 ' CSR [Save into register] and load from argument
 Function CSRRWI_Handler(Insn:TInstruction, CPU:RV64i_core)
