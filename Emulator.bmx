@@ -54,6 +54,7 @@ CloseFile(ELFFile)
 
 
 ' Graphics startup
+AppTitle = "RISC-V Emulator. Hold F to disable graphics updates."
 Graphics 80*10, 25*10
 
 Print "~r~n~r~n"
@@ -97,14 +98,16 @@ While True
 	End If
 	
 	' Graphics
-	Cls
-	
-	ShowScreen(CPU)
-	
-	' By default Flip will limit the main loop to 60 Hz (Or whatever the monitor refresh rate is)
-	' You can disable than by passing 0 as an argument
-	' But we'll leave it at 60 Hz for now for the aesthetic value
-	Flip
+	If Not KeyDown(KEY_F)
+		Cls
+		
+		ShowScreen(CPU)
+		
+		' By default Flip will limit the main loop to 60 Hz (Or whatever the monitor refresh rate is)
+		' You can disable than by passing 0 as an argument
+		' But we'll leave it at 60 Hz for now for the aesthetic value
+		Flip
+	End If
 Wend
 
 Input("Press enter to exit")
