@@ -39,6 +39,13 @@ Function ReadMemory32LE:Int(Addr:Byte Ptr)
 	Return IntBE
 End Function
 
+' Write a 32 bit value (normal)
+Function WriteMemory32:Int(IntBE:Int, Addr:Byte Ptr)
+	Local MemPtr:Int Ptr = Int Ptr(Addr)
+	
+	MemPtr[0] = IntBE
+End Function
+
 ' Write a 32 bit value in little-endian order
 Function WriteMemory32LE(IntBE:Int, Addr:Byte Ptr)
 	Local IntBEPtr:Byte Ptr = Varptr IntBE
