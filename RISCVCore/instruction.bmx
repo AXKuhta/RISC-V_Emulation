@@ -138,7 +138,7 @@ Const CSR_RS = %010
 Const CSR_RC = %011
 Const CSR_RWI = %101
 Const CSR_RSI = %110
-Const CSR_RCI = %110
+Const CSR_RCI = %111
 '=========================================
 
 
