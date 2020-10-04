@@ -358,8 +358,8 @@ Function Decode(Insn:TInstruction)
 					Log_BR("BLTU", Insn)
 					Return 0
 				Case BR_BGEU
+					Insn.Handler = BGEU_Handler
 					Log_BR("BGEU", Insn)
-					Return 0
 			
 				Default
 					Print "Unacceptable branch type width"
