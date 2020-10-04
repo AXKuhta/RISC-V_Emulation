@@ -67,6 +67,11 @@ Function Log_FENCE(InstructionName:String, Insn:TInstruction)
 	Print InstructionName
 End Function
 
+' Logs Atomic instructions
+Function Log_AMO(InstructionName:String, Insn:TInstruction)
+	Print InstructionName + " " + register_name(Insn.Destination) + ", " + register_name(Insn.SourceB) + ", (" + register_name(Insn.SourceA) + ")"
+End Function
+
 
 
 ' Pretty masks
@@ -401,7 +406,90 @@ Function Decode(Insn:TInstruction)
 			' Dummy handler for now
 			Insn.Handler = FENCE_Handler
 			Log_FENCE("FENCE", Insn)
-
+			
+			
+		Case OP_AMO
+			' Atomics
+			' =================================
+			' Check the width (32/64 bit)
+			Select Insn.Funct3
+				Case %010
+					Select Insn.AMO_Funct5
+						Case AMO_SWAP
+							Log_AMO("AMOSWAP.W", Insn)
+							Return 0
+						Case AMO_ADD
+							Log_AMO("AMOADD.W", Insn)
+							Return 0
+						Case AMO_XOR
+							Log_AMO("AMOXOR.W", Insn)
+							Return 0
+						Case AMO_AND
+							Log_AMO("AMOAND.W", Insn)
+							Return 0
+						Case AMO_OR
+							Log_AMO("AMOOR.W", Insn)
+							Return 0
+						Case AMO_MIN
+							Log_AMO("AMOMIN.W", Insn)
+							Return 0
+						Case AMO_MAX
+							Log_AMO("AMOMAX.W", Insn)
+							Return 0
+						Case AMO_MINU
+							Log_AMO("AMOMINU.W", Insn)
+							Return 0
+						Case AMO_MAXU
+							Log_AMO("AMOMAXU.W", Insn)
+							Return 0
+						
+						Default
+							Print "Unacceptable type of atomic op (32 bit)"
+							Return 0
+							
+					End Select
+				Case %011
+					Select Insn.AMO_Funct5
+						Case AMO_SWAP
+							Log_AMO("AMOSWAP.D", Insn)
+							Return 0
+						Case AMO_ADD
+							Log_AMO("AMOADD.D", Insn)
+							Return 0
+						Case AMO_XOR
+							Log_AMO("AMOXOR.D", Insn)
+							Return 0
+						Case AMO_AND
+							Log_AMO("AMOAND.D", Insn)
+							Return 0
+						Case AMO_OR
+							Log_AMO("AMOOR.D", Insn)
+							Return 0
+						Case AMO_MIN
+							Log_AMO("AMOMIN.D", Insn)
+							Return 0
+						Case AMO_MAX
+							Log_AMO("AMOMAX.D", Insn)
+							Return 0
+						Case AMO_MINU
+							Log_AMO("AMOMINU.D", Insn)
+							Return 0
+						Case AMO_MAXU
+							Log_AMO("AMOMAXU.D", Insn)
+							Return 0
+						
+						Default
+							Print "Unacceptable type of atomic op (64 bit)"
+							Return 0
+							
+					End Select
+			
+				Default
+					Print "Unacceptable atomic operation width"
+					Return 0
+					
+			End Select
+			
 		
 		Default
 			Print "Unknown opcode: 0x" + Hex(Insn.OP)

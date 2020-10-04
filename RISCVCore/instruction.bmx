@@ -145,4 +145,18 @@ Const CSR_RCI = %110
 ' Multiprocessor / IO synchronization
 '=========================================
 Const OP_FENCE = $0F
+
+Const OP_AMO = $2F
+
+Const AMO_LR = %00010
+Const AMO_SC = %00011
+Const AMO_SWAP = %00001
+Const AMO_ADD = %00000
+Const AMO_XOR = %00100
+Const AMO_AND = %01100
+Const AMO_OR = %01000
+Const AMO_MIN = %10000
+Const AMO_MAX = %10100
+Const AMO_MINU = %11000
+Const AMO_MAXU = %11100
 '=========================================
