@@ -334,8 +334,8 @@ Function AUIPC_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' Sign-extension to 64 bits is required
 	LongArg = SignExt(Arg, 32)
 	
-	' Extended Immediate + PC
-	Result = LongArg + CPU.PC
+	' Extended Immediate + (PC - 4)
+	Result = LongArg + (CPU.PC - 4)
 	
 	' Only write if the destination is not the `zero`
 	If Dest
