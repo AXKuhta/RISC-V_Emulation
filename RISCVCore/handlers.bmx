@@ -279,7 +279,6 @@ Function LHU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' Make sure we init to 0
 	Local Value:Long = 0
 	
-	' We can then read 8 bits directly
 	Value = ReadMemory16LE(CPU.Memory + Addr)
 	
 	' Only write if the destination is not the `zero`
@@ -300,10 +299,7 @@ Function LW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	CheckAddress(Addr, CPU)
 	
 	Local Value:Long = ReadMemory32LE(CPU.Memory + Addr)
-	
-	' For LW, we have to sign-extend the value
-	Value = SignExt(Value, 32)
-	
+		
 	' Only write if the destination is not the `zero`
 	If Dest
 		CPU.Registers[Dest] = Value
