@@ -66,6 +66,7 @@ Const OP_ALU_AxR = $13
 Const OP_ALU_RxR = $33
 
 Const OP_ALU_AxR_32BIT = $1B
+Const OP_ALU_RxR_32BIT = $1B
 '=======================================
 
 
