@@ -403,8 +403,8 @@ Function Decode(Insn:TInstruction)
 					Insn.Handler = BGE_Handler
 					Log_BR("BGE", Insn)
 				Case BR_BLTU
+					Insn.Handler = BLTU_Handler
 					Log_BR("BLTU", Insn)
-					Return 0
 				Case BR_BGEU
 					Insn.Handler = BGEU_Handler
 					Log_BR("BGEU", Insn)
