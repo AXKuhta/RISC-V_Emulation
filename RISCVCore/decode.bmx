@@ -166,14 +166,14 @@ Function Decode(Insn:TInstruction)
 					
 					
 				Case ALU_XOR
+					Insn.Handler = XOR_Handler
 					Log_RxR("XOR", Insn)
-					Return 0
 				Case ALU_OR
+					Insn.Handler = OR_Handler
 					Log_RxR("OR", Insn)
-					Return 0
 				Case ALU_AND
+					Insn.Handler = AND_Handler
 					Log_RxR("AND", Insn)
-					Return 0
 					
 				Case ALU_SLT
 					Log_RxR("SLT", Insn)

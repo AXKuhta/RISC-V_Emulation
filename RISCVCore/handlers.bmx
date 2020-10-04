@@ -31,6 +31,39 @@ Function SUB_Handler(Insn:TInstruction, CPU:RV64i_core)
 		CPU.Registers[Dest] = CPU.Registers[SrcA] - CPU.Registers[SrcB]
 	End If
 End Function
+
+Function AND_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = CPU.Registers[SrcA] & CPU.Registers[SrcB]
+	End If
+End Function
+
+Function OR_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = CPU.Registers[SrcA] | CPU.Registers[SrcB]
+	End If
+End Function
+
+Function XOR_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = CPU.Registers[SrcA] ~ CPU.Registers[SrcB]
+	End If
+End Function
 ' ======================================================================
 
 
