@@ -393,16 +393,12 @@ Function AUIPC_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Result:Long = 0
 	Local Zero:Int = 0
 	Local Arg:Int = Insn.LUI_Argument20
-	Local LongArg:Long = 0
 	
-	' Shift higher, will zero-extend
+	' Shift higher, will zero-extend and should also obtain signedness
 	Arg :Shl 12
-	
-	' Sign-extension to 64 bits is required
-	LongArg = SignExt(Arg, 32)
-	
-	' Extended Immediate + (PC - 4)
-	Result = LongArg + (CPU.PC - 4)
+		
+	' (PC - 4) + Argument
+	Result = (CPU.PC - 4) + Arg
 	
 	' Only write if the destination is not the `zero`
 	If Dest
