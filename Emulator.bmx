@@ -29,12 +29,12 @@ End If
 Local CPU:RV64i_core = New RV64i_core
 
 ' Allocate some system memory
-CPU.MemorySize = 8 * 1024 * 1024
+CPU.MemorySize = 32 * 1024 * 1024
 CPU.Memory = MemAlloc(CPU.MemorySize)
 
 ' Init stack pointer
-' Stack grows backwards, so put it at the edge of the memory
-CPU.Registers[2] = 8 * 1024 * 1024
+' Put the stack at 24th megabyte
+CPU.Registers[2] = 24 * 1024 * 1024
 
 ' Parse and load the sections
 ' Also store the entry point
@@ -135,7 +135,7 @@ Input("Press enter to exit")
 
 ' Draw a 80x25 screendump
 Function ShowScreen(CPU:RV64i_core)
-	Local SCREEN_BASE:Int = $1C4460
+	Local SCREEN_BASE:Int = $8B00
 	Local Character:String
 	
 	DrawLine 0, 260, 800, 260
