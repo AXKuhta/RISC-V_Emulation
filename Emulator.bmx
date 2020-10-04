@@ -54,8 +54,8 @@ CloseFile(ELFFile)
 
 
 ' Graphics startup
-AppTitle = "RISC-V Emulator. Hold F to disable graphics updates."
-Graphics 80*10, 25*10
+AppTitle = "RISC-V Emulator. Hold F to disable graphics updates. Press / to set breakpoint"
+Graphics 1200, 600
 
 Print "~r~n~r~n"
 Print "Starting the Fetch-Decode-Execute now!"
@@ -68,12 +68,25 @@ Local JumpWarning:String = "[e]"
 Local Insn:TInstruction
 Local Status:Int
 
+Local Breakpoint:String = ""
+Local StepMode:Int = 0
+
 
 ' Main loop (No support for translation blocks/handler chaining yet)
 While True
+	If StepMode
+		Input "Press Enter"
+	End If
+
 	' Print the address
 	WriteStdout("0x" + Shorten(LongHex(CPU.PC)) + " : " + JumpWarning + " : ")
-
+		
+	If Lower(Shorten(LongHex(CPU.PC))) = Breakpoint
+		Print "Breakpoint"
+		Input "Press Enter"
+		StepMode = 1
+	End If
+	
 	' Fetch
 	Insn = Fetch(CPU)
 	PreviousPC = CPU.PC
@@ -103,10 +116,17 @@ While True
 		
 		ShowScreen(CPU)
 		
+		DrawRegisters(CPU)
+		
 		' By default Flip will limit the main loop to 60 Hz (Or whatever the monitor refresh rate is)
 		' You can disable than by passing 0 as an argument
 		' But we'll leave it at 60 Hz for now for the aesthetic value
 		Flip
+	End If
+	
+	' Breakpoint
+	If KeyHit(KEY_SLASH)
+		Breakpoint = Input("[!] Please type the breakpoint address (in lowercase shortened hex): 0x")
 	End If
 Wend
 
@@ -115,8 +135,11 @@ Input("Press enter to exit")
 
 ' Draw a 80x25 screendump
 Function ShowScreen(CPU:RV64i_core)
-	Local SCREEN_BASE:Int = $8B00
+	Local SCREEN_BASE:Int = $1DFE00
 	Local Character:String
+	
+	DrawLine 0, 250, 800, 250
+	DrawLine 800, 0, 800, 250
 	
 	For Local j:Int = 0 To 25
 		For Local i:Int = 0 To 80
@@ -132,5 +155,18 @@ Function ShowScreen(CPU:RV64i_core)
 					DrawText Character, i*10, j*10
 			End Select
 		Next
+	Next
+End Function
+
+' Dumps registers
+Function DrawRegisters(CPU:RV64i_core)
+	Local PosX:Int = 0
+	Local PosY:Int = 0
+	
+	For Local i:Int = 0 To 31
+		PosY = i Mod 8
+		PosX = i / 8
+	
+		DrawText register_name(i) + ": " + Shorten(LongHex(CPU.Registers[i])), PosX*300, 270 + PosY*10
 	Next
 End Function
