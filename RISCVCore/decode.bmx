@@ -344,8 +344,8 @@ Function Decode(Insn:TInstruction)
 			' Check the load width
 			Select Insn.Funct3
 				Case %000
+					Insn.Handler = LB_Handler
 					Log_LD("LB", Insn)
-					Return 0
 				Case %001
 					Log_LD("LH", Insn)
 					Return 0

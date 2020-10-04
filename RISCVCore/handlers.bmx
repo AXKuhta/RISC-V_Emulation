@@ -298,6 +298,29 @@ Function LBU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	End If
 End Function
 
+' LB, aka Load Data (8 bit signed)
+Function LB_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA ' Register with base address from where to load
+	Local Dest:Int = Insn.Destination ' Where to load
+		
+	' Calculate the target addr
+	Local Offset:Int = Insn.Argument12
+	Local Addr:Long = CPU.Registers[SrcA] + Offset
+	
+	CheckAddress(Addr, CPU)
+	
+	' Make sure we init to 0
+	Local Value:Long = 0
+	
+	' We can then read 8 bits directly (also sign extending them)
+	Value = SignExt(CPU.Memory[Addr], 8)
+		
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Value
+	End If
+End Function
+
 ' LHU, aka Load Data (16 bit)
 Function LHU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA ' Register with base address from where to load
