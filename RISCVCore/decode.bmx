@@ -21,6 +21,11 @@ Function Log_AxR_Shift(InstructionName:String, Insn:TInstruction)
 	Print InstructionName + " " + register_name(Insn.Destination) + ", " + register_name(Insn.SourceA) + ", " + Insn.AxR_Shift_Amount
 End Function
 
+' Logs Argument+Register Shift instructions
+Function Log_AxR_Shift_32bit(InstructionName:String, Insn:TInstruction)
+	Print InstructionName + " " + register_name(Insn.Destination) + ", " + register_name(Insn.SourceA) + ", " + Insn.SourceB
+End Function
+
 ' Logs LUI instructions
 Function Log_LUI(InstructionName:String, Insn:TInstruction)
 	Print InstructionName + " " + register_name(Insn.Destination) + ", 0x" + Shorten(Hex(Insn.LUI_Argument20))
@@ -306,7 +311,25 @@ Function Decode(Insn:TInstruction)
 				Case ALU_ADD
 					Insn.Handler = ADDIW_Handler
 					Log_AxR("ADDIW", Insn)
-										
+					
+				Case ALU_SLL
+					Log_AxR_Shift_32bit("SLLIW", Insn)
+					Return 0
+				Case ALU_SRL, ALU_SRA
+					Select Insn.Funct7
+						Case %0000000
+							Log_AxR_Shift_32bit("SRLIW", Insn)
+							Return 0
+						Case %0100000
+							Log_AxR_Shift_32bit("SRAIW", Insn)
+							Return 0
+						
+						Default
+							Print "Unacceptable type of SRLIW/SRAIW"
+							Return 0
+					
+					End Select
+			
 			Default
 				Print "Unacceptable type of Argument+Register 32 bit ALU instruction"
 				Return 0
