@@ -279,7 +279,7 @@ Function LHU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' Make sure we init to 0
 	Local Value:Long = 0
 	
-	Value = ReadMemory16LE(CPU.Memory + Addr)
+	Value = ReadMemory16(CPU.Memory + Addr)
 	
 	' Only write if the destination is not the `zero`
 	If Dest
@@ -298,7 +298,7 @@ Function LW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	CheckAddress(Addr, CPU)
 	
-	Local Value:Long = ReadMemory32LE(CPU.Memory + Addr)
+	Local Value:Long = ReadMemory32(CPU.Memory + Addr)
 		
 	' Only write if the destination is not the `zero`
 	If Dest
@@ -317,7 +317,7 @@ Function LD_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	CheckAddress(Addr, CPU)
 	
-	Local Value:Long = ReadMemory64LE(CPU.Memory + Addr)
+	Local Value:Long = ReadMemory64(CPU.Memory + Addr)
 	
 	' Only write if the destination is not the `zero`
 	If Dest
@@ -361,7 +361,7 @@ Function SH_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	CheckAddress(Addr, CPU)
 	
-	WriteMemory16LE(Value, CPU.Memory + Addr)
+	WriteMemory16(Value, CPU.Memory + Addr)
 End Function
 
 ' SW, aka Store Data (32 bit)
@@ -378,7 +378,7 @@ Function SW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	CheckAddress(Addr, CPU)
 	
-	WriteMemory32LE(Value, CPU.Memory + Addr)
+	WriteMemory32(Value, CPU.Memory + Addr)
 End Function
 
 ' SD, aka Store Data (Full width)
@@ -395,7 +395,7 @@ Function SD_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	CheckAddress(Addr, CPU)
 	
-	WriteMemory64LE(Value, CPU.Memory + Addr)
+	WriteMemory64(Value, CPU.Memory + Addr)
 End Function
 ' ======================================================================
 
@@ -719,14 +719,14 @@ Function AMOADD_W_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	CheckAddress(Addr, CPU)
 	
-	Local Value:Long = ReadMemory32LE(CPU.Memory + Addr)
+	Local Value:Long = ReadMemory32(CPU.Memory + Addr)
 	
 	' Only write if the destination is not the `zero`
 	If Dest
 		CPU.Registers[Dest] = SignExt(Value, 32)
 	End If
 	
-	WriteMemory32LE(Int(Value + CPU.Registers[SrcB]), CPU.Memory + Addr)
+	WriteMemory32(Int(Value + CPU.Registers[SrcB]), CPU.Memory + Addr)
 End Function
 ' ======================================================================
 
