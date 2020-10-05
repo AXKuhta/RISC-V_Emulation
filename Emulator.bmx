@@ -42,7 +42,7 @@ Local ELFMetadata:ELFLoaderMetadata = LoadELF(ELFFile, CPU.Memory)
 
 ' Set the entry point and the global pointer
 CPU.PC = ELFMetadata.EntryPoint
-CPU.Registers[3] = ELFMetadata.LastLoadedSection + $7FC '$800
+CPU.Registers[3] = ELFMetadata.LastLoadedSection + $800 - 4
 
 ' Check for invalid entry point info
 ' Attempt to execute from 0x0 if invalid
