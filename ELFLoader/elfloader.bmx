@@ -1,6 +1,11 @@
 Import BRL.Filesystem
 Import BRL.Retro
 
+Type ELFLoaderMetadata
+	Field EntryPoint:Long
+	Field LastLoadedSection:Long
+End Type
+
 ' 64 bit ELF section header
 Type ELFSectionHeader
 	Field NameOffset:Int
@@ -17,7 +22,7 @@ End Type
 
 ' Returns the entry point addr on success
 ' Returns null on failure
-Function LoadELF:Long(FileStream:TStream, Memory:Byte Ptr)
+Function LoadELF:ELFLoaderMetadata(FileStream:TStream, Memory:Byte Ptr)
 	If $7F454C46 <> ReadBytesBE(FileStream, 4)
 		Print "ELF Magic code invalid"
 		Return Null
@@ -82,12 +87,13 @@ Function LoadELF:Long(FileStream:TStream, Memory:Byte Ptr)
 		Header.Name = ReadCString(FileStream)
 	Next
 	
-	
+	' Create a return structure
+	Local Metadata:ELFLoaderMetadata
 	
 	' Load the sections into memory
 	For Local Header:ELFSectionHeader = EachIn Headers
 		Print "Section name: " + Header.Name
-	
+			
 		If (Header.Flags & $2) <> 0
 			Print "Section size: " + Unit(Header.Size)
 			Print "Located at: " + Unit(Header.MemAddr)
@@ -101,6 +107,11 @@ Function LoadELF:Long(FileStream:TStream, Memory:Byte Ptr)
 			If Header.SType = 1
 				SeekStream(FileStream, Header.FileOffset)
 				FileStream.Read(Memory + Header.MemAddr, Header.Size)
+				
+				' Also store the address of this section
+				' We need the address of the last loaded section to determine the RISC-V global pointer
+				' Yes, this is indeed a hack; crt0.S is supposed to do that
+				Metadata.LastLoadedSection = Header.MemAddr
 			Else
 				Print "Not a code section. Not loading it."
 			End If
@@ -111,8 +122,10 @@ Function LoadELF:Long(FileStream:TStream, Memory:Byte Ptr)
 		Print "==============="
 	Next
 	
-	' Finish by returning the entry point addr
-	Return CodeEntryPoint
+	' Finish by filling in the entry point addr and returning
+	Metadata.EntryPoint = CodeEntryPoint
+	
+	Return Metadata
 	
 End Function
 

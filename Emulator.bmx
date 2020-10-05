@@ -38,7 +38,11 @@ CPU.Registers[2] = 24 * 1024 * 1024
 
 ' Parse and load the sections
 ' Also store the entry point
-CPU.PC = LoadELF(ELFFile, CPU.Memory)
+Local ELFMetadata:ELFLoaderMetadata = LoadELF(ELFFile, CPU.Memory)
+
+' Set the entry point and the global pointer
+CPU.PC = ELFMetadata.EntryPoint
+CPU.Registers[3] = ELFMetadata.LastLoadedSection + $800
 
 ' Check for invalid entry point info
 ' Attempt to execute from 0x0 if invalid
@@ -68,7 +72,7 @@ Local JumpWarning:String = "[e]"
 Local Insn:TInstruction
 Local Status:Int
 
-Local Breakpoint:String = ""
+Local Breakpoint:String = "" '"1e5114" <__memcpy>:
 Local StepMode:Int = 0
 
 
@@ -135,7 +139,7 @@ Input("Press enter to exit")
 
 ' Draw a 80x25 screendump
 Function ShowScreen(CPU:RV64i_core)
-	Local SCREEN_BASE:Int = $8B00
+	Local SCREEN_BASE:Int = $8B00 '$244DF0 '$242600 ' $8B00
 	Local Character:String
 	
 	DrawLine 0, 260, 800, 260
