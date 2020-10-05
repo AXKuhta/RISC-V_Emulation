@@ -197,8 +197,8 @@ Function Decode(Insn:TInstruction)
 				Case %0000001
 					Select Insn.Funct3
 						Case ALU_MUL
+							Insn.Handler = MUL_Handler
 							Log_RxR("MUL", Insn)
-							Return 0
 						Case ALU_MULH
 							Log_RxR("MULH", Insn)
 							Return 0

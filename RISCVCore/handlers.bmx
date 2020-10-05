@@ -67,6 +67,30 @@ End Function
 ' ======================================================================
 
 
+' Register + Register ALU Operations (M Extension)
+' ======================================================================
+' Multiply
+Function MUL_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = CPU.Registers[SrcA] * CPU.Registers[SrcB]
+	End If
+End Function
+
+' Multiply and store higher bits (Unsigned x Unsigned)
+Function MULHU_Handler(Insn:TInstruction, CPU:RV64i_core)
+	' Broken: do not use
+	' TODO: Research if we can use 128 bit math
+	' Hook a C function?
+	' SIMD intrinsics?
+End Function
+' ======================================================================
+
+
 ' Register + Register ALU Operations (32 bit)
 ' ======================================================================
 Function ADDW_Handler(Insn:TInstruction, CPU:RV64i_core)
