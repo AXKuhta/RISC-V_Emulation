@@ -152,52 +152,87 @@ Function Decode(Insn:TInstruction)
 			' Register + Register operation
 			' =================================
 			' Check the operation type
-			Select Insn.Funct3
-				Case ALU_ADD, ALU_SUB
-					Select Insn.Funct7
-						Case %0000000
+			Select Insn.Funct7
+				Case %0000000
+					Select Insn.Funct3
+						Case ALU_ADD
 							Insn.Handler = ADD_Handler
 							Log_RxR("ADD", Insn)
 							
-						Case %0100000
-							Insn.Handler = SUB_Handler
-							Log_RxR("SUB", Insn)
+						Case ALU_XOR
+							Insn.Handler = XOR_Handler
+							Log_RxR("XOR", Insn)
+						Case ALU_OR
+							Insn.Handler = OR_Handler
+							Log_RxR("OR", Insn)
+						Case ALU_AND
+							Insn.Handler = AND_Handler
+							Log_RxR("AND", Insn)
+							
+						Case ALU_SLT
+							Log_RxR("SLT", Insn)
+							Return 0
+						Case ALU_SLTU
+							Log_RxR("SLTU", Insn)
+							Return 0						
 						
 						Default
-							Print "Unacceptable type of ADD/SUB"
+							Print "Unknown RxR ALU Instruction (%0000000)"
+							Return 0
+						
+					End Select
+					
+				Case %0100000
+					Select Insn.Funct3
+						Case ALU_SUB
+							Insn.Handler = SUB_Handler
+							Log_RxR("SUB", Insn)
+							
+						Default
+							Print "Unknown RxR ALU Instruction (%0100000)"
+							Return 0
+								
+					End Select
+					
+				Case %0000001
+					Select Insn.Funct3
+						Case ALU_MUL
+							Log_RxR("MUL", Insn)
+							Return 0
+						Case ALU_MULH
+							Log_RxR("MULH", Insn)
+							Return 0
+						Case ALU_MULHSU
+							Log_RxR("MULHSU", Insn)
+							Return 0
+						Case ALU_MULHU
+							Log_RxR("MULHU", Insn)
+							Return 0
+						Case ALU_DIV
+							Log_RxR("DIV", Insn)
+							Return 0
+						Case ALU_DIVU
+							Log_RxR("DIVU", Insn)
+							Return 0
+						Case ALU_REM
+							Log_RxR("REM", Insn)
+							Return 0
+						Case ALU_REMU
+							Log_RxR("REMU", Insn)
+							Return 0
+						
+						Default
+							Print "Unknown RxR ALU Instruction (%0000001)"
 							Return 0
 							
 					End Select
-					
-					
-				Case ALU_XOR
-					Insn.Handler = XOR_Handler
-					Log_RxR("XOR", Insn)
-				Case ALU_OR
-					Insn.Handler = OR_Handler
-					Log_RxR("OR", Insn)
-				Case ALU_AND
-					Insn.Handler = AND_Handler
-					Log_RxR("AND", Insn)
-					
-				Case ALU_SLT
-					Log_RxR("SLT", Insn)
-					Return 0
-				Case ALU_SLTU
-					Log_RxR("SLTU", Insn)
-					Return 0
 				
-				Case ALU_SLL
+				Default
+					Print "Unacceptable type of Register+Register ALU instruction"
 					Return 0
 					
-				Case ALU_SRL, ALU_SRA
-					Return 0							
-				
-			Default
-				Print "Unacceptable type of Register+Register ALU instruction"
-				Return 0
-				
 			End Select
+
 	
 	
 		Case OP_ALU_AxR

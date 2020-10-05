@@ -93,6 +93,17 @@ Const ALU_SRA = %101
 ' Set Less Than / Set Less Than Unsigned
 Const ALU_SLT = %010
 Const ALU_SLTU = %011
+
+' Multiplication and division
+' M Extension
+Const ALU_MUL = %000
+Const ALU_MULH = %001
+Const ALU_MULHSU = %010
+Const ALU_MULHU = %011
+Const ALU_DIV = %100
+Const ALU_DIVU = %101
+Const ALU_REM = %110
+Const ALU_REMU = %111
 '=======================================
 
 
