@@ -170,11 +170,11 @@ Function Decode(Insn:TInstruction)
 							Log_RxR("AND", Insn)
 							
 						Case ALU_SLT
+							Insn.Handler = SLT_Handler
 							Log_RxR("SLT", Insn)
-							Return 0
 						Case ALU_SLTU
-							Log_RxR("SLTU", Insn)
-							Return 0						
+							Insn.Handler = SLTU_Handler
+							Log_RxR("SLTU", Insn)				
 						
 						Default
 							Print "Unknown RxR ALU Instruction (%0000000)"

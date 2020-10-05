@@ -64,6 +64,38 @@ Function XOR_Handler(Insn:TInstruction, CPU:RV64i_core)
 		CPU.Registers[Dest] = CPU.Registers[SrcA] ~ CPU.Registers[SrcB]
 	End If
 End Function
+
+' Set Less Than
+Function SLT_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+	
+	Local Result:Int = 1 & (CPU.Registers[SrcA] < CPU.Registers[SrcB])
+
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Result
+	End If
+End Function
+
+' Set Less Than (Unsigned)
+Function SLTU_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+	
+	' Note the cast to ULong
+	Local Arg1:ULong = CPU.Registers[SrcA]
+	Local Arg2:ULong = CPU.Registers[SrcB]
+	
+	Local Result:Int = 1 & (Arg1 < Arg2)
+
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Result
+	End If
+End Function
 ' ======================================================================
 
 
