@@ -207,6 +207,19 @@ End Function
 
 ' Bit shifts
 ' ======================================================================
+' Shift Left Logical Immediate
+Function SLLI_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local Dest:Int = Insn.Destination
+	Local SrcA:Int = Insn.SourceA
+	
+	Local Amount:Int = Insn.AxR_Shift_Amount
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = CPU.Registers[SrcA] Shl Amount
+	End If
+End Function
+
 ' Shift Right Logical Immediate
 Function SRLI_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Dest:Int = Insn.Destination
@@ -220,8 +233,8 @@ Function SRLI_Handler(Insn:TInstruction, CPU:RV64i_core)
 	End If
 End Function
 
-' Shift Left Logical Immediate
-Function SLLI_Handler(Insn:TInstruction, CPU:RV64i_core)
+' Shift Right Arithmetic Immediate
+Function SRAI_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Dest:Int = Insn.Destination
 	Local SrcA:Int = Insn.SourceA
 	
@@ -229,7 +242,7 @@ Function SLLI_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	' Only write if the destination is not the `zero`
 	If Dest
-		CPU.Registers[Dest] = CPU.Registers[SrcA] Shl Amount
+		CPU.Registers[Dest] = CPU.Registers[SrcA] Sar Amount
 	End If
 End Function
 ' ======================================================================

@@ -238,8 +238,8 @@ Function Decode(Insn:TInstruction)
 							Insn.Handler = SRLI_Handler
 							Log_AxR_Shift("SRLI", Insn)
 						Case %010000
+							Insn.Handler = SRAI_Handler
 							Log_AxR_Shift("SRAI", Insn)
-							Return 0
 						
 						Default
 							Print "Unacceptable type of shift"
