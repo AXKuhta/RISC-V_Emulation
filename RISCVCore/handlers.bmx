@@ -288,7 +288,7 @@ End Function
 
 ' Load Data Instructions
 ' ======================================================================
-' LBU, aka Load Data (8 bit)
+' LBU, aka Load Data (8 bit; zero extended)
 Function LBU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA ' Register with base address from where to load
 	Local Dest:Int = Insn.Destination ' Where to load
@@ -299,19 +299,17 @@ Function LBU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	CheckAddress(Addr, CPU)
 	
-	' Make sure we init to 0
-	Local Value:Long = 0
-	
 	' We can then read 8 bits directly
-	Value = CPU.Memory[Addr]
-		
+	' Note the ULong cast
+	Local Value:ULong = CPU.Memory[Addr]
+			
 	' Only write if the destination is not the `zero`
 	If Dest
 		CPU.Registers[Dest] = Value
 	End If
 End Function
 
-' LB, aka Load Data (8 bit signed)
+' LB, aka Load Data (8 bit; sign extended)
 Function LB_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA ' Register with base address from where to load
 	Local Dest:Int = Insn.Destination ' Where to load
@@ -322,19 +320,16 @@ Function LB_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	CheckAddress(Addr, CPU)
 	
-	' Make sure we init to 0
-	Local Value:Long = 0
-	
 	' We can then read 8 bits directly (also sign extending them)
-	Value = SignExt(CPU.Memory[Addr], 8)
-		
+	Local Value:Long = SignExt(CPU.Memory[Addr], 8)
+	
 	' Only write if the destination is not the `zero`
 	If Dest
 		CPU.Registers[Dest] = Value
 	End If
 End Function
 
-' LHU, aka Load Data (16 bit)
+' LHU, aka Load Data (16 bit; zero extended)
 Function LHU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA ' Register with base address from where to load
 	Local Dest:Int = Insn.Destination ' Where to load
@@ -345,11 +340,49 @@ Function LHU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	CheckAddress(Addr, CPU)
 	
-	' Make sure we init to 0
-	Local Value:Long = 0
+	' Note the ULong cast
+	Local Value:ULong = ReadMemory16(CPU.Memory + Addr)
 	
-	Value = ReadMemory16(CPU.Memory + Addr)
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Value
+	End If
+End Function
+
+' LH, aka Load Data (16 bit; sign extended)
+Function LH_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA ' Register with base address from where to load
+	Local Dest:Int = Insn.Destination ' Where to load
+		
+	' Calculate the target addr
+	Local Offset:Int = Insn.Argument12
+	Local Addr:Long = CPU.Registers[SrcA] + Offset
 	
+	CheckAddress(Addr, CPU)
+	
+	' Read and sign extend
+	Local Value:Long = SignExt(ReadMemory16(CPU.Memory + Addr), 16)
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Value
+	End If
+End Function
+
+' LWU, aka Load Data (32 bit; zero extended)
+Function LWU_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA ' Register with base address from where to load
+	Local Dest:Int = Insn.Destination ' Where to load
+		
+	' Calculate the target addr
+	Local Offset:Int = Insn.Argument12
+	Local Addr:Long = CPU.Registers[SrcA] + Offset
+	
+	CheckAddress(Addr, CPU)
+	
+	' Note the ULong cast
+	Local Value:ULong = ReadMemory32(CPU.Memory + Addr)
+		
 	' Only write if the destination is not the `zero`
 	If Dest
 		CPU.Registers[Dest] = Value
@@ -367,6 +400,7 @@ Function LW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	CheckAddress(Addr, CPU)
 	
+	' Sign extension will happen automatically with cast from Int to Long
 	Local Value:Long = ReadMemory32(CPU.Memory + Addr)
 		
 	' Only write if the destination is not the `zero`

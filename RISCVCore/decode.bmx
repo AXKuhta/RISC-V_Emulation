@@ -346,21 +346,24 @@ Function Decode(Insn:TInstruction)
 				Case %000
 					Insn.Handler = LB_Handler
 					Log_LD("LB", Insn)
-				Case %001
-					Log_LD("LH", Insn)
-					Return 0
-				Case %010
-					Insn.Handler = LW_Handler
-					Log_LD("LW", Insn)
-				Case %011
-					Insn.Handler = LD_Handler
-					Log_LD("LD", Insn)
 				Case %100
 					Insn.Handler = LBU_Handler
 					Log_LD("LBU", Insn)
+				Case %001
+					Insn.Handler = LH_Handler
+					Log_LD("LH", Insn)
 				Case %101
 					Insn.Handler = LHU_Handler
 					Log_LD("LHU", Insn)
+				Case %010
+					Insn.Handler = LW_Handler
+					Log_LD("LW", Insn)
+				Case %110
+					Insn.Handler = LWU_Handler
+					Log_LD("LWU", Insn)
+				Case %011
+					Insn.Handler = LD_Handler
+					Log_LD("LD", Insn)
 				
 				Default
 					Print "Unacceptable load width"
