@@ -72,7 +72,7 @@ Function SLL_Handler(Insn:TInstruction, CPU:RV64i_core)
 
 	' Only write if the destination is not the `zero`
 	If Dest
-		CPU.Registers[Dest] = CPU.Registers[SrcA] Shl (CPU.Registers[SrcB] & %11111)
+		CPU.Registers[Dest] = CPU.Registers[SrcA] Shl (CPU.Registers[SrcB] & %111111)
 	End If
 End Function
 
@@ -83,7 +83,7 @@ Function SRL_Handler(Insn:TInstruction, CPU:RV64i_core)
 
 	' Only write if the destination is not the `zero`
 	If Dest
-		CPU.Registers[Dest] = CPU.Registers[SrcA] Shr (CPU.Registers[SrcB] & %11111)
+		CPU.Registers[Dest] = CPU.Registers[SrcA] Shr (CPU.Registers[SrcB] & %111111)
 	End If
 End Function
 
@@ -94,7 +94,7 @@ Function SRA_Handler(Insn:TInstruction, CPU:RV64i_core)
 
 	' Only write if the destination is not the `zero`
 	If Dest
-		CPU.Registers[Dest] = CPU.Registers[SrcA] Sar (CPU.Registers[SrcB] & %11111)
+		CPU.Registers[Dest] = CPU.Registers[SrcA] Sar (CPU.Registers[SrcB] & %111111)
 	End If
 End Function
 
