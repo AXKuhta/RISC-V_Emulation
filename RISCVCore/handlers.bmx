@@ -381,6 +381,23 @@ End Function
 
 ' Bit shifts (32 bit)
 ' ======================================================================
+' Shift Left Logical Immediate (32 bit)
+Function SLLIW_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local Dest:Int = Insn.Destination
+	Local SrcA:Int = Insn.SourceA
+	
+	' Amount is stored in the SourceB field
+	Local Amount:Int = Insn.SourceB
+	
+	' Calculate into ULong to prevent BlitzMax from sign-extending
+	Local Result:ULong = Int(CPU.Registers[SrcA]) Shl Amount
+		
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Result
+	End If
+End Function
+
 ' Shift Right Logical Immediate (32 bit)
 Function SRLIW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Dest:Int = Insn.Destination
@@ -398,8 +415,8 @@ Function SRLIW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	End If
 End Function
 
-' Shift Left Logical Immediate (32 bit)
-Function SLLIW_Handler(Insn:TInstruction, CPU:RV64i_core)
+' Shift Right Arithmetic Immediate (32 bit)
+Function SRAIW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Dest:Int = Insn.Destination
 	Local SrcA:Int = Insn.SourceA
 	
@@ -407,7 +424,7 @@ Function SLLIW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Amount:Int = Insn.SourceB
 	
 	' Calculate into ULong to prevent BlitzMax from sign-extending
-	Local Result:ULong = Int(CPU.Registers[SrcA]) Shl Amount
+	Local Result:ULong = Int(CPU.Registers[SrcA]) Sar Amount
 		
 	' Only write if the destination is not the `zero`
 	If Dest

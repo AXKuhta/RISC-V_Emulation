@@ -367,8 +367,8 @@ Function Decode(Insn:TInstruction)
 							Insn.Handler = SRLIW_Handler
 							Log_AxR_Shift_32bit("SRLIW", Insn)
 						Case %0100000
+							Insn.Handler = SRAIW_Handler
 							Log_AxR_Shift_32bit("SRAIW", Insn)
-							Return 0
 						
 						Default
 							Print "Unacceptable type of SRLIW/SRAIW"
