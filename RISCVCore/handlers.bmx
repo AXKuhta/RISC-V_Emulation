@@ -163,6 +163,45 @@ Function SUBW_Handler(Insn:TInstruction, CPU:RV64i_core)
 		CPU.Registers[Dest] = Result
 	End If
 End Function
+
+Function SLLW_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+
+	Local Result:Int = Int(CPU.Registers[SrcA]) Shl Int(CPU.Registers[SrcB] & %11111)
+
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Result
+	End If
+End Function
+
+Function SRLW_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+	
+	Local Result:Int = Int(CPU.Registers[SrcA]) Shr Int(CPU.Registers[SrcB] & %11111)
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Result
+	End If
+End Function
+
+Function SRAW_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+	
+	Local Result:Int = Int(CPU.Registers[SrcA]) Sar Int(CPU.Registers[SrcB] & %11111)
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Result
+	End If
+End Function
 ' ======================================================================
 
 

@@ -261,12 +261,12 @@ Function Decode(Insn:TInstruction)
 							Log_RxR("ADDW", Insn)
 							
 						Case ALU_SLL
+							Insn.Handler = SLLW_Handler
 							Log_RxR("SLLW", Insn)
-							Return 0
 							
 						Case ALU_SRL
+							Insn.Handler = SRLW_Handler
 							Log_RxR("SRLW", Insn)
-							Return 0
 						
 						Default
 							Print "Unknown 32 bit RxR ALU Instruction (%0000000)"
@@ -281,8 +281,8 @@ Function Decode(Insn:TInstruction)
 							Log_RxR("SUBW", Insn)
 							
 						Case ALU_SRA
+							Insn.Handler = SRAW_Handler
 							Log_RxR("SRAW", Insn)
-							Return 0
 							
 						Default
 							Print "Unknown 32 bit RxR ALU Instruction (%0100000)"
