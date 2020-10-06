@@ -122,8 +122,8 @@ While True
 		Cls
 		
 		ShowScreen(CPU)
-		
 		DrawRegisters(CPU)
+		ShowMemoryDump(CPU)
 		
 		' By default Flip will limit the main loop to 60 Hz (Or whatever the monitor refresh rate is)
 		' You can disable than by passing 0 as an argument
@@ -175,5 +175,33 @@ Function DrawRegisters(CPU:RV64i_core)
 		PosX = i / 8
 	
 		DrawText register_name(i) + ": " + Shorten(LongHex(CPU.Registers[i])), PosX*300, 270 + PosY*10
+	Next
+	
+	DrawText "Latest read: " + Shorten(LongHex(Long(CPU.MMU.LatestReadAddress))), 0, 370
+	DrawText "Latest write: " + Shorten(LongHex(Long(CPU.MMU.LatestWriteAddress))), 0, 380
+End Function
+
+' Draw the short dump of the latest read memory address
+Function ShowMemoryDump(CPU:RV64i_core)
+	Local DumpAddr:ULong = CPU.MMU.LatestReadAddress
+	Local Character:String
+	
+	DrawLine 0, 550, 800, 550
+	DrawLine 800, 550, 800, 600
+	
+	For Local j:Int = 0 To (5 - 1)
+		For Local i:Int = 0 To (80 - 1)
+			Character = Chr(CPU.MMU.Memory[DumpAddr + 80*j + i])
+			
+			Select Character
+				Case "~0"
+					Continue
+				Case "~n"
+					Continue
+				
+				Default
+					DrawText Character, i*10, 550 + j*10
+			End Select
+		Next
 	Next
 End Function
