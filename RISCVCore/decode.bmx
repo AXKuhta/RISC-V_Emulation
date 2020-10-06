@@ -223,14 +223,14 @@ Function Decode(Insn:TInstruction)
 							Log_RxR("DIV", Insn)
 							Return 0
 						Case ALU_DIVU
+							Insn.Handler = DIVU_Handler
 							Log_RxR("DIVU", Insn)
-							Return 0
 						Case ALU_REM
 							Log_RxR("REM", Insn)
 							Return 0
 						Case ALU_REMU
+							Insn.Handler = REMU_Handler
 							Log_RxR("REMU", Insn)
-							Return 0
 						
 						Default
 							Print "Unknown RxR ALU Instruction (%0000001)"

@@ -153,6 +153,48 @@ Function MULHU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' Hook a C function?
 	' SIMD intrinsics?
 End Function
+
+' Division (Unsigned)
+Function DIVU_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+	
+	' Note the cast to ULong
+	Local Arg1:ULong = CPU.Registers[SrcA]
+	Local Arg2:ULong = CPU.Registers[SrcB]
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		' Also handle division by zero
+		If Arg2 = 0
+			CPU.Registers[Dest] = (2^64) - 1
+		Else
+			CPU.Registers[Dest] = Arg1 / Arg2
+		End If
+	End If
+End Function
+
+' Remainder (Unsigned)
+Function REMU_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+	
+	' Note the cast to ULong
+	Local Arg1:ULong = CPU.Registers[SrcA]
+	Local Arg2:ULong = CPU.Registers[SrcB]
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		' Also handle remainder by zero
+		If Arg2 = 0
+			CPU.Registers[Dest] = Arg1
+		Else
+			CPU.Registers[Dest] = Arg1 Mod Arg2
+		End If
+	End If
+End Function
 ' ======================================================================
 
 
