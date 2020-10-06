@@ -301,8 +301,8 @@ Function Decode(Insn:TInstruction)
 							Return 0
 							
 						Case ALU_DIVU
+							Insn.Handler = DIVUW_Handler
 							Log_RxR("DIVUW", Insn)
-							Return 0
 							
 						Case ALU_REM
 							Log_RxR("REMW", Insn)

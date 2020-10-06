@@ -290,6 +290,31 @@ Function MULW_Handler(Insn:TInstruction, CPU:RV64i_core)
 		CPU.Registers[Dest] =  Result
 	End If
 End Function
+
+' Division (Unsigned) (32 bit)
+Function DIVUW_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+	
+	' Note the cast to UInt
+	Local Arg1:UInt = CPU.Registers[SrcA]
+	Local Arg2:UInt = CPU.Registers[SrcB]
+	
+	Local Result:UInt
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		' Also handle division by zero
+		If Arg2 = 0
+			CPU.Registers[Dest] = (2^64) - 1
+		Else
+			Result = Arg1 / Arg2
+			
+			CPU.Registers[Dest] = Int(Result)
+		End If
+	End If
+End Function
 ' ======================================================================
 
 
