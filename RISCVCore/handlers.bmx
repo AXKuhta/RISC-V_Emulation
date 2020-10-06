@@ -65,6 +65,39 @@ Function XOR_Handler(Insn:TInstruction, CPU:RV64i_core)
 	End If
 End Function
 
+Function SLL_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = CPU.Registers[SrcA] Shl (CPU.Registers[SrcB] & %11111)
+	End If
+End Function
+
+Function SRL_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = CPU.Registers[SrcA] Shr (CPU.Registers[SrcB] & %11111)
+	End If
+End Function
+
+Function SRA_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = CPU.Registers[SrcA] Sar (CPU.Registers[SrcB] & %11111)
+	End If
+End Function
+
 ' Set Less Than
 Function SLT_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
