@@ -85,13 +85,7 @@ End Type
 ' Will return an address that went through the MMU translation
 Function AddressThroughMMU:ULong(Addr:Long, Width:Int, CPU:RV64i_core)
 	Local TranslatedAddress:ULong = 0
-	
-	' Warn if exscessive bits were detected
-	If Addr > CPU.MMU.AddressBusMask
-		Print "MMU: Warning: address has meaningless bits"
-		Print "Offending address: 0x" + Shorten(LongHex(Addr))
-	End If
-	
+		
 	TranslatedAddress = ULong(Addr) & CPU.MMU.AddressBusMask
 	
 	' Warn if access will overflow memory
