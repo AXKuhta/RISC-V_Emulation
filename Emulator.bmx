@@ -72,6 +72,9 @@ Print "======================================"
 Local PreviousPC:Long
 Local JumpWarning:String = "[e]"
 
+' MMU address-has-meaningless-bits warning
+Local MMUWarning:String = "[ ]"
+
 Local Insn:TInstruction
 Local Status:Int
 
@@ -84,16 +87,34 @@ While True
 	If StepMode
 		Input "Press Enter"
 	End If
-
-	' Print the address
-	WriteStdout("0x" + Shorten(LongHex(CPU.PC)) + " : " + JumpWarning + " : ")
-		
+	
 	If Lower(Shorten(LongHex(CPU.PC))) = Breakpoint
 		Print "Breakpoint"
 		Input "Press Enter"
 		'StepMode = 1
 	End If
 	
+	
+	' Warn if current address has meaningless bits
+	If CPU.PC > CPU.MMU.AddressBusMask
+		MMUWarning = "[!]"
+	Else
+		MMUWarning = "[ ]"
+	End If
+	
+	' Warn if PC has changed
+	If (PreviousPC + 4 = CPU.PC)
+		JumpWarning = "[ ]"
+	Else
+		JumpWarning = "[x]"
+	End If
+	
+	
+	' Print the address
+	WriteStdout("0x" + Shorten(LongHex(CPU.PC)) + " : " + MMUWarning + " : " + JumpWarning + " : ")
+	
+	
+	' Fetch-Decode-Execute chain
 	' Fetch
 	Insn = Fetch(CPU)
 	PreviousPC = CPU.PC
@@ -110,12 +131,6 @@ While True
 	' Execute
 	Insn.Handler(Insn, CPU)
 	
-	' Check if PC is intact
-	If (PreviousPC + 4 = CPU.PC)
-		JumpWarning = "[ ]"
-	Else
-		JumpWarning = "[x]"
-	End If
 	
 	' Graphics
 	If Not KeyDown(KEY_F)
