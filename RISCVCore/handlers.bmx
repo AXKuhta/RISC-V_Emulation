@@ -952,7 +952,7 @@ End Function
 ' Atomic ADD (32 bit)
 ' 1. Addr = SrcA
 ' 2. Value = [Addr]
-' 3. rd = SignExt( Value, 32 )
+' 3. rd = Value ' Note: value /does/ need to retain sign
 ' 4. [Addr] = Value + SrcB
 Function AMOADD_W_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
@@ -961,14 +961,16 @@ Function AMOADD_W_Handler(Insn:TInstruction, CPU:RV64i_core)
 
 	Local Addr:Long = CPU.Registers[SrcA]
 	
-	Local Value:Long = MMUReadMemory32(Addr, CPU)
+	Local Value:Int = MMUReadMemory32(Addr, CPU)
 	
 	' Only write if the destination is not the `zero`
 	If Dest
-		CPU.Registers[Dest] = SignExt(Value, 32)
+		' Int to Long cast should sign extend
+		CPU.Registers[Dest] = Value
 	End If
 	
-	MMUWriteMemory32(Int(Value + CPU.Registers[SrcB]), Addr, CPU)
+	' Should we cut high bits from SrcB? Not sure
+	MMUWriteMemory32(Value + Int(CPU.Registers[SrcB]), Addr, CPU)
 End Function
 ' ======================================================================
 
