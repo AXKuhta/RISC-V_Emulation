@@ -73,7 +73,7 @@ Type RV64i_mmu
 	
 	' Limit the meaningful address bits
 	' Be sure to initialize this value!
-	Field AddressBusMask:UInt
+	Field AddressBusMask:ULong
 	
 	' Memory pointer
 	Field Memory:Byte Ptr
@@ -83,7 +83,7 @@ Type RV64i_mmu
 End Type
 
 ' Will return an address that went through the MMU translation
-Function AddressThroughMMU(Addr:Long, Width:Int, CPU:RV64i_core)
+Function AddressThroughMMU:ULong(Addr:Long, Width:Int, CPU:RV64i_core)
 	Local TranslatedAddress:ULong = 0
 	
 	' Warn if exscessive bits were detected
