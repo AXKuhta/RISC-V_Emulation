@@ -273,6 +273,7 @@ Function Decode(Insn:TInstruction)
 							Return 0
 							
 					End Select
+					
 				Case %0100000
 					Select Insn.Funct3
 						Case ALU_SUB
@@ -285,6 +286,34 @@ Function Decode(Insn:TInstruction)
 							
 						Default
 							Print "Unknown 32 bit RxR ALU Instruction (%0100000)"
+							Return 0
+							
+					End Select
+					
+				Case %0000001
+					Select Insn.Funct3
+						Case ALU_MUL
+							Log_RxR("MULW", Insn)
+							Return 0
+							
+						Case ALU_DIV
+							Log_RxR("DIVW", Insn)
+							Return 0
+							
+						Case ALU_DIVU
+							Log_RxR("DIVUW", Insn)
+							Return 0
+							
+						Case ALU_REM
+							Log_RxR("REMW", Insn)
+							Return 0
+							
+						Case ALU_REMU
+							Log_RxR("REMUW", Insn)
+							Return 0
+						
+						Default
+							Print "Unknown 32 bit RxR ALU Instruction (%0000001)"
 							Return 0
 							
 					End Select
