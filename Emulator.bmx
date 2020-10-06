@@ -91,7 +91,7 @@ While True
 	If Lower(Shorten(LongHex(CPU.PC))) = Breakpoint
 		Print "Breakpoint"
 		Input "Press Enter"
-		StepMode = 1
+		'StepMode = 1
 	End If
 	
 	' Fetch
@@ -135,6 +135,7 @@ While True
 	If KeyHit(KEY_SLASH)
 		Breakpoint = Input("[!] Please type the breakpoint address (in lowercase shortened hex): 0x")
 	End If
+
 Wend
 
 Input("Press enter to exit")
@@ -186,8 +187,15 @@ Function ShowMemoryDump(CPU:RV64i_core)
 	Local DumpAddr:ULong = CPU.MMU.LatestReadAddress
 	Local Character:String
 	
+	DrawText "Memory dump: ", 0, 538
 	DrawLine 0, 550, 800, 550
 	DrawLine 800, 550, 800, 600
+	
+	' Warn on bad address
+	If DumpAddr > CPU.MMU.MemorySize
+		DrawText "Bad address", 0, 550
+		Return
+	End If
 	
 	For Local j:Int = 0 To (5 - 1)
 		For Local i:Int = 0 To (80 - 1)
