@@ -174,7 +174,14 @@ Function Decode(Insn:TInstruction)
 							Log_RxR("SLT", Insn)
 						Case ALU_SLTU
 							Insn.Handler = SLTU_Handler
-							Log_RxR("SLTU", Insn)				
+							Log_RxR("SLTU", Insn)
+							
+						Case ALU_SLL
+							Log_RxR("SLL", Insn)
+							Return 0
+						Case ALU_SRL
+							Log_RxR("SRL", Insn)
+							Return 0
 						
 						Default
 							Print "Unknown RxR ALU Instruction (%0000000)"
@@ -187,6 +194,10 @@ Function Decode(Insn:TInstruction)
 						Case ALU_SUB
 							Insn.Handler = SUB_Handler
 							Log_RxR("SUB", Insn)
+							
+						Case ALU_SRA
+							Log_RxR("SRA", Insn)
+							Return
 							
 						Default
 							Print "Unknown RxR ALU Instruction (%0100000)"
