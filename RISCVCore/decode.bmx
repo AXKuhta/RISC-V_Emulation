@@ -140,12 +140,15 @@ Function Decode(Insn:TInstruction)
 			Insn.Handler = LUI_Handler
 			Log_LUI("LUI", Insn)
 			
+			
+			
 		Case OP_AUIPC
 			' Add Uppper Immediate to PC
 			' (And store into a register)
 			' =================================
 			Insn.Handler = AUIPC_Handler
 			Log_LUI("AUIPC", Insn)
+			
 			
 			
 		Case OP_ALU_RxR
@@ -246,6 +249,54 @@ Function Decode(Insn:TInstruction)
 
 	
 	
+		Case OP_ALU_RxR_32BIT
+			' Register + Register operation
+			' 32 bit `.W` flavour
+			' =================================
+			Select Insn.Funct7
+				Case %0000000
+					Select Insn.Funct3
+						Case ALU_ADD
+							Insn.Handler = ADDW_Handler
+							Log_RxR("ADDW", Insn)
+							
+						Case ALU_SLL
+							Log_RxR("SLLW", Insn)
+							Return 0
+							
+						Case ALU_SRL
+							Log_RxR("SRLW", Insn)
+							Return 0
+						
+						Default
+							Print "Unknown 32 bit RxR ALU Instruction (%0000000)"
+							Return 0
+							
+					End Select
+				Case %0100000
+					Select Insn.Funct3
+						Case ALU_SUB
+							Insn.Handler = SUBW_Handler
+							Log_RxR("SUBW", Insn)
+							
+						Case ALU_SRA
+							Log_RxR("SRAW", Insn)
+							Return 0
+							
+						Default
+							Print "Unknown 32 bit RxR ALU Instruction (%0100000)"
+							Return 0
+							
+					End Select
+				
+				Default
+					Print "Unacceptable type of 32 bit Register+Register ALU instruction"
+					Return 0
+
+			End Select
+
+
+
 		Case OP_ALU_AxR
 			' Argument + Register operation
 			' =================================
@@ -299,54 +350,8 @@ Function Decode(Insn:TInstruction)
 				Return 0
 				
 			End Select
-			
-			
-		Case OP_ALU_RxR_32BIT
-			' Register + Register operation
-			' 32 bit `.W` flavour
-			' =================================
-			Select Insn.Funct3
-				Case ALU_ADD, ALU_SUB
-					Select Insn.Funct7
-						Case %0000000
-							Insn.Handler = ADDW_Handler
-							Log_RxR("ADDW", Insn)
-						Case %0100000
-							Insn.Handler = SUBW_Handler
-							Log_RxR("SUBW", Insn)
-						
-						Default
-							Print "Unacceptable type of ADDW/SUBW"
-							Return 0
 					
-					End Select
 					
-				Case ALU_SLL
-					Log_RxR("SLLW", Insn)
-					Return 0
-					
-				Case ALU_SRL, ALU_SRA
-					Select Insn.Funct7
-						Case %0000000
-							Log_RxR("SRLW", Insn)
-							Return 0
-						Case %0100000
-							Log_RxR("SRAW", Insn)
-							Return 0
-						
-						Default
-							Print "Unacceptable type of SRLW/SRAW"
-							Return 0
-					
-					End Select
-
-				
-				Default
-					Print "Unacceptable type of Register+Register 32 bit ALU instruction"
-					Return 0
-					
-			End Select
-			
 			
 		Case OP_ALU_AxR_32BIT
 			' Argument + Register operation
