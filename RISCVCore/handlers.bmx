@@ -352,13 +352,11 @@ Function LBU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' Calculate the target addr
 	Local Offset:Int = Insn.Argument12
 	Local Addr:Long = CPU.Registers[SrcA] + Offset
-	
-	CheckAddress(Addr, CPU)
-	
+		
 	' We can then read 8 bits directly
 	' Note the ULong cast
-	Local Value:ULong = CPU.Memory[Addr]
-			
+	Local Value:ULong = MMUReadMemory8(Addr, CPU)
+	
 	' Only write if the destination is not the `zero`
 	If Dest
 		CPU.Registers[Dest] = Value
@@ -374,10 +372,8 @@ Function LB_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Offset:Int = Insn.Argument12
 	Local Addr:Long = CPU.Registers[SrcA] + Offset
 	
-	CheckAddress(Addr, CPU)
-	
 	' We can then read 8 bits directly (also sign extending them)
-	Local Value:Long = SignExt(CPU.Memory[Addr], 8)
+	Local Value:Long = SignExt(MMUReadMemory8(Addr, CPU), 8)
 	
 	' Only write if the destination is not the `zero`
 	If Dest
@@ -393,11 +389,9 @@ Function LHU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' Calculate the target addr
 	Local Offset:Int = Insn.Argument12
 	Local Addr:Long = CPU.Registers[SrcA] + Offset
-	
-	CheckAddress(Addr, CPU)
-	
+		
 	' Note the ULong cast
-	Local Value:ULong = ReadMemory16(CPU.Memory + Addr)
+	Local Value:ULong = MMUReadMemory16(Addr, CPU)
 	
 	' Only write if the destination is not the `zero`
 	If Dest
@@ -414,10 +408,8 @@ Function LH_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Offset:Int = Insn.Argument12
 	Local Addr:Long = CPU.Registers[SrcA] + Offset
 	
-	CheckAddress(Addr, CPU)
-	
 	' Read and sign extend
-	Local Value:Long = SignExt(ReadMemory16(CPU.Memory + Addr), 16)
+	Local Value:Long = SignExt(MMUReadMemory16(Addr, CPU), 16)
 	
 	' Only write if the destination is not the `zero`
 	If Dest
@@ -433,11 +425,9 @@ Function LWU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' Calculate the target addr
 	Local Offset:Int = Insn.Argument12
 	Local Addr:Long = CPU.Registers[SrcA] + Offset
-	
-	CheckAddress(Addr, CPU)
-	
+		
 	' Note the ULong cast
-	Local Value:ULong = ReadMemory32(CPU.Memory + Addr)
+	Local Value:ULong = MMUReadMemory32(Addr, CPU)
 		
 	' Only write if the destination is not the `zero`
 	If Dest
@@ -454,10 +444,8 @@ Function LW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Offset:Int = Insn.Argument12
 	Local Addr:Long = CPU.Registers[SrcA] + Offset
 	
-	CheckAddress(Addr, CPU)
-	
 	' Sign extension will happen automatically with cast from Int to Long
-	Local Value:Long = ReadMemory32(CPU.Memory + Addr)
+	Local Value:Long = MMUReadMemory32(Addr, CPU)
 		
 	' Only write if the destination is not the `zero`
 	If Dest
@@ -473,10 +461,8 @@ Function LD_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' Calculate the target addr
 	Local Offset:Int = Insn.Argument12
 	Local Addr:Long = CPU.Registers[SrcA] + Offset
-	
-	CheckAddress(Addr, CPU)
-	
-	Local Value:Long = ReadMemory64(CPU.Memory + Addr)
+		
+	Local Value:Long = MMUReadMemory64(Addr, CPU)
 	
 	' Only write if the destination is not the `zero`
 	If Dest
@@ -499,11 +485,8 @@ Function SB_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' Calculate the target addr
 	Local Offset:Int = Insn.SD_Argument12
 	Local Addr:Long = CPU.Registers[SrcA] + Offset
-	
-	CheckAddress(Addr, CPU)
-	
-	' We can store 8 bits directly
-	CPU.Memory[Addr] = Value
+		
+	MMUWriteMemory8(Value, Addr, CPU)
 End Function
 
 ' SH, aka Store Data (16 bit)
@@ -518,9 +501,7 @@ Function SH_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Offset:Int = Insn.SD_Argument12
 	Local Addr:Long = CPU.Registers[SrcA] + Offset
 	
-	CheckAddress(Addr, CPU)
-	
-	WriteMemory16(Value, CPU.Memory + Addr)
+	MMUWriteMemory16(Value, Addr, CPU)
 End Function
 
 ' SW, aka Store Data (32 bit)
@@ -534,10 +515,8 @@ Function SW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' Calculate the target addr
 	Local Offset:Int = Insn.SD_Argument12
 	Local Addr:Long = CPU.Registers[SrcA] + Offset
-	
-	CheckAddress(Addr, CPU)
-	
-	WriteMemory32(Value, CPU.Memory + Addr)
+		
+	MMUWriteMemory32(Value, Addr, CPU)
 End Function
 
 ' SD, aka Store Data (Full width)
@@ -552,9 +531,7 @@ Function SD_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Offset:Int = Insn.SD_Argument12
 	Local Addr:Long = CPU.Registers[SrcA] + Offset
 	
-	CheckAddress(Addr, CPU)
-	
-	WriteMemory64(Value, CPU.Memory + Addr)
+	MMUWriteMemory64(Value, Addr, CPU)
 End Function
 ' ======================================================================
 
@@ -614,7 +591,9 @@ Function JAL_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' But we already made it point to the next instruction, so we have to subtract 4
 	Local Addr:Long = CPU.PC - 4 + Offset
 	
-	CheckAddress(Addr, CPU)
+	' Check the address just in case
+	' But do not alter the register state!
+	AddressThroughMMU(Addr, 4, CPU)
 		
 	' Only store PC if the destination is not the `zero`
 	' Thankfully the adjusted PC is useful here
@@ -634,7 +613,9 @@ Function JALR_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	Local Addr:Long = CPU.Registers[SrcA] + Insn.Argument12
 	
-	CheckAddress(Addr, CPU)
+	' Check the address just in case
+	' But do not alter the register state!
+	AddressThroughMMU(Addr, 4, CPU)
 		
 	' Only store PC if the destination is not the `zero`
 	' Thankfully the adjusted PC is useful here
@@ -659,7 +640,9 @@ Function BGE_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' But we already made it point to the next instruction, so we have to subtract 4
 	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
 	
-	CheckAddress(Addr, CPU)
+	' Check the address just in case
+	' But do not alter the register state!
+	AddressThroughMMU(Addr, 4, CPU)
 	
 	If CPU.Registers[SrcA] >= CPU.Registers[SrcB]
 		CPU.PC = Addr
@@ -675,7 +658,9 @@ Function BGEU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' But we already made it point to the next instruction, so we have to subtract 4
 	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
 	
-	CheckAddress(Addr, CPU)
+	' Check the address just in case
+	' But do not alter the register state!
+	AddressThroughMMU(Addr, 4, CPU)
 	
 	If ULong(CPU.Registers[SrcA]) >= ULong(CPU.Registers[SrcB])
 		CPU.PC = Addr
@@ -691,7 +676,9 @@ Function BLT_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' But we already made it point to the next instruction, so we have to subtract 4
 	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
 	
-	CheckAddress(Addr, CPU)
+	' Check the address just in case
+	' But do not alter the register state!
+	AddressThroughMMU(Addr, 4, CPU)
 	
 	If CPU.Registers[SrcA] < CPU.Registers[SrcB]
 		CPU.PC = Addr
@@ -707,7 +694,9 @@ Function BLTU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' But we already made it point to the next instruction, so we have to subtract 4
 	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
 	
-	CheckAddress(Addr, CPU)
+	' Check the address just in case
+	' But do not alter the register state!
+	AddressThroughMMU(Addr, 4, CPU)
 	
 	If ULong(CPU.Registers[SrcA]) < ULong(CPU.Registers[SrcB])
 		CPU.PC = Addr
@@ -723,7 +712,9 @@ Function BEQ_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' But we already made it point to the next instruction, so we have to subtract 4
 	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
 	
-	CheckAddress(Addr, CPU)
+	' Check the address just in case
+	' But do not alter the register state!
+	AddressThroughMMU(Addr, 4, CPU)
 	
 	If CPU.Registers[SrcA] = CPU.Registers[SrcB]
 		CPU.PC = Addr
@@ -739,7 +730,9 @@ Function BNE_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' But we already made it point to the next instruction, so we have to subtract 4
 	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
 	
-	CheckAddress(Addr, CPU)
+	' Check the address just in case
+	' But do not alter the register state!
+	AddressThroughMMU(Addr, 4, CPU)
 	
 	If CPU.Registers[SrcA] <> CPU.Registers[SrcB]
 		CPU.PC = Addr
@@ -876,16 +869,14 @@ Function AMOADD_W_Handler(Insn:TInstruction, CPU:RV64i_core)
 
 	Local Addr:Long = CPU.Registers[SrcA]
 	
-	CheckAddress(Addr, CPU)
-	
-	Local Value:Long = ReadMemory32(CPU.Memory + Addr)
+	Local Value:Long = MMUReadMemory32(Addr, CPU)
 	
 	' Only write if the destination is not the `zero`
 	If Dest
 		CPU.Registers[Dest] = SignExt(Value, 32)
 	End If
 	
-	WriteMemory32(Int(Value + CPU.Registers[SrcB]), CPU.Memory + Addr)
+	MMUWriteMemory32(Int(Value + CPU.Registers[SrcB]), Addr, CPU)
 End Function
 ' ======================================================================
 

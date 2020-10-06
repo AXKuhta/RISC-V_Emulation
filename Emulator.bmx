@@ -29,8 +29,11 @@ End If
 Local CPU:RV64i_core = New RV64i_core
 
 ' Allocate some system memory
-CPU.MemorySize = 32 * 1024 * 1024
-CPU.Memory = MemAlloc(CPU.MemorySize)
+CPU.MMU.MemorySize = 32 * 1024 * 1024
+CPU.MMU.Memory = MemAlloc(CPU.MMU.MemorySize)
+
+' Maximum MMU capability of 2GB
+CPU.MMU.AddressBusMask = $7FFFFFFF
 
 ' Init stack pointer
 ' Put the stack at 24th megabyte
@@ -38,7 +41,7 @@ CPU.Registers[2] = 24 * 1024 * 1024
 
 ' Parse and load the sections
 ' Also store the entry point
-Local ELFMetadata:ELFLoaderMetadata = LoadELF(ELFFile, CPU.Memory)
+Local ELFMetadata:ELFLoaderMetadata = LoadELF(ELFFile, CPU.MMU.Memory)
 
 ' Set the entry point and the global pointer
 CPU.PC = ELFMetadata.EntryPoint
@@ -47,7 +50,7 @@ CPU.Registers[3] = ELFMetadata.LastLoadedSection + $800 - 4
 ' Check for invalid entry point info
 ' Attempt to execute from 0x0 if invalid
 ' Required to run `vmlinux`
-If CPU.PC > CPU.MemorySize
+If CPU.PC > CPU.MMU.MemorySize
 	Print "Invalid entry point: 0x" + Shorten(LongHex(CPU.PC))
 	Print "Will start execution from 0x0"
 	CPU.PC = 0
@@ -147,7 +150,7 @@ Function ShowScreen(CPU:RV64i_core)
 	
 	For Local j:Int = 0 To (25 - 1)
 		For Local i:Int = 0 To (80 - 1)
-			Character = Chr(CPU.Memory[SCREEN_BASE + 80*j + i])
+			Character = Chr(CPU.MMU.Memory[SCREEN_BASE + 80*j + i])
 			
 			Select Character
 				Case "~0"
