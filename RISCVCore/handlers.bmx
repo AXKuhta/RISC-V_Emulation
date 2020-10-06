@@ -1001,6 +1001,24 @@ End Function
 
 ' CSR Save into register and [SET BITS with argument]
 Function CSRRSI_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local TargetCSR:Int = Insn.CSR_Argument12
+	Local SrcA:Int = Insn.SourceA
+	Local Dest:Int = Insn.Destination
+	
+	' The value to load is stored in the SourceA field
+	Local Value:Byte = Insn.SourceA
+
+	' Spec says we must always read the CSR with this instruction
+	' But doing so would taint our `zero` register
+	' So don't do it!
+	If Dest
+		CPU.Registers[Dest] = CPU.CSR[TargetCSR]
+	End If
+	
+	' Write only if the argument is not 0
+	If Value
+		CPU.CSR[TargetCSR] = CPU.CSR[TargetCSR] | Value
+	End If
 End Function
 
 ' CSR Save into register and [CLEAR BITS from argument]
