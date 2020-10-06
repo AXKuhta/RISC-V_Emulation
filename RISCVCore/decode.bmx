@@ -541,14 +541,14 @@ Function Decode(Insn:TInstruction)
 						Case AMO_ADD
 							Insn.Handler = AMOADD_W_Handler
 							Log_AMO("AMOADD.W", Insn)
-						Case AMO_XOR
-							Log_AMO("AMOXOR.W", Insn)
-							Return 0
 						Case AMO_AND
 							Log_AMO("AMOAND.W", Insn)
 							Return 0
 						Case AMO_OR
 							Log_AMO("AMOOR.W", Insn)
+							Return 0
+						Case AMO_XOR
+							Log_AMO("AMOXOR.W", Insn)
 							Return 0
 						Case AMO_MIN
 							Log_AMO("AMOMIN.W", Insn)
@@ -576,14 +576,14 @@ Function Decode(Insn:TInstruction)
 						Case AMO_ADD
 							Log_AMO("AMOADD.D", Insn)
 							Return 0
+						Case AMO_AND
+							Insn.Handler = AMOAND_D_Handler
+							Log_AMO("AMOAND.D", Insn)
+						Case AMO_OR
+							Insn.Handler = AMOOR_D_Handler
+							Log_AMO("AMOOR.D", Insn)
 						Case AMO_XOR
 							Log_AMO("AMOXOR.D", Insn)
-							Return 0
-						Case AMO_AND
-							Log_AMO("AMOAND.D", Insn)
-							Return 0
-						Case AMO_OR
-							Log_AMO("AMOOR.D", Insn)
 							Return 0
 						Case AMO_MIN
 							Log_AMO("AMOMIN.D", Insn)

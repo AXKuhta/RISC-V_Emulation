@@ -949,6 +949,50 @@ Function FENCE_Handler(Insn:TInstruction, CPU:RV64i_core)
 
 End Function
 
+' Atomic AND (64 bit)
+' 1. Addr = SrcA
+' 2. Value = [Addr]
+' 3. rd = Value
+' 4. [Addr] = Value + SrcB
+Function AMOAND_D_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+
+	Local Addr:Long = CPU.Registers[SrcA]
+	
+	Local Value:Long = MMUReadMemory64(Addr, CPU)
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Value
+	End If
+	
+	MMUWriteMemory64(Value & CPU.Registers[SrcB], Addr, CPU)
+End Function
+
+' Atomic OR (64 bit)
+' 1. Addr = SrcA
+' 2. Value = [Addr]
+' 3. rd = Value
+' 4. [Addr] = Value + SrcB
+Function AMOOR_D_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+
+	Local Addr:Long = CPU.Registers[SrcA]
+	
+	Local Value:Long = MMUReadMemory64(Addr, CPU)
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Value
+	End If
+	
+	MMUWriteMemory64(Value | CPU.Registers[SrcB], Addr, CPU)
+End Function
+
 ' Atomic ADD (32 bit)
 ' 1. Addr = SrcA
 ' 2. Value = [Addr]
@@ -972,5 +1016,6 @@ Function AMOADD_W_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' Should we cut high bits from SrcB? Not sure
 	MMUWriteMemory32(Value + Int(CPU.Registers[SrcB]), Addr, CPU)
 End Function
+
 ' ======================================================================
 
