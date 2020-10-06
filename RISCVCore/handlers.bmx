@@ -132,6 +132,40 @@ End Function
 ' ======================================================================
 
 
+' Register + Register ALU Operations (32 bit)
+' ======================================================================
+Function ADDW_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+	
+	' 1. Cast the sources to Int (Will lose upper bits)
+	' 2. Perform the operation
+	' 3. Sign extension is not required when casting to Long from Int
+	
+	Local Result:Int = Int(CPU.Registers[SrcA]) + Int(CPU.Registers[SrcB])
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Result
+	End If
+End Function
+
+Function SUBW_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+		
+	Local Result:Int = Int(CPU.Registers[SrcA]) - Int(CPU.Registers[SrcB])
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Result
+	End If
+End Function
+' ======================================================================
+
+
 ' Register + Register ALU Operations (M Extension)
 ' ======================================================================
 ' Multiply
@@ -198,35 +232,23 @@ End Function
 ' ======================================================================
 
 
-' Register + Register ALU Operations (32 bit)
+' Register + Register ALU Operations (M Extension) (32 bit)
 ' ======================================================================
-Function ADDW_Handler(Insn:TInstruction, CPU:RV64i_core)
+' Multiply (32 bit)
+Function MULW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
 	Local SrcB:Int = Insn.SourceB
 	Local Dest:Int = Insn.Destination
 	
-	' 1. Cast the sources to Int (Will lose upper bits)
-	' 2. Perform the operation
-	' 3. Sign extension is not required when casting to Long from Int
+	Local Arg1:Int = CPU.Registers[SrcA] & $FFFFFFFF
+	Local Arg2:Int = CPU.Registers[SrcB] & $FFFFFFFF
 	
-	Local Result:Int = Int(CPU.Registers[SrcA]) + Int(CPU.Registers[SrcB])
-	
-	' Only write if the destination is not the `zero`
-	If Dest
-		CPU.Registers[Dest] = Result
-	End If
-End Function
-
-Function SUBW_Handler(Insn:TInstruction, CPU:RV64i_core)
-	Local SrcA:Int = Insn.SourceA
-	Local SrcB:Int = Insn.SourceB
-	Local Dest:Int = Insn.Destination
-		
-	Local Result:Int = Int(CPU.Registers[SrcA]) - Int(CPU.Registers[SrcB])
+	Local Result:Int = Arg1 * Arg2
 	
 	' Only write if the destination is not the `zero`
 	If Dest
-		CPU.Registers[Dest] = Result
+		' Casting Int to Long should sign extend
+		CPU.Registers[Dest] =  Result
 	End If
 End Function
 ' ======================================================================
