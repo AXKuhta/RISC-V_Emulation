@@ -104,7 +104,7 @@ Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core)
 	Local IsMMIO:Int = TranslatedAddress >= CPU.MMU.MMIOStart And TranslatedAddress <= (CPU.MMU.MMIOStart + CPU.MMU.MMIOSize)
 	
 	If IsMMIO
-		Return CPU.MMU.MMIO + (CPU.MMU.MMIOStart - TranslatedAddress)
+		Return CPU.MMU.MMIO + (TranslatedAddress - CPU.MMU.MMIOStart)
 	Else
 		ValidateAddress(TranslatedAddress, CPU)
 		
