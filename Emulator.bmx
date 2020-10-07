@@ -35,6 +35,13 @@ CPU.MMU.Memory = MemAlloc(CPU.MMU.MemorySize)
 ' Maximum MMU capability of 2GB
 CPU.MMU.AddressBusMask = $7FFFFFFF
 
+' Allocate some MMIO memory (A 80x25 text-mode screen)
+CPU.MMU.MMIOSize = 80*25
+CPU.MMU.MMIO = MemAlloc(CPU.MMU.MMIOSize)
+
+' Mark MMIO to start at 0x100B8000
+CPU.MMU.MMIOStart = $100B8000
+
 ' Init stack pointer
 ' Put the stack at 24th megabyte
 CPU.Registers[2] = 24 * 1024 * 1024
@@ -198,23 +205,23 @@ Function DrawRegisters(CPU:RV64i_core)
 End Function
 
 ' Draw the short dump of the latest read memory address
-Function ShowMemoryDump(CPU:RV64i_core)
-	Local DumpAddr:ULong = CPU.MMU.LatestReadAddress
-	Local Character:String
-	
+Function ShowMemoryDump(CPU:RV64i_core)	
 	DrawText "Memory dump: ", 0, 538
 	DrawLine 0, 550, 800, 550
 	DrawLine 800, 550, 800, 600
-	
+		
 	' Warn on bad address
-	If DumpAddr > CPU.MMU.MemorySize
-		DrawText "Bad address", 0, 550
+	If CPU.MMU.LatestReadAddress = 0
+		DrawText "Zero address", 0, 550
 		Return
 	End If
 	
+	Local DumpAddr:Byte Ptr = AddressThroughMMU(Long(CPU.MMU.LatestReadAddress), 1, CPU)
+	Local Character:String
+	
 	For Local j:Int = 0 To (5 - 1)
 		For Local i:Int = 0 To (80 - 1)
-			Character = Chr(CPU.MMU.Memory[DumpAddr + 80*j + i])
+			Character = Chr(DumpAddr[80*j + i])
 			
 			Select Character
 				Case "~0"

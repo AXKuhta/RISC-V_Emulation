@@ -48,7 +48,7 @@ End Type
 Function Fetch:TInstruction(CPU:RV64i_core)
 	Local Insn:TInstruction = New TInstruction
 	
-	Insn.Entire = ReadMemory32(CPU.MMU.Memory + AddressThroughMMU(CPU.PC, 4, CPU))
+	Insn.Entire = ReadMemory32(AddressThroughMMU(CPU.PC, 4, CPU))
 	
 	Return Insn
 End Function 
