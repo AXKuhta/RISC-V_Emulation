@@ -165,7 +165,6 @@ Input("Press enter to exit")
 
 ' Draw a 80x25 screendump
 Function ShowScreen(CPU:RV64i_core)
-	Local SCREEN_BASE:Int = $8B00 '$244DF0 '$242600 ' $8B00
 	Local Character:String
 	
 	DrawLine 0, 260, 800, 260
@@ -173,7 +172,7 @@ Function ShowScreen(CPU:RV64i_core)
 	
 	For Local j:Int = 0 To (25 - 1)
 		For Local i:Int = 0 To (80 - 1)
-			Character = Chr(CPU.MMU.Memory[SCREEN_BASE + 80*j + i])
+			Character = Chr(CPU.MMU.MMIO[80*j + i])
 			
 			Select Character
 				Case "~0"
