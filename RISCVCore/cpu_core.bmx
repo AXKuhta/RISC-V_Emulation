@@ -148,7 +148,6 @@ Function MMUReadMemory16:Short(Addr:Long, CPU:RV64i_core)
 	CPU.MMU.LatestReadAddress = Addr
 
 	Return HostAddr[0]
-	'Return ReadMemory16(CPU.MMU.Memory + TranslatedAddr)
 End Function
 
 Function MMUReadMemory32:Int(Addr:Long, CPU:RV64i_core)
@@ -166,7 +165,6 @@ Function MMUReadMemory64:Long(Addr:Long, CPU:RV64i_core)
 	CPU.MMU.LatestReadAddress = Addr
 	
 	Return HostAddr[0]
-	'Return ReadMemory64(CPU.MMU.Memory + TranslatedAddr)
 End Function
 
 
@@ -184,7 +182,6 @@ Function MMUWriteMemory16(Value:Short, Addr:Long, CPU:RV64i_core)
 	CPU.MMU.LatestWriteAddress = Addr
 
 	HostAddr[0] = Value
-	'WriteMemory16(Value, CPU.MMU.Memory + TranslatedAddr)
 End Function
 
 Function MMUWriteMemory32(Value:Int, Addr:Long, CPU:RV64i_core)
@@ -193,7 +190,6 @@ Function MMUWriteMemory32(Value:Int, Addr:Long, CPU:RV64i_core)
 	CPU.MMU.LatestWriteAddress = Addr
 
 	HostAddr[0] = Value
-	'WriteMemory32(Value, CPU.MMU.Memory + TranslatedAddr)
 End Function
 
 Function MMUWriteMemory64(Value:Long, Addr:Long, CPU:RV64i_core)
@@ -202,6 +198,5 @@ Function MMUWriteMemory64(Value:Long, Addr:Long, CPU:RV64i_core)
 	CPU.MMU.LatestWriteAddress = Addr
 
 	HostAddr[0] = Value
-	'WriteMemory64(Value, CPU.MMU.Memory + TranslatedAddr)
 End Function
 
