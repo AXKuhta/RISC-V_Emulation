@@ -211,7 +211,7 @@ Function ShowMemoryDump(CPU:RV64i_core)
 	DrawLine 800, 550, 800, 600
 		
 	' Warn on bad address
-	If CPU.MMU.LatestReadAddress = 0
+	If CPU.MMU.LatestReadAddress & CPU.MMU.AddressBusMask = 0
 		DrawText "Zero address", 0, 550
 		Return
 	End If
