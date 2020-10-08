@@ -1065,7 +1065,6 @@ Function LR_D_Handler(Insn:TInstruction, CPU:RV64i_core)
 	End If
 	
 	Local Addr:Long = CPU.Registers[SrcA]
-	
 	Local Value:Long = MMUReadMemory64(Addr, CPU)
 	
 	' Only write if the destination is not the `zero`
@@ -1086,7 +1085,6 @@ Function LR_W_Handler(Insn:TInstruction, CPU:RV64i_core)
 	End If
 	
 	Local Addr:Long = CPU.Registers[SrcA]
-	
 	Local Value:Int = MMUReadMemory32(Addr, CPU)
 	
 	' Only write if the destination is not the `zero`
@@ -1146,7 +1144,6 @@ Function AMOSWAP_D_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Dest:Int = Insn.Destination
 
 	Local Addr:Long = CPU.Registers[SrcA]
-	
 	Local Value:Long = MMUReadMemory64(Addr, CPU)
 	
 	' Ouch! we have to store the SrcB value early
@@ -1166,7 +1163,6 @@ Function AMOSWAP_W_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Dest:Int = Insn.Destination
 
 	Local Addr:Long = CPU.Registers[SrcA]
-	
 	Local Value:Int = MMUReadMemory32(Addr, CPU)
 	
 	' Ouch! we have to store the SrcB value early
@@ -1190,15 +1186,14 @@ Function AMOAND_D_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Dest:Int = Insn.Destination
 
 	Local Addr:Long = CPU.Registers[SrcA]
-	
 	Local Value:Long = MMUReadMemory64(Addr, CPU)
+	
+	MMUWriteMemory64(Value & CPU.Registers[SrcB], Addr, CPU)
 	
 	' Only write if the destination is not the `zero`
 	If Dest
 		CPU.Registers[Dest] = Value
 	End If
-	
-	MMUWriteMemory64(Value & CPU.Registers[SrcB], Addr, CPU)
 End Function
 
 ' Atomic OR (64 bit)
@@ -1212,15 +1207,14 @@ Function AMOOR_D_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Dest:Int = Insn.Destination
 
 	Local Addr:Long = CPU.Registers[SrcA]
-	
 	Local Value:Long = MMUReadMemory64(Addr, CPU)
+	
+	MMUWriteMemory64(Value | CPU.Registers[SrcB], Addr, CPU)
 	
 	' Only write if the destination is not the `zero`
 	If Dest
 		CPU.Registers[Dest] = Value
 	End If
-	
-	MMUWriteMemory64(Value | CPU.Registers[SrcB], Addr, CPU)
 End Function
 
 ' Atomic ADD (32 bit)
@@ -1234,17 +1228,16 @@ Function AMOADD_W_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Dest:Int = Insn.Destination
 
 	Local Addr:Long = CPU.Registers[SrcA]
-	
 	Local Value:Int = MMUReadMemory32(Addr, CPU)
+	
+	' Should we cut high bits from SrcB? Not sure
+	MMUWriteMemory32(Value + Int(CPU.Registers[SrcB]), Addr, CPU)
 	
 	' Only write if the destination is not the `zero`
 	If Dest
 		' Int to Long cast should sign extend
 		CPU.Registers[Dest] = Value
 	End If
-	
-	' Should we cut high bits from SrcB? Not sure
-	MMUWriteMemory32(Value + Int(CPU.Registers[SrcB]), Addr, CPU)
 End Function
 
 ' ======================================================================
