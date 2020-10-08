@@ -569,6 +569,12 @@ Function Decode(Insn:TInstruction)
 			Select Insn.Funct3
 				Case %010
 					Select Insn.AMO_Funct5
+						Case AMO_LR
+							Log_AMO("LR.W", Insn)
+							Return 0
+						Case AMO_SC
+							Log_AMO("SC.W", Insn)
+							Return 0
 						Case AMO_SWAP
 							Log_AMO("AMOSWAP.W", Insn)
 							Return 0
@@ -604,6 +610,12 @@ Function Decode(Insn:TInstruction)
 					End Select
 				Case %011
 					Select Insn.AMO_Funct5
+						Case AMO_LR
+							Log_AMO("LR.D", Insn)
+							Return 0
+						Case AMO_SC
+							Log_AMO("SC.D", Insn)
+							Return 0
 						Case AMO_SWAP
 							Log_AMO("AMOSWAP.D", Insn)
 							Return 0
