@@ -1053,6 +1053,90 @@ Function FENCE_Handler(Insn:TInstruction, CPU:RV64i_core)
 
 End Function
 
+' Atomic load (64 bit)
+Function LR_D_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+	
+	If SrcB
+		Print "Invalid LR.D: Source B is not zero"
+		Input "" 
+	End If
+	
+	Local Addr:Long = CPU.Registers[SrcA]
+	
+	Local Value:Long = MMUReadMemory64(Addr, CPU)
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Value
+	End If
+End Function
+
+' Atomic load (32 bit)
+Function LR_W_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+	
+	If SrcB
+		Print "Invalid LR.D: Source B is not zero"
+		Input "" 
+	End If
+	
+	Local Addr:Long = CPU.Registers[SrcA]
+	
+	Local Value:Int = MMUReadMemory32(Addr, CPU)
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Value
+	End If
+End Function
+
+' Atomic store (64 bit)
+Function SC_D_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+		
+	Local Addr:Long = CPU.Registers[SrcA]
+	Local Value:Long = CPU.Registers[SrcB]
+	
+	MMUWriteMemory64(Value, Addr, CPU)
+	
+	' This status should take a non-zero value if the write was blocked
+	' (Not implementable right now)
+	Local Status:Int = 0
+	
+	' Place the status in the destination register
+	If Dest
+		CPU.Registers[Dest] = Status
+	End If
+End Function
+
+' Atomic store (32 bit)
+Function SC_W_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+		
+	Local Addr:Long = CPU.Registers[SrcA]
+	Local Value:Int = CPU.Registers[SrcB]
+	
+	MMUWriteMemory32(Value, Addr, CPU)
+	
+	' This status should take a non-zero value if the write was blocked
+	' (Not implementable right now)
+	Local Status:Int = 0
+	
+	' Place the status in the destination register
+	If Dest
+		CPU.Registers[Dest] = Status
+	End If
+End Function
+
 ' Atomic AND (64 bit)
 ' 1. Addr = SrcA
 ' 2. Value = [Addr]

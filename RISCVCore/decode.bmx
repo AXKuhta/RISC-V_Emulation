@@ -570,11 +570,11 @@ Function Decode(Insn:TInstruction)
 				Case %010
 					Select Insn.AMO_Funct5
 						Case AMO_LR
+							Insn.Handler = LR_W_Handler
 							Log_AMO("LR.W", Insn)
-							Return 0
 						Case AMO_SC
+							Insn.Handler = SC_W_Handler
 							Log_AMO("SC.W", Insn)
-							Return 0
 						Case AMO_SWAP
 							Log_AMO("AMOSWAP.W", Insn)
 							Return 0
@@ -611,11 +611,11 @@ Function Decode(Insn:TInstruction)
 				Case %011
 					Select Insn.AMO_Funct5
 						Case AMO_LR
+							Insn.Handler = LR_D_Handler
 							Log_AMO("LR.D", Insn)
-							Return 0
 						Case AMO_SC
+							Insn.Handler = SC_D_Handler
 							Log_AMO("SC.D", Insn)
-							Return 0
 						Case AMO_SWAP
 							Log_AMO("AMOSWAP.D", Insn)
 							Return 0
