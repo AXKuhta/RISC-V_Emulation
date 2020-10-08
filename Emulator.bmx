@@ -29,7 +29,7 @@ End If
 Local CPU:RV64i_core = New RV64i_core
 
 ' Allocate some system memory
-CPU.MMU.MemorySize = 32 * 1024 * 1024
+CPU.MMU.MemorySize = 64 * 1024 * 1024
 CPU.MMU.Memory = MemAlloc(CPU.MMU.MemorySize)
 
 ' Maximum MMU capability of 2GB
@@ -43,8 +43,8 @@ CPU.MMU.MMIO = MemAlloc(CPU.MMU.MMIOSize)
 CPU.MMU.MMIOStart = $100B8000
 
 ' Init stack pointer
-' Put the stack at 24th megabyte
-CPU.Registers[2] = 24 * 1024 * 1024
+' Put the stack at 48th megabyte
+CPU.Registers[2] = 48 * 1024 * 1024
 
 ' Parse and load the sections
 ' Also store the entry point
