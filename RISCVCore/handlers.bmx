@@ -1137,6 +1137,48 @@ Function SC_W_Handler(Insn:TInstruction, CPU:RV64i_core)
 	End If
 End Function
 
+' Atomic swap (64 bit)
+' Memory will end up in the register
+' Register will end up in the memory
+Function AMOSWAP_D_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+
+	Local Addr:Long = CPU.Registers[SrcA]
+	
+	Local Value:Long = MMUReadMemory64(Addr, CPU)
+	
+	' Ouch! we have to store the SrcB value early
+	' The Dest could equal the SrcB and we could lose the value if we write to memory after we write to dest
+	MMUWriteMemory64(CPU.Registers[SrcB], Addr, CPU)
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Value
+	End If
+End Function
+
+' Atomic swap (32 bit)
+Function AMOSWAP_W_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+
+	Local Addr:Long = CPU.Registers[SrcA]
+	
+	Local Value:Int = MMUReadMemory32(Addr, CPU)
+	
+	' Ouch! we have to store the SrcB value early
+	' The Dest could equal the SrcB
+	MMUWriteMemory32(Int(CPU.Registers[SrcB]), Addr, CPU)
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Value
+	End If
+End Function
+
 ' Atomic AND (64 bit)
 ' 1. Addr = SrcA
 ' 2. Value = [Addr]

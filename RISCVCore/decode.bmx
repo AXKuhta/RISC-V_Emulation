@@ -576,8 +576,8 @@ Function Decode(Insn:TInstruction)
 							Insn.Handler = SC_W_Handler
 							Log_AMO("SC.W", Insn)
 						Case AMO_SWAP
+							Insn.Handler = AMOSWAP_W_Handler
 							Log_AMO("AMOSWAP.W", Insn)
-							Return 0
 						Case AMO_ADD
 							Insn.Handler = AMOADD_W_Handler
 							Log_AMO("AMOADD.W", Insn)
@@ -617,8 +617,8 @@ Function Decode(Insn:TInstruction)
 							Insn.Handler = SC_D_Handler
 							Log_AMO("SC.D", Insn)
 						Case AMO_SWAP
+							Insn.Handler = AMOSWAP_D_Handler
 							Log_AMO("AMOSWAP.D", Insn)
-							Return 0
 						Case AMO_ADD
 							Log_AMO("AMOADD.D", Insn)
 							Return 0
