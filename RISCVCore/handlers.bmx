@@ -291,6 +291,30 @@ Function MULW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	End If
 End Function
 
+' Division (Unsigned)
+Function DIVW_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+	
+	Local Arg1:Int = CPU.Registers[SrcA]
+	Local Arg2:Int = CPU.Registers[SrcB]
+	
+	Local Result:Int
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		' Also handle division by zero
+		If Arg2 = 0
+			CPU.Registers[Dest] = (2^64) - 1
+		Else
+			Result = Arg1 / Arg2
+			
+			CPU.Registers[Dest] = Result
+		End If
+	End If
+End Function
+
 ' Division (Unsigned) (32 bit)
 Function DIVUW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA

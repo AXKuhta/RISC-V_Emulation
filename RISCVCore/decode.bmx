@@ -297,8 +297,8 @@ Function Decode(Insn:TInstruction)
 							Log_RxR("MULW", Insn)
 							
 						Case ALU_DIV
+							Insn.Handler = DIVW_Handler
 							Log_RxR("DIVW", Insn)
-							Return 0
 							
 						Case ALU_DIVU
 							Insn.Handler = DIVUW_Handler
