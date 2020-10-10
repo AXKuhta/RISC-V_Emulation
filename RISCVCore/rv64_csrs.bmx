@@ -34,11 +34,40 @@ Const MISA_N = %00000000000010000000000000
 Const MISA_RV64IMAFD = MISA_RV64 | MISA_I | MISA_M | MISA_A
 
 
+' Fields of the MStatus CSR, aka the main CSR of a RISC-V processor
+' Incomplete
+' ======================================================================
+Const MSTATUS_USER_INTERRUPTS =		 	%0001
+Const MSTATUS_SUPERVISOR_INTERRUPTS = 	%0010
+Const MSTATUS_MACHINE_INTERRUPTS = 		%1000
+
+Const MSTATUS_USER_INTERRUPTS_PREV =		 	%00010000
+Const MSTATUS_SUPERVISOR_INTERRUPTS_PREV = 		%00100000
+Const MSTATUS_MACHINE_INTERRUPTS_PREV = 		%10000000
+' ======================================================================
+
+
 ' Handers for changes of certain CSRs
 ' ======================================================================
 ' This function gets called when MStatus register is updated
 Function MStatusUpdateNotification(CPU:RV64i_core)
 	Print "CSR: MStatus CSR updated"
+	
+	' Use logic operations to get the enabled statuses
+	Local UIE:Int = 0 < (CPU.CSR.MStatus & MSTATUS_USER_INTERRUPTS)
+	Local SIE:Int = 0 < (CPU.CSR.MStatus & MSTATUS_SUPERVISOR_INTERRUPTS)
+	Local MIE:Int = 0 < (CPU.CSR.MStatus & MSTATUS_MACHINE_INTERRUPTS)
+	
+	' Pause if some of the interrupts were enabled
+	If (UIE Or SIE Or MIE)
+		Print "CSR: Mstatus is now: " + Shorten(LongBin(CPU.CSR.MStatus))
+		
+		Print "CSR: UIE: " + UIE
+		Print "CSR: SIE: " + SIE
+		Print "CSR: MIE: " + MIE
+
+		Input ""
+	End If
 End Function
 
 ' This function gets called when Interrupt Vector is updated
