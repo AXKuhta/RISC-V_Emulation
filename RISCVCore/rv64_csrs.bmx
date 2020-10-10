@@ -6,6 +6,9 @@ Type RV64i_csr
 	Field MStatus:Long
 	Field MTVec:Long
 	Field MIE:Long
+	
+	Field PMPAddr0:Long
+	Field PMPCfg0:Long
 End Type
 
 Const MISA_RV64 = $40000000 ' 64 bit machine
@@ -33,28 +36,36 @@ Const MISA_RV64IMAFD = MISA_RV64 | MISA_I | MISA_M | MISA_A
 
 ' Handers for changes of certain CSRs
 ' ======================================================================
-' This function get called when MStatus register is updated
+' This function gets called when MStatus register is updated
 Function MStatusUpdateNotification(CPU:RV64i_core)
-	Print "MStatus CSR updated"
+	Print "CSR: MStatus CSR updated"
 End Function
 
-' This function get called when Interrupt Vector is updated
+' This function gets called when Interrupt Vector is updated
 Function MTVecUpdateNotification(CPU:RV64i_core)
 	Select (CPU.CSR.MTVec & %11)
 		Case 0
-			Print "Interrupt mode is now DIRECT"
+			Print "CSR: Interrupt mode is now DIRECT"
 		Case 1
-			Print "Interrupt mode is now VECTORED"
+			Print "CSR: Interrupt mode is now VECTORED"
 			
 		Default
-			Print "Unacceptable interrupt mode!"
+			Print "CSR: Unacceptable interrupt mode!"
 			Input ""
 	End Select
 	
 	' Delete two lower bits from the vector
 	CPU.InterruptVector = CPU.CSR.MTVec & $FFFFFFFFFFFFFFFC
 	
-	Print "Interrupt vector is now 0x" + Shorten(LongHex(CPU.InterruptVector))
+	Print "CSR: Interrupt vector is now 0x" + Shorten(LongHex(CPU.InterruptVector))
+End Function
+
+' This function gets called when Physical Memory Protection stuff is
+' updated
+Function PMPUpdateNotification(CPU:RV64i_core)
+	Print "CSR: Physical Memory Protection settings updated"
+	Print "CSR: PMPAddr0 is now 0x" + Shorten(LongHex(CPU.CSR.PMPAddr0))
+	Print "CSR: PMPCfg0 is now 0x" + Shorten(LongHex(CPU.CSR.PMPCfg0))
 End Function
 ' ======================================================================
 
@@ -67,19 +78,21 @@ Const CSR_MSCRATCH = 832 ' Machine Scratch -- ???
 Const CSR_MISA = 769 ' Machine ISA -- read only
 Const CSR_MSTATUS = 768 ' Machine status
 Const CSR_MTVEC = 773 ' Machine Interrupt Vector + mode flag
+Const CSR_PMPADDR0 = 944 ' Physical Memory Protection
+Const CSR_PMPCFG0 = 928 ' Physical Memory Protection
 ' ======================================================================
 
 
 ' CSR Read and Write + Notify
 ' ======================================================================
 Function WarnUnknownCSR(CSR_ID:Int)
-	Print "Unknown CSR write: " + CSR_ID
-	Input "(Press Enter to continue)"
+	Print "CSR: Unknown CSR write: " + CSR_ID
+	Input "CSR: (Press Enter to continue)"
 End Function
 
 Function WarnReadonlyCSR(CSR_Name:String)
-	Print "Attempted to write a read only CSR: " + CSR_Name
-	Input "(Press Enter to continue)"
+	Print "CSR: Attempted to write a read only CSR: " + CSR_Name
+	Input "CSR: (Press Enter to continue)"
 End Function
 
 Function WriteCSR(CSR_ID:Int, Value:Long, CPU:RV64i_core)
@@ -100,6 +113,17 @@ Function WriteCSR(CSR_ID:Int, Value:Long, CPU:RV64i_core)
 		Case CSR_MTVEC
 			CPU.CSR.MTVec = Value
 			MTVecUpdateNotification(CPU)
+		
+		' RV64 provides 16 memory regions for PMP
+		' Also, we should trim upper 10 bits
+		Case CSR_PMPADDR0 
+			CPU.CSR.PMPAddr0 = Value
+			PMPUpdateNotification(CPU)
+		
+		' RV64 provides 2 PMP CFG registers, each one packing settings for 8 regions
+		Case CSR_PMPCFG0 
+			CPU.CSR.PMPCfg0 = Value
+			PMPUpdateNotification(CPU)
 			
 		Default
 			WarnUnknownCSR(CSR_ID)
@@ -124,6 +148,12 @@ Function ReadCSR:Long(CSR_ID:Int, CPU:RV64i_core)
 			
 		Case CSR_MTVEC
 			Return CPU.CSR.MTVec
+			
+		Case CSR_PMPADDR0
+			Return CPU.CSR.PMPAddr0
+			
+		Case CSR_PMPCFG0
+			Return CPU.CSR.PMPCfg0
 			
 		Default
 			WarnUnknownCSR(CSR_ID)

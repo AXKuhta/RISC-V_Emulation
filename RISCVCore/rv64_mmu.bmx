@@ -1,3 +1,4 @@
+
 Type RV64i_mmu
 	Field LatestReadAddress:ULong
 	Field LatestWriteAddress:ULong
@@ -131,3 +132,16 @@ Function MMUWriteMemory64(Value:Long, Addr:Long, CPU:RV64i_core)
 	HostAddr[0] = Value
 End Function
 
+
+' PMPCFG entry fields
+' Unused for now
+Const PMP_R = %00000001 ' Read permission
+Const PMP_W = %00000010 ' Write permission
+Const PMP_X = %00000100 ' Execute (i.e. Fetch) permission
+Const PMP_A = %00011000 ' Length calculation mode
+Const PMP_L = %10000000 ' Lock the entry (can only unlock with machine reset)
+
+Const PMP_ADDR_OFF = 0 ' Disable region
+Const PMP_ADDR_TOR = 1 ' Top Of Range. This PMPADDR is the top of the region, preceding PMPADDR is the bottom
+Const PMP_ADDR_NA4 = 2 ' 4 bytes fixed length
+Const PMP_ADDR_NAPOT = 3 ' Use lower bits of PMPADDR to determine the length
