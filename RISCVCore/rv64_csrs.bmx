@@ -78,8 +78,11 @@ Const CSR_MSCRATCH = 832 ' Machine Scratch -- ???
 Const CSR_MISA = 769 ' Machine ISA -- read only
 Const CSR_MSTATUS = 768 ' Machine status
 Const CSR_MTVEC = 773 ' Machine Interrupt Vector + mode flag
+
 Const CSR_PMPADDR0 = 944 ' Physical Memory Protection
 Const CSR_PMPCFG0 = 928 ' Physical Memory Protection
+
+Const CSR_MHARTID = 3860 ' ID of the current processor
 ' ======================================================================
 
 
@@ -125,6 +128,9 @@ Function WriteCSR(CSR_ID:Int, Value:Long, CPU:RV64i_core)
 			CPU.CSR.PMPCfg0 = Value
 			PMPUpdateNotification(CPU)
 			
+		Case CSR_MHARTID
+			WarnReadonlyCSR("mhartid")
+			
 		Default
 			WarnUnknownCSR(CSR_ID)
 			
@@ -154,6 +160,9 @@ Function ReadCSR:Long(CSR_ID:Int, CPU:RV64i_core)
 			
 		Case CSR_PMPCFG0
 			Return CPU.CSR.PMPCfg0
+			
+		Case CSR_MHARTID
+			Return CPU.ProcessorID
 			
 		Default
 			WarnUnknownCSR(CSR_ID)

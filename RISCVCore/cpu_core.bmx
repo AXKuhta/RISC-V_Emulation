@@ -13,6 +13,9 @@ Type RV64i_core
 	' Interrupt Vector controlled by MTVec CSR
 	Field InterruptVector:Long
 	
+	' Processor ID
+	Field ProcessorID:Int
+	
 	' Memory Management Unit
 	Field MMU:RV64i_mmu
 	

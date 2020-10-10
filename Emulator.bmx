@@ -25,7 +25,9 @@ Else
 	Print "Opened " + Filename
 End If
 
-' Init our core
+
+' Processor core initialization
+' ======================================================================
 Local CPU:RV64i_core = New RV64i_core
 
 CPU.MMU = New RV64i_mmu
@@ -49,6 +51,13 @@ CPU.MMU.MMIOStart = $100B8000
 ' Put the stack at 48th megabyte
 CPU.Registers[2] = 48 * 1024 * 1024
 
+' Assing the hart ID
+CPU.ProcessorID = 0
+' ======================================================================
+
+
+' ELF loading and hacks
+' ======================================================================
 ' Parse and load the sections
 ' Also store the entry point
 Local ELFMetadata:ELFLoaderMetadata = LoadELF(ELFFile, CPU.MMU.Memory)
@@ -68,6 +77,7 @@ End If
 
 ' Close the ELF file now
 CloseFile(ELFFile)
+' ======================================================================
 
 
 ' Graphics startup
