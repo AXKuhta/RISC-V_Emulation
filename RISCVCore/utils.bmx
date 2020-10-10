@@ -118,6 +118,11 @@ End Function
 ' Can parse a 12 bit negative value into a coherent representation
 ' Takes the value and the bitcount of the value
 Function SignExt:Long(Value:Long, Bits:Int)
+	If Value < 0
+		Print "Bugcheck: a value passed for sign extension is already sign extended"
+		Input ""
+	End If
+
 	If Value & (%1 Shl (Bits - 1)) <> 0
 		Return -((2^Bits) - Value)
 	Else
