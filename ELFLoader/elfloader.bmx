@@ -88,7 +88,7 @@ Function LoadELF:ELFLoaderMetadata(FileStream:TStream, Memory:Byte Ptr)
 	Next
 	
 	' Create a return structure
-	Local Metadata:ELFLoaderMetadata
+	Local Metadata:ELFLoaderMetadata = New ELFLoaderMetadata
 	
 	' Load the sections into memory
 	For Local Header:ELFSectionHeader = EachIn Headers
