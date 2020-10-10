@@ -974,12 +974,7 @@ Function BEQ_Handler(Insn:TInstruction, CPU:RV64i_core)
 	AddressThroughMMU(Addr, 4, CPU)
 	
 	If CPU.Registers[SrcA] = CPU.Registers[SrcB]
-		Print "BEQ BRANCH"
 		CPU.PC = Addr
-	Else
-		Print "BEQ NOBRANCH"
-		Print "A: " + CPU.Registers[SrcA]
-		Print "B: " + CPU.Registers[SrcB]
 	End If
 End Function
 
