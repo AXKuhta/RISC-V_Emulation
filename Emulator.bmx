@@ -47,6 +47,9 @@ CPU.MMU.MMIO = MemAlloc(CPU.MMU.MMIOSize)
 ' Mark MMIO to start at 0x100B8000
 CPU.MMU.MMIOStart = $100B8000
 
+' Initialize the zero bank
+CPU.MMU.Zero = MemAlloc(8)
+
 ' Init stack pointer
 ' Put the stack at 48th megabyte
 CPU.Registers[2] = 48 * 1024 * 1024

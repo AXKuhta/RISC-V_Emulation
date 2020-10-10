@@ -10,6 +10,7 @@ Type RV64i_mmu
 	' Memory and MMIO pointer
 	Field Memory:Byte Ptr
 	Field MMIO:Byte Ptr
+	Field Zero:Byte Ptr
 	
 	' How many bytes of memory and MMIO is available
 	Field MemorySize:Size_T
@@ -38,31 +39,41 @@ Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core)
 	If IsMMIO
 		Return CPU.MMU.MMIO + (TranslatedAddress - CPU.MMU.MMIOStart)
 	Else
-		ValidateAddress(TranslatedAddress, CPU)
-		
-		Return CPU.MMU.Memory + TranslatedAddress
+		If ValidateAddress(TranslatedAddress, CPU)
+			' Return physical bank if the address is OK
+			Return CPU.MMU.Memory + TranslatedAddress
+		Else 
+			' Return our special 8 bytes long zero-bank if address is bad
+			' This is done to prevent crashing
+			Return CPU.MMU.Zero
+		End If
 	End If
 	
 End Function
 
 ' Error check function that will warn about possible problems with the supplied address
 ' Takes adderss
-' Returns nothing
+' Returns 1 if OK
+' Returns 0 if address is bad
 Function ValidateAddress(Addr:ULong, CPU:RV64i_core)
-	' Warn if access will overflow memory
+	' Fail if access will overflow memory
 	If (Addr > CPU.MMU.MemorySize)
 		Print "MMU: Error: out of bounds memory access!"
 		Print "Offending address: 0x" + Shorten(LongHex(Long(Addr)))
-		
 		Input "(Press Enter to continue)"
+		
+		Return 0
 	End If
 	
-	' Warn if access to null
+	' Warn but return OK if access to null
 	If (Addr = 0)
 		Print "MMU: Error: Access to 0! Null pointer error?"
-		
 		Input "(Press Enter to continue)"
+		
+		Return 1
 	End If
+	
+	Return 1
 End Function
 
 ' Wrappers that will run the address through the MMU before reading/writing
