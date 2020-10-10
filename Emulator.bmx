@@ -230,6 +230,8 @@ End Function
 
 ' Draw the short dump of the latest read memory address
 Function ShowMemoryDump(CPU:RV64i_core)	
+	Local Character:String
+	
 	DrawText "Memory dump: ", 0, 538
 	DrawLine 0, 550, 800, 550
 	DrawLine 800, 550, 800, 600
@@ -241,7 +243,14 @@ Function ShowMemoryDump(CPU:RV64i_core)
 	End If
 	
 	Local DumpAddr:Byte Ptr = AddressThroughMMU(Long(CPU.MMU.LatestReadAddress), 1, CPU)
-	Local Character:String
+	
+	' Also disengage right off if the address points to zero bank
+	' It is only 8 bytes long and we are going to read way more than that
+	' Problem: we still cause pauses on behalf of calling AddressThroughMMU()
+	If DumpAddr = CPU.MMU.Zero
+		DrawText "Invalid address (MMU redirecting to zero bank)", 0, 550
+		Return
+	End If
 	
 	For Local j:Int = 0 To (5 - 1)
 		For Local i:Int = 0 To (80 - 1)
