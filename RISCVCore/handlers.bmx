@@ -927,15 +927,15 @@ Function CSRRW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
 	Local Dest:Int = Insn.Destination
 	
-	Local Value:Byte = CPU.Registers[SrcA]
+	Local Value:Long = CPU.Registers[SrcA]
 	
 	' We must only read the CSR if the destination is not the `zero`
 	If Dest
-		CPU.Registers[Dest] = CPU.CSR[TargetCSR]
+		CPU.Registers[Dest] = ReadCSR(TargetCSR, CPU)
 	End If
 	
-	' We then overwrite the CSR
-	CPU.CSR[TargetCSR] = Value
+	' We then overwrite the CSR	
+	WriteCSR(TargetCSR, Value, CPU)
 End Function
 
 ' CSR Save into register and [SET BITS with register]
@@ -943,19 +943,17 @@ Function CSRRS_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local TargetCSR:Int = Insn.CSR_Argument12
 	Local SrcA:Int = Insn.SourceA
 	Local Dest:Int = Insn.Destination
+	
+	Local OldValue:Long = ReadCSR(TargetCSR, CPU)
+	Local Value:Long = CPU.Registers[Insn.SourceA]
 
-	Local Value:Byte = CPU.Registers[Insn.SourceA]
-
-	' Spec says we must always read the CSR with this instruction
-	' But doing so would taint our `zero` register
-	' So don't do it!
 	If Dest
-		CPU.Registers[Dest] = CPU.CSR[TargetCSR]
+		CPU.Registers[Dest] = OldValue
 	End If
 	
 	' Write only if the source is not `zero`
 	If SrcA
-		CPU.CSR[TargetCSR] = CPU.CSR[TargetCSR] | Value
+		WriteCSR(TargetCSR, OldValue | Value, CPU)
 	End If
 End Function
 
@@ -965,19 +963,17 @@ Function CSRRC_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
 	Local Dest:Int = Insn.Destination
 	
-	Local Value:Byte = CPU.Registers[Insn.SourceA]
+	Local OldValue:Long = ReadCSR(TargetCSR, CPU)
+	Local Value:Long = CPU.Registers[Insn.SourceA]
 
-	' Spec says we must always read the CSR with this instruction
-	' But doing so would taint our `zero` register
-	' So don't do it!
 	If Dest
-		CPU.Registers[Dest] = CPU.CSR[TargetCSR]
+		CPU.Registers[Dest] = OldValue
 	End If
 	
 	' Write only if the source is not `zero`
 	If SrcA
 		' Notice that we invert the value
-		CPU.CSR[TargetCSR] = CPU.CSR[TargetCSR] & (Value ~ $FF)
+		WriteCSR(TargetCSR, OldValue & (Value ~ $FFFFFFFFFFFFFFFF), CPU)
 	End If
 End Function
 
@@ -988,15 +984,15 @@ Function CSRRWI_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Dest:Int = Insn.Destination
 	
 	' The value to load is stored in the SourceA field
-	Local Value:Byte = Insn.SourceA
+	Local Value:Long = Insn.SourceA
 
 	' We must only read the CSR if the destination is not the `zero`
 	If Dest
-		CPU.Registers[Dest] = CPU.CSR[TargetCSR]
+		CPU.Registers[Dest] = ReadCSR(TargetCSR, CPU)
 	End If
 	
 	' We then overwrite the CSR
-	CPU.CSR[TargetCSR] = Value
+	WriteCSR(TargetCSR, Value, CPU)
 End Function
 
 ' CSR Save into register and [SET BITS with argument]
@@ -1005,19 +1001,18 @@ Function CSRRSI_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
 	Local Dest:Int = Insn.Destination
 	
+	Local OldValue:Long = ReadCSR(TargetCSR, CPU)
+	
 	' The value to load is stored in the SourceA field
-	Local Value:Byte = Insn.SourceA
+	Local Value:Long = Insn.SourceA
 
-	' Spec says we must always read the CSR with this instruction
-	' But doing so would taint our `zero` register
-	' So don't do it!
 	If Dest
-		CPU.Registers[Dest] = CPU.CSR[TargetCSR]
+		CPU.Registers[Dest] = OldValue
 	End If
 	
 	' Write only if the argument is not 0
 	If Value
-		CPU.CSR[TargetCSR] = CPU.CSR[TargetCSR] | Value
+		WriteCSR(TargetCSR, OldValue | Value, CPU)
 	End If
 End Function
 
@@ -1027,20 +1022,19 @@ Function CSRRCI_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
 	Local Dest:Int = Insn.Destination
 	
+	Local OldValue:Long = ReadCSR(TargetCSR, CPU)
+	
 	' The value to load is stored in the SourceA field
-	Local Value:Byte = Insn.SourceA
+	Local Value:Long = Insn.SourceA
 
-	' Spec says we must always read the CSR with this instruction
-	' But doing so would taint our `zero` register
-	' So don't do it!
 	If Dest
-		CPU.Registers[Dest] = CPU.CSR[TargetCSR]
+		CPU.Registers[Dest] = OldValue
 	End If
 	
 	' Write only if the argument is not 0
 	If Value
 		' Notice that we invert the value
-		CPU.CSR[TargetCSR] = CPU.CSR[TargetCSR] & (Value ~ $FF)
+		WriteCSR(TargetCSR, OldValue & (Value ~ $FFFFFFFFFFFFFFFF), CPU)
 	End If
 End Function
 ' ======================================================================

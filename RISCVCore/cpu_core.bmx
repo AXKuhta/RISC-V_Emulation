@@ -10,11 +10,14 @@ Type RV64i_core
 	' Additional Program Counter register
 	Field PC:Long
 	
-	' Control and Status registers
-	Field CSR:Byte[1024]
+	' Interrupt Vector controlled by MTVec CSR
+	Field InterruptVector:Long
 	
 	' Memory Management Unit
 	Field MMU:RV64i_mmu
+	
+	' Control and Status registers
+	Field CSR:RV64i_csr
 	
 End Type
 
