@@ -227,6 +227,26 @@ Function MULHU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' SIMD intrinsics?
 End Function
 
+' Division
+Function DIV_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+	
+	Local Arg1:Long = CPU.Registers[SrcA]
+	Local Arg2:Long = CPU.Registers[SrcB]
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		' Also handle division by zero
+		If Arg2 = 0
+			CPU.Registers[Dest] = (2^64) - 1
+		Else
+			CPU.Registers[Dest] = Arg1 / Arg2
+		End If
+	End If
+End Function
+
 ' Division (Unsigned)
 Function DIVU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
@@ -237,13 +257,17 @@ Function DIVU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Arg1:ULong = CPU.Registers[SrcA]
 	Local Arg2:ULong = CPU.Registers[SrcB]
 	
+	Local Result:ULong
+	
 	' Only write if the destination is not the `zero`
 	If Dest
 		' Also handle division by zero
 		If Arg2 = 0
 			CPU.Registers[Dest] = (2^64) - 1
 		Else
-			CPU.Registers[Dest] = Arg1 / Arg2
+			Result = Arg1 / Arg2
+		
+			CPU.Registers[Dest] = Result
 		End If
 	End If
 End Function
@@ -258,13 +282,17 @@ Function REMU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Arg1:ULong = CPU.Registers[SrcA]
 	Local Arg2:ULong = CPU.Registers[SrcB]
 	
+	Local Result:ULong
+	
 	' Only write if the destination is not the `zero`
 	If Dest
 		' Also handle remainder by zero
 		If Arg2 = 0
 			CPU.Registers[Dest] = Arg1
 		Else
-			CPU.Registers[Dest] = Arg1 Mod Arg2
+			Result = Arg1 Mod Arg2
+		
+			CPU.Registers[Dest] = Result
 		End If
 	End If
 End Function

@@ -223,8 +223,8 @@ Function Decode(Insn:TInstruction)
 							Log_RxR("MULHU", Insn)
 							Return 0
 						Case ALU_DIV
+							Insn.Handler = DIV_Handler
 							Log_RxR("DIV", Insn)
-							Return 0
 						Case ALU_DIVU
 							Insn.Handler = DIVU_Handler
 							Log_RxR("DIVU", Insn)
