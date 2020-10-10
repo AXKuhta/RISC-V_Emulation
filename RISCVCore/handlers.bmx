@@ -410,15 +410,18 @@ Function ADDI_Handler(Insn:TInstruction, CPU:RV64i_core)
 End Function
 
 ' ADDIW, aka ADD Immediate (`Argument12`) and 32 bit sign extend
+' This function was the first victim of exscessive SignExt()
 Function ADDIW_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Dest:Int = Insn.Destination
 	Local SrcA:Int = Insn.SourceA
 	
-	Local Arg:Long = Insn.Argument12
+	Local Arg:Int = Insn.Argument12
+	Local Result:Int = CPU.Registers[SrcA] + Arg
 	
 	' Only write if the destination is not the `zero`
 	If Dest
-		CPU.Registers[Dest] = SignExt(CPU.Registers[SrcA] + Arg, 32)
+		' Casting Int to Long will sign extend
+		CPU.Registers[Dest] = Result
 	End If
 End Function
 
