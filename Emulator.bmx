@@ -121,10 +121,10 @@ While True
 	End If
 	
 	If Lower(Shorten(LongHex(CPU.PC))) = Breakpoint
+		UpdateScreen(CPU)
+		
 		Print "Breakpoint"
 		Input "Press Enter"
-		
-		UpdateScreen(CPU)
 		
 		'StepMode = 1
 	End If
