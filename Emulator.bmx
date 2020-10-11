@@ -34,7 +34,7 @@ CPU.MMU = New RV64i_mmu
 CPU.CSR = New RV64i_csr
 
 ' Allocate some system memory
-CPU.MMU.MemorySize = 64 * 1024 * 1024
+CPU.MMU.MemorySize = 128 * 1024 * 1024
 CPU.MMU.Memory = MemAlloc(CPU.MMU.MemorySize)
 
 ' Maximum MMU capability of 2GB
