@@ -76,6 +76,13 @@ If CPU.PC > CPU.MMU.MemorySize
 	Print "Invalid entry point: 0x" + Shorten(LongHex(CPU.PC))
 	Print "Will start execution from 0x0"
 	CPU.PC = 0
+	
+	' Additionally, because we detected that we are trying to run linux, patch
+	' the address of the device tree into the location of <dtb_early_va>
+	' This will likely break with each image
+	MMUWriteMemory64($FFFFFFFF, $802940e0, CPU)
+	
+	' We also need to load the .dtc file at the address specified
 End If
 
 ' Close the ELF file now
@@ -116,6 +123,9 @@ While True
 	If Lower(Shorten(LongHex(CPU.PC))) = Breakpoint
 		Print "Breakpoint"
 		Input "Press Enter"
+		
+		UpdateScreen(CPU)
+		
 		'StepMode = 1
 	End If
 	
@@ -164,16 +174,7 @@ While True
 	
 	' Graphics
 	If Not KeyDown(KEY_F)
-		Cls
-		
-		ShowScreen(CPU)
-		DrawRegisters(CPU)
-		ShowMemoryDump(CPU)
-		
-		' By default Flip will limit the main loop to 60 Hz (Or whatever the monitor refresh rate is)
-		' You can disable than by passing 0 as an argument
-		' But we'll leave it at 60 Hz for now for the aesthetic value
-		Flip
+		UpdateScreen(CPU)
 	End If
 	
 	' Breakpoint
@@ -187,6 +188,20 @@ CloseFile(PCTraceFile)
 
 Input("Press enter to exit")
 
+
+' Update the graphical part of the emulator
+Function UpdateScreen(CPU:RV64i_core)
+	Cls
+	
+	ShowScreen(CPU)
+	DrawRegisters(CPU)
+	ShowMemoryDump(CPU)
+	
+	' By default Flip will limit the main loop to 60 Hz (Or whatever the monitor refresh rate is)
+	' You can disable than by passing 0 as an argument
+	' But we'll leave it at 60 Hz for now for the aesthetic value
+	Flip
+End Function
 
 ' Draw a 80x25 screendump
 Function ShowScreen(CPU:RV64i_core)
