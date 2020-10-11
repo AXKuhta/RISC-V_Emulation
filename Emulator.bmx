@@ -76,17 +76,17 @@ If CPU.PC > CPU.MMU.MemorySize
 	Print "Invalid entry point: 0x" + Shorten(LongHex(CPU.PC))
 	Print "Will start execution from 0x0"
 	CPU.PC = 0
-	
-	' Additionally, because we detected that we are trying to run linux, patch
-	' the address of the device tree into the location of <dtb_early_va>
-	' This will likely break with each image
-	MMUWriteMemory64($FFFFFFFF, $802940e0, CPU)
-	
-	' We also need to load the .dtc file at the address specified
 End If
 
 ' Close the ELF file now
 CloseFile(ELFFile)
+
+
+' I think DTB pointer is passed via `a1` by the bootloader
+' Try it here
+CPU.Registers[11] = $FFFFFFFF
+
+' We also need to load the .dtc file at the address specified
 ' ======================================================================
 
 
@@ -116,17 +116,28 @@ Local PCTraceFile:TStream = WriteFile("program_counter_trace.txt")
 
 ' Main loop (No support for translation blocks/handler chaining yet)
 While True
-	If StepMode
-		Input "Press Enter"
-	End If
-	
+
 	If Lower(Shorten(LongHex(CPU.PC))) = Breakpoint
-		UpdateScreen(CPU)
+		Print "Breakpoint!"
+		StepMode = 1
+	End If
+
+	If StepMode
+		Print "Step mode -- press Enter to step, C to continue normal execution"
 		
-		Print "Breakpoint"
-		Input "Press Enter"
+		While True
+			UpdateScreen(CPU)
 		
-		'StepMode = 1
+			If KeyHit(KEY_ENTER)
+				Exit
+			End If
+			
+			If KeyHit(KEY_C)
+				StepMode = 0
+				Exit
+			End If
+		Wend 
+		
 	End If
 	
 	
