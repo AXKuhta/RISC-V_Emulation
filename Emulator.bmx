@@ -76,17 +76,38 @@ If CPU.PC > CPU.MMU.MemorySize
 	Print "Invalid entry point: 0x" + Shorten(LongHex(CPU.PC))
 	Print "Will start execution from 0x0"
 	CPU.PC = 0
+	
+	' Because we now we are loading linux, load the device tree also
+	' I believe DTB pointer is passed via `a1` by the bootloader
+	' Place it right after the last `allocated` section
+	CPU.Registers[11] = ELFMetadata.AllocationsEnd
+	
+	' We then load the .dtc file; plop it right next to the executable
+	Local DTCFile:TStream = ReadFile("riscvemu.dtc")
+	
+	If Not DTCFile
+		Print "Couldn't open riscvemu.dtc; Aborting dtc load"
+	Else
+		Local Status:Int = DTCFile.Read(CPU.MMU.Memory + ELFMetadata.AllocationsEnd, StreamSize(DTCFile))
+		
+		Print "DTC: loaded " + Status + " bytes at 0x" + Shorten(LongHex(ELFMetadata.AllocationsEnd))
+		
+		CloseFile(DTCFile)
+	End If
 End If
 
 ' Close the ELF file now
 CloseFile(ELFFile)
 
 
-' I think DTB pointer is passed via `a1` by the bootloader
-' Try it here
-CPU.Registers[11] = $FFFFFFFF
 
-' We also need to load the .dtc file at the address specified
+' ======================================================================
+
+
+' Exhibit A:
+' /the only/ proper way to prevent sign extension
+' ======================================================================
+' CPU.Registers[11] = $FFFFFFFF:ULong
 ' ======================================================================
 
 
