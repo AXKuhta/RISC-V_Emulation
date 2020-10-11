@@ -2,8 +2,17 @@ Import BRL.Filesystem
 Import BRL.Retro
 
 Type ELFLoaderMetadata
+	' Where to jump to start executing
 	Field EntryPoint:Long
+	
+	' Last section that was populated with data
 	Field LastLoadedSection:Long
+	
+	' Last section that could be used (Stack section, for example)
+	Field LastAllocatedSection:Long
+	
+	' The point where you should be safe to load any additional stuff
+	Field AllocationsEnd:Long
 End Type
 
 ' 64 bit ELF section header
@@ -113,10 +122,15 @@ Function LoadELF:ELFLoaderMetadata(FileStream:TStream, Memory:Byte Ptr)
 				' Yes, this is indeed a hack; crt0.S is supposed to do that
 				Metadata.LastLoadedSection = Header.MemAddr
 			Else
+				' We still should keep track of non-PROGBITS sections
+				Metadata.LastAllocatedSection = Header.MemAddr
+				Metadata.AllocationsEnd = Header.MemAddr + Header.Size
+				
 				Print "Not a code section. Not loading it."
 			End If
 		Else
-			Print "Non-alloc section, ignoring it"
+			' We completely ignore non-alloc sections
+			Print "Non-alloc section, ignoring it"	
 		End If
 		
 		Print "==============="
