@@ -166,3 +166,22 @@ Function InsertNewTrace:TTrace(CPU:RV64i_core)
 	' Return the trace we decided to evict
 	Return CPU.TraceCache[MinIndex]
 End Function
+
+' Returns a next instruction to be executed from the trace
+' For debugging purposes
+Function GetNextInstruction:TInstruction(Trace:TTrace)
+	Local InsnIdx:Int
+	
+	' Ensure that the trace in question is active
+	Assert(Trace.AllowedToRun)
+	
+	' Pull in as variable for code cleanliness
+	Local CPU:RV64i_core = Trace.CPU
+	
+	InsnIdx = (MMUTrim(CPU.PC, CPU) - Trace.StartAddress) / 4
+	
+	Assert(InsnIdx > 0)
+	Assert(InsnIdx < TRACE_INSN_COUNT)
+	
+	Return Trace.Insn[InsnIdx]
+End Function

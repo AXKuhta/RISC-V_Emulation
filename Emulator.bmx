@@ -122,9 +122,9 @@ Local Breakpoint:String = ""
 Local StepMode:Int = 0
 
 Local Trace:TTrace
+Local Insn:TInstruction ' For single instruction debugging
 
 ' Currently broken:
-' - Trace entry invalidation on memory writes [SERIOUS]
 ' - Breakpoints
 ' - Program Counter Tracing
 
@@ -158,6 +158,14 @@ While True
 	' Outside of fast mode, execute at most 1 instructions
 	' In fast mode, execute at most 300 instructions
 	If Not KeyDown(KEY_F)
+	
+		' In slow mode, also spill out instructions
+		WriteStdout("0x" + Shorten(LongHex(CPU.PC)) + " : ")
+		
+		Insn = GetNextInstruction(Trace)
+		Insn.Verbose = 1
+		Decode(Insn)
+		
 		ExecuteTrace(Trace, 1)
 	Else
 		ExecuteTrace(Trace, 3000)
