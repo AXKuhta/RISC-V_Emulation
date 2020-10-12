@@ -111,7 +111,7 @@ CloseFile(ELFFile)
 
 
 ' Graphics startup
-AppTitle = "RISC-V Emulator. Hold F to disable graphics updates. Press / to set breakpoint"
+AppTitle = "RISC-V Emulator. Hold F for fast mode. Press / to set breakpoint"
 Graphics 1200, 600
 
 Print "~r~n~r~n"
