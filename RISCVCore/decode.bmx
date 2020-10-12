@@ -793,7 +793,8 @@ End Function
 ' Ensures the trace if ready to run
 Function NextTrace:TTrace(CPU:RV64i_core)
 	' Aka LinearIndex
-	Local TargetIndex:Int = CPU.PC / TRACE_SIZE
+	' Note that we need to trim the stray bits
+	Local TargetIndex:Int = MMUTrim(CPU.PC, CPU) / TRACE_SIZE
 	
 	Local Trace:TTrace = FindCachedTrace(TargetIndex, CPU)
 	
@@ -806,7 +807,7 @@ Function NextTrace:TTrace(CPU:RV64i_core)
 		Trace.LinearIndex = TargetIndex
 		Trace.StartAddress = TargetIndex * TRACE_SIZE
 		Trace.EndAddress = TargetIndex * TRACE_SIZE + TRACE_SIZE
-		
+				
 		Trace.CPU = CPU
 		
 		Trace.AllowedToRun = 0

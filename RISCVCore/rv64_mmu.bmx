@@ -28,7 +28,7 @@ Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core)
 	Local TranslatedAddress:ULong = 0
 	
 	' Remove meaningless bits
-	TranslatedAddress = ULong(Addr) & CPU.MMU.AddressBusMask
+	TranslatedAddress = MMUTrim(Addr, CPU)
 	
 	' Warn on misaligned accesses
 	If TranslatedAddress Mod Width <> 0 Then Print "MMU: Warning: misaligned access for width " + Width
@@ -49,6 +49,11 @@ Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core)
 		End If
 	End If
 	
+End Function
+
+' Removes meaningless bits from the address
+Function MMUTrim:Long(Addr:Long, CPU:RV64i_core)
+	Return Addr & CPU.MMU.AddressBusMask
 End Function
 
 ' Error check function that will warn about possible problems with the supplied address

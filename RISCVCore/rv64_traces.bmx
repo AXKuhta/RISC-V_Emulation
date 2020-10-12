@@ -30,6 +30,7 @@ End Type
 ' Run the instruction handlers that belong to the chain
 Function ExecuteTrace(Trace:TTrace, MaxIterationCount:Int)
 	Local InsnIdx:Int
+	Local PC:Long
 	Local i:Int
 	
 	' Check that we are allowed to run
@@ -43,7 +44,7 @@ Function ExecuteTrace(Trace:TTrace, MaxIterationCount:Int)
 	For i = 1 To MaxIterationCount
 		' Calculate the index of instruction in the trace
 		' This is our equivalent of the Fetch stage
-		InsnIdx = (Trace.CPU.PC - Trace.StartAddress) / 4
+		InsnIdx = (MMUTrim(Trace.CPU.PC, Trace.CPU) - Trace.StartAddress) / 4
 				
 		' Increment the program counter
 		Trace.CPU.PC :+ 4
@@ -55,7 +56,7 @@ Function ExecuteTrace(Trace:TTrace, MaxIterationCount:Int)
 		If Trace.AllowedToRun = 0 Then Exit
 		
 		' If we are now out of bound of the trace, exit immidiately
-		If Trace.CPU.PC >= Trace.EndAddress Then Exit
+		If MMUTrim(Trace.CPU.PC, Trace.CPU) >= Trace.EndAddress Then Exit
 	Next
 	
 	' Responsibly remove the AllowedToRun flag on exit
@@ -67,6 +68,8 @@ End Function
 ' 2. AllowedToRun is set
 Function JumpNotify(Addr:Long, CPU:RV64i_core)
 	Local i:Int
+	
+	Addr = MMUTrim(Addr, CPU)
 	
 	For i = 0 Until CPU.TraceCache.Length
 		If Not CPU.TraceCache[i] Then Continue
