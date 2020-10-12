@@ -784,8 +784,8 @@ Function DecodeTrace(Trace:TTrace)
 	Trace.NotDirty = 1
 	
 	' Log some statistics
-	Print "TRACE: Decode success: " + InstructionsDecoded + " (" + ((Float InstructionsDecoded / Float TRACE_INSN_COUNT) * 100.0) + "%)"
-	Print "TRACE: Decode failure: " + InstructionsError + " (" + ((Float InstructionsError / Float TRACE_INSN_COUNT) * 100.0) + "%)"
+	Print "TRACE: " + InstructionsDecoded + " Instructions OK (" + ((Float InstructionsDecoded / Float TRACE_INSN_COUNT) * 100.0) + "%)"
+	Print "TRACE: " + InstructionsError + " Instructions BAD (" + ((Float InstructionsError / Float TRACE_INSN_COUNT) * 100.0) + "%)"
 End Function
 
 ' A function to fetch new traces for execution
