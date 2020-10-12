@@ -160,7 +160,7 @@ While True
 	If Not KeyDown(KEY_F)
 		ExecuteTrace(Trace, 1)
 	Else
-		ExecuteTrace(Trace, 300)
+		ExecuteTrace(Trace, 3000)
 	End If
 		
 	
