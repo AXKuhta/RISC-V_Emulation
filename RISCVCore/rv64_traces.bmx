@@ -125,7 +125,7 @@ Function InsertNewTrace:TTrace(CPU:RV64i_core)
 	' Fail if we somehow didn't find anything
 	Assert(MinIndex > -1)
 	
-	Print "TRACE: evicting entry " + i
+	Print "TRACE: evicting entry " + MinIndex
 	
 	' Return the trace we decided to evict
 	Return CPU.TraceCache[MinIndex]
