@@ -810,6 +810,7 @@ Function NextTrace:TTrace(CPU:RV64i_core)
 		Trace.CPU = CPU
 		
 		Trace.AllowedToRun = 0
+		Trace.NotDirty = 0
 	End If
 	
 	If Trace.NotDirty = 0
