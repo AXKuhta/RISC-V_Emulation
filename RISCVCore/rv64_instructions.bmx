@@ -1,5 +1,3 @@
-Import "cpu_core.bmx"
-Import "utils.bmx"
 
 Type TInstruction
 	' Entire 4 bytes of the instruction
@@ -37,7 +35,6 @@ Type TInstruction
 	' | rd | rs1 | rs2 | aux | opcode |
 	' | 5  | 5   | 5   | 7   | 10     |
 	'
-	
 	
 	' Handler pointer
 	Field Handler:Int(Insn:TInstruction, CPU:RV64i_core)
@@ -172,3 +169,4 @@ Const AMO_MAX = %10100
 Const AMO_MINU = %11000
 Const AMO_MAXU = %11100
 '=========================================
+

@@ -5,7 +5,6 @@ Import BRL.GLMax2D
 Import "ELFLoader/elfloader.bmx"
 Import "RISCVCore/utils.bmx"
 Import "RISCVCore/cpu_core.bmx"
-Import "RISCVCore/instruction.bmx"
 Import "RISCVCore/decode.bmx"
 
 ' Check whether arguments are empty

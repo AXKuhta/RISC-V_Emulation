@@ -1,5 +1,5 @@
 Import BRL.Retro
-Import "instruction.bmx"
+Import "cpu_core.bmx"
 
 '
 ' Below are various instruction handlers

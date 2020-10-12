@@ -1,6 +1,6 @@
 Import BRL.Retro
 
-Import "instruction.bmx"
+Import "cpu_core.bmx"
 Import "handlers.bmx"
 
 ' TODO: Move the InstuctionName selection into the Log_###() functions themselves
