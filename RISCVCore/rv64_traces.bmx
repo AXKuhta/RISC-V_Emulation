@@ -33,6 +33,9 @@ Function ExecuteTrace(Trace:TTrace, MaxIterationCount:Int)
 	Local PC:Long
 	Local i:Int
 	
+	' Pull in as variable for code cleanliness
+	Local CPU:RV64i_core = Trace.CPU
+	
 	' Check that we are allowed to run
 	Assert(Trace.AllowedToRun)
 	Assert(Trace.NotDirty)
@@ -40,23 +43,24 @@ Function ExecuteTrace(Trace:TTrace, MaxIterationCount:Int)
 	' Update the LastExecuted field of the trace
 	Trace.LastExecuted = MilliSecs()
 	
+	' Dispatch Loop
 	' Run while we are in range of the trace
-	For i = 1 To MaxIterationCount
+	For i = 1 To MaxIterationCount	
 		' Calculate the index of instruction in the trace
 		' This is our equivalent of the Fetch stage
-		InsnIdx = (MMUTrim(Trace.CPU.PC, Trace.CPU) - Trace.StartAddress) / 4
+		InsnIdx = (MMUTrim(CPU.PC, CPU) - Trace.StartAddress) / 4
 				
 		' Increment the program counter
-		Trace.CPU.PC :+ 4
+		CPU.PC :+ 4
 		
 		' Execute
-		Trace.Insn[InsnIdx].Handler(Trace.Insn[InsnIdx], Trace.CPU)
+		Trace.Insn[InsnIdx].Handler(Trace.Insn[InsnIdx], CPU)
 		
 		' If we lost the permission to run, exit immidiately
 		If Trace.AllowedToRun = 0 Then Exit
 		
 		' If we are now out of bound of the trace, exit immidiately
-		If MMUTrim(Trace.CPU.PC, Trace.CPU) >= Trace.EndAddress Then Exit
+		If MMUTrim(CPU.PC, CPU) >= Trace.EndAddress Then Exit
 	Next
 	
 	' Responsibly remove the AllowedToRun flag on exit
