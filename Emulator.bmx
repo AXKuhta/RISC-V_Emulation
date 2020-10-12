@@ -133,7 +133,11 @@ Local StepMode:Int = 0
 
 Local Trace:TTrace
 
-' Main loop (No support for translation blocks/handler chaining yet)
+' Currently broken:
+' - Trace entry invalidation on memory writes [SERIOUS]
+' - Breakpoints
+' - Program Counter Tracing
+
 While True
 
 	If Lower(Shorten(LongHex(CPU.PC))) = Breakpoint
