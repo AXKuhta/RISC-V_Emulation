@@ -756,7 +756,10 @@ Function DecodeTrace(Trace:TTrace)
 	Local InsnIndex:Int
 	Local Status:Int
 	
-	' TODO: Print some debug info, like the percentage of instructions decoded
+	Local InstructionsDecoded:Int = 0
+	Local InstructionsError:Int = 0
+	
+	Print "Decoding block at 0x" + Shorten(LongHex(Trace.StartAddress))
 	
 	For InsnIndex = 0 Until TRACE_INSN_COUNT
 		' Fetch
@@ -767,14 +770,22 @@ Function DecodeTrace(Trace:TTrace)
 		Status = Decode(Trace.Insn[InsnIndex])
 		
 		If Not Status
-			' Insert the UNKNOWN handler if the decode failer
+			' Insert the UNKNOWN handler if the decode failed
 			Trace.Insn[InsnIndex].Handler = UNKNOWN_Handler
+			
+			InstructionsError :+ 1
+		Else
+			InstructionsDecoded :+ 1
 		End If
 	Next
 	
 	' Mark the trace as up to date
 	' This flag can be unset by memory writes
 	Trace.NotDirty = 1
+	
+	' Log some statistics
+	Print "Decode success: " + InstructionsDecoded + " (" + ((Float InstructionsDecoded / Float TRACE_INSN_COUNT) * 100.0) + "%)"
+	Print "Decode failure: " + InstructionsError + " (" + ((Float InstructionsError / Float TRACE_INSN_COUNT) * 100.0) + "%)"
 End Function
 
 ' A function to fetch new traces for execution
