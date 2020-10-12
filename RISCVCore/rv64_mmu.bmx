@@ -121,6 +121,8 @@ Function MMUWriteMemory8(Value:Byte, Addr:Long, CPU:RV64i_core)
 	
 	CPU.MMU.LatestWriteAddress = Addr
 	
+	WriteNotify(Addr, CPU)
+	
 	HostAddr[0] = Value
 End Function
 
@@ -128,6 +130,8 @@ Function MMUWriteMemory16(Value:Short, Addr:Long, CPU:RV64i_core)
 	Local HostAddr:Short Ptr = AddressThroughMMU(Addr, 2, CPU)
 
 	CPU.MMU.LatestWriteAddress = Addr
+	
+	WriteNotify(Addr, CPU)
 
 	HostAddr[0] = Value
 End Function
@@ -136,6 +140,8 @@ Function MMUWriteMemory32(Value:Int, Addr:Long, CPU:RV64i_core)
 	Local HostAddr:Int Ptr = AddressThroughMMU(Addr, 4, CPU)
 
 	CPU.MMU.LatestWriteAddress = Addr
+	
+	WriteNotify(Addr, CPU)
 
 	HostAddr[0] = Value
 End Function
@@ -144,6 +150,8 @@ Function MMUWriteMemory64(Value:Long, Addr:Long, CPU:RV64i_core)
 	Local HostAddr:Long Ptr = AddressThroughMMU(Addr, 8, CPU)
 	
 	CPU.MMU.LatestWriteAddress = Addr
+	
+	WriteNotify(Addr, CPU)
 
 	HostAddr[0] = Value
 End Function

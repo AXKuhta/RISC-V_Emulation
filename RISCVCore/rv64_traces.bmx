@@ -87,6 +87,28 @@ Function JumpNotify(Addr:Long, CPU:RV64i_core)
 	Next
 End Function
 
+' This function will check for cache entries overlapping with the write and invalidate them
+Function WriteNotify(Addr:Long, CPU:RV64i_core)
+	Local i:Int
+	
+	Addr = MMUTrim(Addr, CPU)
+	
+	For i = 0 Until CPU.TraceCache.Length
+		' Check if entry is not null first
+		' Skip if so
+		If Not CPU.TraceCache[i] Then Continue
+		
+		' Otherwise check for overlap
+		If (Addr >= CPU.TraceCache[i].StartAddress) And (Addr < CPU.TraceCache[i].EndAddress)
+			Print "TRACE: Invalidating entry " + i + " because of overlapping memory write (0x" + Shorten(LongHex(Addr)) + ")"
+			
+			CPU.TraceCache[i].AllowedToRun = 0
+			CPU.TraceCache[i].NotDirty = 0
+		End If
+	Next
+
+End Function
+
 ' Looks through the CPU cache to find the requested trace
 ' Returns Null if not found
 Function FindCachedTrace:TTrace(TargetIndex:Int, CPU:RV64i_core)
