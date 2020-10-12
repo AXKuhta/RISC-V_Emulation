@@ -27,12 +27,8 @@ Type TTrace
 End Type
 
 
-' How many instructions ExecuteTrace can execute until forcibly exiting
-' This is the count for a best case scenario, when nothing else interrupted the loop
-Const TRACE_MAX_ITERATION_COUNT = 300
-
 ' Run the instruction handlers that belong to the chain
-Function ExecuteTrace(Trace:TTrace)
+Function ExecuteTrace(Trace:TTrace, MaxIterationCount:Int)
 	Local InsnIdx:Int
 	Local i:Int
 	
@@ -44,14 +40,11 @@ Function ExecuteTrace(Trace:TTrace)
 	Trace.LastExecuted = MilliSecs()
 	
 	' Run while we are in range of the trace
-	For i = 1 To TRACE_MAX_ITERATION_COUNT
+	For i = 1 To MaxIterationCount
 		' Calculate the index of instruction in the trace
 		' This is our equivalent of the Fetch stage
 		InsnIdx = (Trace.CPU.PC - Trace.StartAddress) / 4
-		
-		Print "PC: 0x" + Shorten(LongHex(Trace.StartAddress + InsnIdx * 4))
-		Print "EXEC: 0x" + Shorten(LongHex(Trace.StartAddress + InsnIdx * 4))
-		
+				
 		' Increment the program counter
 		Trace.CPU.PC :+ 4
 		
@@ -80,11 +73,9 @@ Function JumpNotify(Addr:Long, CPU:RV64i_core)
 		
 		If (Addr >= CPU.TraceCache[i].StartAddress) And (Addr < CPU.TraceCache[i].EndAddress)
 			' Leave the AllowedToRun flag intact
-			Print "Left AllowedToRun intact"
 		Else
 			' Zero the AllowedToRun flag
 			CPU.TraceCache[i].AllowedToRun = 0
-			Print "Zeroed AllowedToRun"
 		End If
 	Next
 End Function

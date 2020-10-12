@@ -129,7 +129,7 @@ Local Insn:TInstruction
 Local Status:Int
 
 Local Breakpoint:String = "" '"1e5114" <__memcpy>:
-Local StepMode:Int = 1
+Local StepMode:Int = 0
 
 Local Trace:TTrace
 
@@ -159,15 +159,19 @@ While True
 		
 	End If
 	
-	
 	Trace = NextTrace(CPU)
 	
-	ExecuteTrace(Trace)
-		
-	' Graphics
+	' Outside of fast mode, execute at most 1 instructions
+	' In fast mode, execute at most 300 instructions
 	If Not KeyDown(KEY_F)
-		UpdateScreen(CPU)
+		ExecuteTrace(Trace, 1)
+	Else
+		ExecuteTrace(Trace, 300)
 	End If
+		
+	
+	' Graphics
+	UpdateScreen(CPU)
 	
 	' Breakpoint
 	If KeyHit(KEY_SLASH)
