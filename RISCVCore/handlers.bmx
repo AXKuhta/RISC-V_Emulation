@@ -1312,6 +1312,15 @@ Function AMOADD_W_Handler(Insn:TInstruction, CPU:RV64i_core)
 		CPU.Registers[Dest] = Value
 	End If
 End Function
+' ======================================================================
 
+
+' Unknown/undecodeable instructions
+' ======================================================================
+Function UNKNOWN_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Print "Attempted to execute unknown instruction!"
+	Print "Offending address: " + Shorten(LongHex(CPU.PC - 4))
+	Input "Press enter to exit"
+End Function
 ' ======================================================================
 

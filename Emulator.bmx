@@ -187,7 +187,7 @@ While True
 	
 	' Fetch-Decode-Execute chain
 	' Fetch
-	Insn = Fetch(CPU)
+	Insn = FetchOld(CPU)
 	PreviousPC = CPU.PC
 	CPU.PC :+ 4
 	

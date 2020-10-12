@@ -38,11 +38,22 @@ Type TInstruction
 	
 	' Handler pointer
 	Field Handler:Int(Insn:TInstruction, CPU:RV64i_core)
+	
+	' Flag to enable verbose decoding
+	Field Verbose:Int
 End Type
 
 ' Returns an instruction
-' Does not increment PC
-Function Fetch:TInstruction(CPU:RV64i_core)
+Function Fetch:TInstruction(Addr:Long, CPU:RV64i_core)
+	Local Insn:TInstruction = New TInstruction
+	
+	Insn.Entire = ReadMemory32(AddressThroughMMU(Addr, 4, CPU))
+	
+	Return Insn
+End Function 
+
+' Returns an instruction
+Function FetchOld:TInstruction(CPU:RV64i_core)
 	Local Insn:TInstruction = New TInstruction
 	
 	Insn.Entire = ReadMemory32(AddressThroughMMU(CPU.PC, 4, CPU))

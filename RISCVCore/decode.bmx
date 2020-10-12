@@ -6,74 +6,94 @@ Import "handlers.bmx"
 ' TODO: Move the InstuctionName selection into the Log_###() functions themselves
 ' Would allow us to detect and print pseudoinstructions like `ret` and `sext`
 
+' Logs decode errors
+Function LogError(ErrorText:String, Insn:TInstruction)
+	If Not Insn.Verbose Then Return
+	Print ErrorText
+End Function
+
 ' Logs Register+Register instructions
 Function Log_RxR(InstructionName:String, Insn:TInstruction)
+	If Not Insn.Verbose Then Return
 	Print InstructionName + " " + register_name(Insn.Destination) + ", " + register_name(Insn.SourceA) + ", " + register_name(Insn.SourceB)
 End Function
 
 ' Logs Argument+Register instructions
 Function Log_AxR(InstructionName:String, Insn:TInstruction)
+	If Not Insn.Verbose Then Return
 	Print InstructionName + " " + register_name(Insn.Destination) + ", " + register_name(Insn.SourceA) + ", " + Insn.Argument12
 End Function
 
 ' Logs Argument+Register Shift instructions
 Function Log_AxR_Shift(InstructionName:String, Insn:TInstruction)
+	If Not Insn.Verbose Then Return
 	Print InstructionName + " " + register_name(Insn.Destination) + ", " + register_name(Insn.SourceA) + ", " + Insn.AxR_Shift_Amount
 End Function
 
 ' Logs Argument+Register Shift instructions
 Function Log_AxR_Shift_32bit(InstructionName:String, Insn:TInstruction)
+	If Not Insn.Verbose Then Return
 	Print InstructionName + " " + register_name(Insn.Destination) + ", " + register_name(Insn.SourceA) + ", " + Insn.SourceB
 End Function
 
 ' Logs LUI instructions
 Function Log_LUI(InstructionName:String, Insn:TInstruction)
+	If Not Insn.Verbose Then Return
 	Print InstructionName + " " + register_name(Insn.Destination) + ", 0x" + Shorten(Hex(Insn.LUI_Argument20))
 End Function
 
 ' Logs LD instructions
 Function Log_LD(InstructionName:String, Insn:TInstruction)
+	If Not Insn.Verbose Then Return
 	Print InstructionName + " " + register_name(Insn.Destination) + ", " + Insn.Argument12 + "(" + register_name(Insn.SourceA) + ")"
 End Function
 
 ' Logs SD instructions
 Function Log_SD(InstructionName:String, Insn:TInstruction)
+	If Not Insn.Verbose Then Return
 	Print InstructionName + " " + register_name(Insn.SourceB) + ", " + Insn.SD_Argument12 + "(" + register_name(Insn.SourceA) + ")"
 End Function
 
 ' Logs Jump And Link instructions
 Function Log_JAL(InstructionName:String, Insn:TInstruction)
+	If Not Insn.Verbose Then Return
 	Print InstructionName + " " + register_name(Insn.Destination) + ", offset " + Insn.JAL_Argument20
 End Function
 
 ' Logs Jump And Link Register instructions
 Function Log_JALR(InstructionName:String, Insn:TInstruction)
+	If Not Insn.Verbose Then Return
 	Print InstructionName + " " + register_name(Insn.Destination) + ", addr (" + register_name(Insn.SourceA) + " + " + Insn.Argument12 + ")"
 End Function
 
 ' Logs BR Conditional Branch instructions
 Function Log_BR(InstructionName:String, Insn:TInstruction)
+	If Not Insn.Verbose Then Return
 	Print InstructionName + " " + register_name(Insn.SourceA) + ", " + register_name(Insn.SourceB) + ", " + Insn.BR_Argument
 End Function
 
 ' Logs `register <- CSR <- register` operations
 Function Log_RxR_CSR(InstructionName:String, Insn:TInstruction)
+	If Not Insn.Verbose Then Return
 	Print InstructionName + " " + register_name(Insn.Destination) + ", " + Insn.CSR_Argument12 + ", " + register_name(Insn.SourceA)
 End Function
 
 ' Logs `register <- CSR <- argument` operations
 Function Log_AxR_CSR(InstructionName:String, Insn:TInstruction)
+	If Not Insn.Verbose Then Return
 	Print InstructionName + " " + register_name(Insn.Destination) + ", " + Insn.CSR_Argument12 + ", " + Insn.SourceA
 End Function
 
 ' Logs FENCE instructions
 ' Dummy log
 Function Log_FENCE(InstructionName:String, Insn:TInstruction)
+	If Not Insn.Verbose Then Return
 	Print InstructionName
 End Function
 
 ' Logs Atomic instructions
 Function Log_AMO(InstructionName:String, Insn:TInstruction)
+	If Not Insn.Verbose Then Return
 	Print InstructionName + " " + register_name(Insn.Destination) + ", " + register_name(Insn.SourceB) + ", (" + register_name(Insn.SourceA) + ")"
 End Function
 
@@ -731,3 +751,64 @@ Function DecodeBranchArgument:Int(Entire:Int)
 	Return Argument
 End Function
 
+' Decodes an entire block worth of instructions
+Function DecodeTrace(Trace:TTrace)
+	Local InsnIndex:Int
+	Local Status:Int
+	
+	' TODO: Print some debug info, like the percentage of instructions decoded
+	
+	For InsnIndex = 0 Until TRACE_INSN_COUNT
+		' Fetch
+		' We sure will make garbage collector busy by discarding old instructions
+		Trace.Insn[InsnIndex] = Fetch(Trace.StartAddress + 4 * InsnIndex, Trace.CPU)
+		
+		' Decode
+		Status = Decode(Trace.Insn[InsnIndex])
+		
+		If Not Status
+			' Insert the UNKNOWN handler if the decode failer
+			Trace.Insn[InsnIndex].Handler = UNKNOWN_Handler
+		End If
+	Next
+	
+	' Mark the trace as up to date
+	' This flag can be unset by memory writes
+	Trace.NotDirty = 1
+End Function
+
+' A function to fetch new traces for execution
+' Returns a cached trace, or creates a new one
+' Ensures the trace if ready to run
+Function NextTrace:TTrace(CPU:RV64i_core)
+	' Aka LinearIndex
+	Local TargetIndex:Int = CPU.PC / TRACE_SIZE
+	
+	Local Trace:TTrace = FindCachedTrace(TargetIndex, CPU)
+	
+	If Not Trace
+		' Not cached
+		' Evict one of the old entries
+		Trace = InsertNewTrace(CPU)
+		
+		' Initialize the new entry
+		Trace.LinearIndex = TargetIndex
+		Trace.StartAddress = TargetIndex * TRACE_SIZE
+		Trace.EndAddress = TargetIndex * TRACE_SIZE + TRACE_SIZE
+		
+		Trace.CPU = CPU
+		
+		Trace.AllowedToRun = 0
+	End If
+	
+	If Trace.NotDirty = 0
+		' Will (re)decode and set the NotDirty flag
+		DecodeTrace(Trace)
+	End If
+	
+	' Mark the trace as ready for execution
+	' This flag can be unset by jumps
+	Trace.AllowedToRun = 1
+	
+	Return Trace
+End Function
