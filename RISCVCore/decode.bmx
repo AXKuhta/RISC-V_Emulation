@@ -207,7 +207,7 @@ Function Decode(Insn:TInstruction)
 							Log_RxR("SRL", Insn)
 						
 						Default
-							Print "Unknown RxR ALU Instruction (%0000000)"
+							LogError("Unknown RxR ALU Instruction (%0000000)")
 							Return 0
 						
 					End Select
@@ -223,7 +223,7 @@ Function Decode(Insn:TInstruction)
 							Log_RxR("SRA", Insn)
 							
 						Default
-							Print "Unknown RxR ALU Instruction (%0100000)"
+							LogError("Unknown RxR ALU Instruction (%0100000)")
 							Return 0
 								
 					End Select
@@ -256,13 +256,13 @@ Function Decode(Insn:TInstruction)
 							Log_RxR("REMU", Insn)
 						
 						Default
-							Print "Unknown RxR ALU Instruction (%0000001)"
+							LogError("Unknown RxR ALU Instruction (%0000001)")
 							Return 0
 							
 					End Select
 				
 				Default
-					Print "Unacceptable type of Register+Register ALU instruction"
+					LogError("Unacceptable type of Register+Register ALU instruction")
 					Return 0
 					
 			End Select
@@ -289,7 +289,7 @@ Function Decode(Insn:TInstruction)
 							Log_RxR("SRLW", Insn)
 						
 						Default
-							Print "Unknown 32 bit RxR ALU Instruction (%0000000)"
+							LogError("Unknown 32 bit RxR ALU Instruction (%0000000)")
 							Return 0
 							
 					End Select
@@ -305,7 +305,7 @@ Function Decode(Insn:TInstruction)
 							Log_RxR("SRAW", Insn)
 							
 						Default
-							Print "Unknown 32 bit RxR ALU Instruction (%0100000)"
+							LogError("Unknown 32 bit RxR ALU Instruction (%0100000)")
 							Return 0
 							
 					End Select
@@ -333,13 +333,13 @@ Function Decode(Insn:TInstruction)
 							Return 0
 						
 						Default
-							Print "Unknown 32 bit RxR ALU Instruction (%0000001)"
+							LogError("Unknown 32 bit RxR ALU Instruction (%0000001)")
 							Return 0
 							
 					End Select
 				
 				Default
-					Print "Unacceptable type of 32 bit Register+Register ALU instruction"
+					LogError("Unacceptable type of 32 bit Register+Register ALU instruction")
 					Return 0
 
 			End Select
@@ -388,14 +388,14 @@ Function Decode(Insn:TInstruction)
 							Log_AxR_Shift("SRAI", Insn)
 						
 						Default
-							Print "Unacceptable type of shift"
+							LogError("Unacceptable type of shift")
 							Return 0
 							
 					End Select
 							
 				
 			Default
-				Print "Unacceptable type of Argument+Register ALU instruction"
+				LogError("Unacceptable type of Argument+Register ALU instruction")
 				Return 0
 				
 			End Select
@@ -425,13 +425,13 @@ Function Decode(Insn:TInstruction)
 							Log_AxR_Shift_32bit("SRAIW", Insn)
 						
 						Default
-							Print "Unacceptable type of SRLIW/SRAIW"
+							LogError("Unacceptable type of SRLIW/SRAIW")
 							Return 0
 					
 					End Select
 			
 			Default
-				Print "Unacceptable type of Argument+Register 32 bit ALU instruction"
+				LogError("Unacceptable type of Argument+Register 32 bit ALU instruction")
 				Return 0
 				
 			End Select
@@ -466,7 +466,7 @@ Function Decode(Insn:TInstruction)
 					Log_LD("LD", Insn)
 				
 				Default
-					Print "Unacceptable load width"
+					LogError("Unacceptable load width")
 					Return 0
 
 			End Select
@@ -491,7 +491,7 @@ Function Decode(Insn:TInstruction)
 					Log_SD("SD", Insn)
 				
 				Default
-					Print "Unacceptable store width"
+					LogError("Unacceptable store width")
 					Return 0
 				
 			End Select
@@ -536,7 +536,7 @@ Function Decode(Insn:TInstruction)
 					Log_BR("BGEU", Insn)
 			
 				Default
-					Print "Unacceptable branch type width"
+					LogError("Unacceptable branch type width")
 					Return 0
 					
 			End Select
@@ -568,7 +568,7 @@ Function Decode(Insn:TInstruction)
 					Log_AxR_CSR("CSRRCI", Insn)
 				
 				Default
-					Print "Unacceptable type of CSR instruction"
+					LogError("Unacceptable type of CSR instruction")
 					Return 0
 					
 			End Select
@@ -624,7 +624,7 @@ Function Decode(Insn:TInstruction)
 							Return 0
 						
 						Default
-							Print "Unacceptable type of atomic op (32 bit)"
+							LogError("Unacceptable type of atomic op (32 bit)")
 							Return 0
 							
 					End Select
@@ -665,20 +665,20 @@ Function Decode(Insn:TInstruction)
 							Return 0
 						
 						Default
-							Print "Unacceptable type of atomic op (64 bit)"
+							LogError("Unacceptable type of atomic op (64 bit)")
 							Return 0
 							
 					End Select
 			
 				Default
-					Print "Unacceptable atomic operation width"
+					LogError("Unacceptable atomic operation width")
 					Return 0
 					
 			End Select
 			
 		
 		Default
-			Print "Unknown opcode: 0x" + Hex(Insn.OP)
+			LogError("Unknown opcode: 0x" + Hex(Insn.OP))
 			Return 0
 			
 	End Select
