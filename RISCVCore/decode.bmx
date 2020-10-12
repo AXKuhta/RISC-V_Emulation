@@ -759,7 +759,7 @@ Function DecodeTrace(Trace:TTrace)
 	Local InstructionsDecoded:Int = 0
 	Local InstructionsError:Int = 0
 	
-	Print "Decoding block at 0x" + Shorten(LongHex(Trace.StartAddress))
+	Print "TRACE: Decoding block at 0x" + Shorten(LongHex(Trace.StartAddress))
 	
 	For InsnIndex = 0 Until TRACE_INSN_COUNT
 		' Fetch
@@ -784,8 +784,8 @@ Function DecodeTrace(Trace:TTrace)
 	Trace.NotDirty = 1
 	
 	' Log some statistics
-	Print "Decode success: " + InstructionsDecoded + " (" + ((Float InstructionsDecoded / Float TRACE_INSN_COUNT) * 100.0) + "%)"
-	Print "Decode failure: " + InstructionsError + " (" + ((Float InstructionsError / Float TRACE_INSN_COUNT) * 100.0) + "%)"
+	Print "TRACE: Decode success: " + InstructionsDecoded + " (" + ((Float InstructionsDecoded / Float TRACE_INSN_COUNT) * 100.0) + "%)"
+	Print "TRACE: Decode failure: " + InstructionsError + " (" + ((Float InstructionsError / Float TRACE_INSN_COUNT) * 100.0) + "%)"
 End Function
 
 ' A function to fetch new traces for execution

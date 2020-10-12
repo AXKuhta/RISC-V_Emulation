@@ -109,6 +109,8 @@ Function InsertNewTrace:TTrace(CPU:RV64i_core)
 		' Check if entry is not null first
 		' If so, create and return
 		If Not CPU.TraceCache[i]
+			Print "TRACE: initializing entry " + i 
+		
 			CPU.TraceCache[i] = New TTrace
 			Return CPU.TraceCache[i]
 		End If
@@ -122,6 +124,8 @@ Function InsertNewTrace:TTrace(CPU:RV64i_core)
 	
 	' Fail if we somehow didn't find anything
 	Assert(MinIndex > -1)
+	
+	Print "TRACE: evicting entry " + i
 	
 	' Return the trace we decided to evict
 	Return CPU.TraceCache[MinIndex]
