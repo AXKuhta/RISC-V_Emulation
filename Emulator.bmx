@@ -132,8 +132,6 @@ Local Breakpoint:String = "" '"1e5114" <__memcpy>:
 Local StepMode:Int = 0
 
 
-Local PCTraceFile:TStream = WriteFile("program_counter_trace.txt")
-
 ' Main loop (No support for translation blocks/handler chaining yet)
 While True
 
@@ -178,13 +176,7 @@ While True
 	
 	' Print the address
 	WriteStdout("0x" + Shorten(LongHex(CPU.PC)) + " : " + MMUWarning + " : " + JumpWarning + " : ")
-	
-	' This is idiotic
-	' Setting the 32nd bit causes a sign extension no matter what I do
-	' Not even the logic & is able to fix it (Computation result still 32 bit, sign extened on cast to Long?)
-	' I'll just switch to short Hex() for now
-	WriteLine(PCTraceFile, Lower(Shorten(Hex(CPU.PC | $80000000))))
-	
+		
 	' Fetch-Decode-Execute chain
 	' Fetch
 	Insn = FetchOld(CPU)
@@ -214,8 +206,6 @@ While True
 	End If
 
 Wend
-
-CloseFile(PCTraceFile)
 
 Input("Press enter to exit")
 
