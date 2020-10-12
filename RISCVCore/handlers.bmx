@@ -844,8 +844,8 @@ Function JAL_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	Local Offset:Int = Insn.JAL_Argument20
 	
-	' The address has to be calculated from the unadjusted PC
-	' But we already made it point to the next instruction, so we have to subtract 4
+	' The Fetch stage already adjusted our PC by 4;
+	' we have to subtract 4 to get the right value
 	Local Addr:Long = CPU.PC - 4 + Offset
 	
 	' Check the address just in case
@@ -857,6 +857,9 @@ Function JAL_Handler(Insn:TInstruction, CPU:RV64i_core)
 	If Dest
 		CPU.Registers[Dest] = CPU.PC
 	End If
+	
+	' Update the traces allowed for execution
+	JumpNotify(Addr, CPU)
 	
 	' Finally perform the jump itself
 	CPU.PC = Addr
@@ -880,6 +883,9 @@ Function JALR_Handler(Insn:TInstruction, CPU:RV64i_core)
 		CPU.Registers[Dest] = CPU.PC
 	End If
 	
+	' Update the traces allowed for execution
+	JumpNotify(Addr, CPU)
+	
 	' Finally perform the jump itself
 	CPU.PC = Addr
 End Function
@@ -893,8 +899,7 @@ Function BGE_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
 	Local SrcB:Int = Insn.SourceB
 	
-	' The address has to be calculated from the unadjusted PC
-	' But we already made it point to the next instruction, so we have to subtract 4
+	' Be sure the adjustment made by the Fetch stage
 	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
 	
 	' Check the address just in case
@@ -902,6 +907,9 @@ Function BGE_Handler(Insn:TInstruction, CPU:RV64i_core)
 	AddressThroughMMU(Addr, 4, CPU)
 	
 	If CPU.Registers[SrcA] >= CPU.Registers[SrcB]
+		' Update the traces allowed for execution
+		JumpNotify(Addr, CPU)
+	
 		CPU.PC = Addr
 	End If
 End Function
@@ -911,8 +919,7 @@ Function BGEU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
 	Local SrcB:Int = Insn.SourceB
 	
-	' The address has to be calculated from the unadjusted PC
-	' But we already made it point to the next instruction, so we have to subtract 4
+	' Be sure the adjustment made by the Fetch stage
 	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
 	
 	' Check the address just in case
@@ -920,6 +927,9 @@ Function BGEU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	AddressThroughMMU(Addr, 4, CPU)
 	
 	If ULong(CPU.Registers[SrcA]) >= ULong(CPU.Registers[SrcB])
+		' Update the traces allowed for execution
+		JumpNotify(Addr, CPU)
+	
 		CPU.PC = Addr
 	End If
 End Function
@@ -929,8 +939,7 @@ Function BLT_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
 	Local SrcB:Int = Insn.SourceB
 	
-	' The address has to be calculated from the unadjusted PC
-	' But we already made it point to the next instruction, so we have to subtract 4
+	' Be sure the adjustment made by the Fetch stage
 	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
 	
 	' Check the address just in case
@@ -938,6 +947,9 @@ Function BLT_Handler(Insn:TInstruction, CPU:RV64i_core)
 	AddressThroughMMU(Addr, 4, CPU)
 	
 	If CPU.Registers[SrcA] < CPU.Registers[SrcB]
+		' Update the traces allowed for execution
+		JumpNotify(Addr, CPU)
+	
 		CPU.PC = Addr
 	End If
 End Function
@@ -947,8 +959,7 @@ Function BLTU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
 	Local SrcB:Int = Insn.SourceB
 	
-	' The address has to be calculated from the unadjusted PC
-	' But we already made it point to the next instruction, so we have to subtract 4
+	' Be sure the adjustment made by the Fetch stage
 	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
 	
 	' Check the address just in case
@@ -956,6 +967,9 @@ Function BLTU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	AddressThroughMMU(Addr, 4, CPU)
 	
 	If ULong(CPU.Registers[SrcA]) < ULong(CPU.Registers[SrcB])
+		' Update the traces allowed for execution
+		JumpNotify(Addr, CPU)
+	
 		CPU.PC = Addr
 	End If
 End Function
@@ -965,8 +979,7 @@ Function BEQ_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
 	Local SrcB:Int = Insn.SourceB
 	
-	' The address has to be calculated from the unadjusted PC
-	' But we already made it point to the next instruction, so we have to subtract 4
+	' Be sure the adjustment made by the Fetch stage
 	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
 	
 	' Check the address just in case
@@ -974,6 +987,9 @@ Function BEQ_Handler(Insn:TInstruction, CPU:RV64i_core)
 	AddressThroughMMU(Addr, 4, CPU)
 	
 	If CPU.Registers[SrcA] = CPU.Registers[SrcB]
+		' Update the traces allowed for execution
+		JumpNotify(Addr, CPU)
+	
 		CPU.PC = Addr
 	End If
 End Function
@@ -983,8 +999,7 @@ Function BNE_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
 	Local SrcB:Int = Insn.SourceB
 	
-	' The address has to be calculated from the unadjusted PC
-	' But we already made it point to the next instruction, so we have to subtract 4
+	' Be sure the adjustment made by the Fetch stage
 	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
 	
 	' Check the address just in case
@@ -992,6 +1007,9 @@ Function BNE_Handler(Insn:TInstruction, CPU:RV64i_core)
 	AddressThroughMMU(Addr, 4, CPU)
 	
 	If CPU.Registers[SrcA] <> CPU.Registers[SrcB]
+		' Update the traces allowed for execution
+		JumpNotify(Addr, CPU)
+	
 		CPU.PC = Addr
 	End If
 End Function

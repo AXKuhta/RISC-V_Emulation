@@ -129,8 +129,9 @@ Local Insn:TInstruction
 Local Status:Int
 
 Local Breakpoint:String = "" '"1e5114" <__memcpy>:
-Local StepMode:Int = 0
+Local StepMode:Int = 1
 
+Local Trace:TTrace
 
 ' Main loop (No support for translation blocks/handler chaining yet)
 While True
@@ -159,42 +160,10 @@ While True
 	End If
 	
 	
-	' Warn if current address has meaningless bits
-	If CPU.PC > CPU.MMU.AddressBusMask
-		MMUWarning = "[!]"
-	Else
-		MMUWarning = "[ ]"
-	End If
+	Trace = NextTrace(CPU)
 	
-	' Warn if PC has changed
-	If (PreviousPC + 4 = CPU.PC)
-		JumpWarning = "[ ]"
-	Else
-		JumpWarning = "[x]"
-	End If
-	
-	
-	' Print the address
-	WriteStdout("0x" + Shorten(LongHex(CPU.PC)) + " : " + MMUWarning + " : " + JumpWarning + " : ")
+	ExecuteTrace(Trace)
 		
-	' Fetch-Decode-Execute chain
-	' Fetch
-	Insn = FetchOld(CPU)
-	PreviousPC = CPU.PC
-	CPU.PC :+ 4
-	
-	' Decode
-	Status = Decode(Insn)
-	
-	If Status = 0
-		Print "Couldn't decode instruction"
-		Exit
-	End If
-	
-	' Execute
-	Insn.Handler(Insn, CPU)
-	
-	
 	' Graphics
 	If Not KeyDown(KEY_F)
 		UpdateScreen(CPU)

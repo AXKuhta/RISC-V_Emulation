@@ -816,7 +816,7 @@ Function NextTrace:TTrace(CPU:RV64i_core)
 		' Will (re)decode and set the NotDirty flag
 		DecodeTrace(Trace)
 	End If
-	
+		
 	' Mark the trace as ready for execution
 	' This flag can be unset by jumps
 	Trace.AllowedToRun = 1

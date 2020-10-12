@@ -20,10 +20,74 @@ Type TTrace
 	' Last time (in milliseconds) ExecuteTrace() was called on this trace
 	Field LastExecuted:Long
 	
+	' The chain of instructions with handlers
 	Field Insn:TInstruction[TRACE_INSN_COUNT]
-	
+		
 	Field CPU:RV64i_core
 End Type
+
+
+' How many instructions ExecuteTrace can execute until forcibly exiting
+' This is the count for a best case scenario, when nothing else interrupted the loop
+Const TRACE_MAX_ITERATION_COUNT = 300
+
+' Run the instruction handlers that belong to the chain
+Function ExecuteTrace(Trace:TTrace)
+	Local InsnIdx:Int
+	Local i:Int
+	
+	' Check that we are allowed to run
+	Assert(Trace.AllowedToRun)
+	Assert(Trace.NotDirty)
+	
+	' Update the LastExecuted field of the trace
+	Trace.LastExecuted = MilliSecs()
+	
+	' Run while we are in range of the trace
+	For i = 1 To TRACE_MAX_ITERATION_COUNT
+		' Calculate the index of instruction in the trace
+		' This is our equivalent of the Fetch stage
+		InsnIdx = (Trace.CPU.PC - Trace.StartAddress) / 4
+		
+		Print "PC: 0x" + Shorten(LongHex(Trace.StartAddress + InsnIdx * 4))
+		Print "EXEC: 0x" + Shorten(LongHex(Trace.StartAddress + InsnIdx * 4))
+		
+		' Increment the program counter
+		Trace.CPU.PC :+ 4
+		
+		' Execute
+		Trace.Insn[InsnIdx].Handler(Trace.Insn[InsnIdx], Trace.CPU)
+		
+		' If we lost the permission to run, exit immidiately
+		If Trace.AllowedToRun = 0 Then Exit
+		
+		' If we are now out of bound of the trace, exit immidiately
+		If Trace.CPU.PC >= Trace.EndAddress Then Exit
+	Next
+	
+	' Responsibly remove the AllowedToRun flag on exit
+	Trace.AllowedToRun = 0
+End Function
+
+' Will walk through the traces and disable AllowedToRun flag UNLESS:
+' 1. `Addr` belongs to this trace
+' 2. AllowedToRun is set
+Function JumpNotify(Addr:Long, CPU:RV64i_core)
+	Local i:Int
+	
+	For i = 0 Until CPU.TraceCache.Length
+		If Not CPU.TraceCache[i] Then Continue
+		
+		If (Addr >= CPU.TraceCache[i].StartAddress) And (Addr < CPU.TraceCache[i].EndAddress)
+			' Leave the AllowedToRun flag intact
+			Print "Left AllowedToRun intact"
+		Else
+			' Zero the AllowedToRun flag
+			CPU.TraceCache[i].AllowedToRun = 0
+			Print "Zeroed AllowedToRun"
+		End If
+	Next
+End Function
 
 ' Looks through the CPU cache to find the requested trace
 ' Returns Null if not found
