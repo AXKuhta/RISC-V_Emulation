@@ -115,20 +115,10 @@ AppTitle = "RISC-V Emulator. Hold F to disable graphics updates. Press / to set 
 Graphics 1200, 600
 
 Print "~r~n~r~n"
-Print "Starting the Fetch-Decode-Execute now!"
-Print "======================================"
+Print "Starting the trace-based execution!"
+Print "==================================="
 
-' Jump notification system
-Local PreviousPC:Long
-Local JumpWarning:String = "[e]"
-
-' MMU address-has-meaningless-bits warning
-Local MMUWarning:String = "[ ]"
-
-Local Insn:TInstruction
-Local Status:Int
-
-Local Breakpoint:String = "" '"1e5114" <__memcpy>:
+Local Breakpoint:String = ""
 Local StepMode:Int = 0
 
 Local Trace:TTrace
