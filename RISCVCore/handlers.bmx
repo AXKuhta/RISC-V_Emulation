@@ -1331,6 +1331,24 @@ Function AMOAND_D_Handler(Insn:TInstruction, CPU:RV64i_core)
 	End If
 End Function
 
+' Atomic AND (32 bit)
+Function AMOAND_W_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+
+	Local Addr:Long = CPU.Registers[SrcA]
+	Local Value:Int = MMUReadMemory32(Addr, CPU)
+	
+	MMUWriteMemory32(Value & Int(CPU.Registers[SrcB]), Addr, CPU)
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		' Int to Long cast should sign extend
+		CPU.Registers[Dest] = Value
+	End If
+End Function
+
 ' Atomic OR (64 bit)
 Function AMOOR_D_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA

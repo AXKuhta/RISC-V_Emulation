@@ -619,8 +619,8 @@ Function Decode(Insn:TInstruction)
 							Insn.Handler = AMOADD_W_Handler
 							Log_AMO("AMOADD.W", Insn)
 						Case AMO_AND
+							Insn.Handler = AMOAND_W_Handler
 							Log_AMO("AMOAND.W", Insn)
-							Return 0
 						Case AMO_OR
 							Insn.Handler = AMOOR_W_Handler
 							Log_AMO("AMOOR.W", Insn)
