@@ -84,9 +84,9 @@ Function Log_AxR_CSR(InstructionName:String, Insn:TInstruction)
 	Print InstructionName + " " + register_name(Insn.Destination) + ", " + Insn.CSR_Argument12 + ", " + Insn.SourceA
 End Function
 
-' Logs FENCE instructions
+' Logs SYSTEM instructions
 ' Dummy log
-Function Log_FENCE(InstructionName:String, Insn:TInstruction)
+Function Log_SYSTEM(InstructionName:String, Insn:TInstruction)
 	If Not Insn.Verbose Then Return
 	Print InstructionName
 End Function
@@ -542,8 +542,9 @@ Function Decode(Insn:TInstruction)
 			End Select
 			
 		
-		Case OP_CSR
+		Case OP_SYSTEM
 			' CSR register read/write
+			' Also ECALL/EBREAK
 			' =================================
 			' Check for the operation type
 			Select Insn.Funct3
@@ -567,19 +568,35 @@ Function Decode(Insn:TInstruction)
 					Insn.Handler = CSRRCI_Handler
 					Log_AxR_CSR("CSRRCI", Insn)
 				
+				Case SYS_ECALL, SYS_EBREAK
+					Select Insn.Argument12
+						Case 0
+							Log_SYSTEM("ECALL", Insn)
+							Return 0
+							
+						Case 1
+							Insn.Handler = EBREAK_Handler
+							Log_SYSTEM("EBREAK", Insn)
+					
+						Default
+							LogError("Unacceptable type of ECALL/EBREAK", Insn)
+							Return 0
+							
+					End Select
+				
 				Default
-					LogError("Unacceptable type of CSR instruction", Insn)
+					LogError("Unacceptable type of system instruction", Insn)
 					Return 0
 					
 			End Select
 			
 			
 		Case OP_FENCE
-			' Multiprocessor synchronization?
+			' Cache/memory flushing
 			' =================================
 			' Dummy handler for now
 			Insn.Handler = FENCE_Handler
-			Log_FENCE("FENCE", Insn)
+			Log_SYSTEM("FENCE", Insn)
 			
 			
 		Case OP_AMO

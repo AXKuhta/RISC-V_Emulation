@@ -1333,12 +1333,20 @@ End Function
 ' ======================================================================
 
 
-' Unknown/undecodeable instructions
+' Unknown/undecodeable or emulator debug instructions
 ' ======================================================================
 Function UNKNOWN_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Print "Attempted to execute unknown instruction!"
 	Print "Offending address: 0x" + Shorten(LongHex(CPU.PC - 4))
 	Input "Press enter to exit"
+End Function
+
+' The `Environment Break` instruction
+' GCC uses it as a `BUG_ON` marker
+' Treat those as a breakpoint
+Function EBREAK_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Print "Breaking on EBREAK!"
+	CPU.BreakpointHit = 1
 End Function
 ' ======================================================================
 

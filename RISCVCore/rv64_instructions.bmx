@@ -151,7 +151,7 @@ Const BR_BGEU = %111
 
 ' Control and Status registers read/write
 '=========================================
-Const OP_CSR = $73
+Const OP_SYSTEM = $73
 
 Const CSR_RW = %001
 Const CSR_RS = %010
@@ -159,6 +159,9 @@ Const CSR_RC = %011
 Const CSR_RWI = %101
 Const CSR_RSI = %110
 Const CSR_RCI = %111
+
+Const SYS_ECALL = %000
+Const SYS_EBREAK = %000
 '=========================================
 
 
