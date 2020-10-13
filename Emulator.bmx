@@ -187,8 +187,16 @@ Input("Press enter to exit")
 Function UpdateScreen(CPU:RV64i_core)
 	Cls
 	
-	ShowScreen(CPU)
+	' Screen at the top
+	SetOrigin 0, 0
+	ShowScreen(CPU, 80, 25)
+	
+	' Registers below the screen
+	SetOrigin 0, 260
 	DrawRegisters(CPU)
+	
+	' Memory dump at the bottom
+	SetOrigin 0, GraphicsHeight() - 50
 	ShowMemoryDump(CPU)
 	
 	' By default Flip will limit the main loop to 60 Hz (Or whatever the monitor refresh rate is)
@@ -198,15 +206,15 @@ Function UpdateScreen(CPU:RV64i_core)
 End Function
 
 ' Draw a 80x25 screendump
-Function ShowScreen(CPU:RV64i_core)
+Function ShowScreen(CPU:RV64i_core, Width:Int = 80, Height:Int = 25)
 	Local Character:String
+		
+	DrawLine 0, 10*(Height+1), Width*10, 10*(Height+1)
+	DrawLine Width*10, 0, Width*10, 10*(Height+1)
 	
-	DrawLine 0, 260, 800, 260
-	DrawLine 800, 0, 800, 260
-	
-	For Local j:Int = 0 To (25 - 1)
-		For Local i:Int = 0 To (80 - 1)
-			Character = Chr(CPU.MMU.Memory[$29c500 + 80*j + i]) ' Chr(CPU.MMU.MMIO[80*j + i])
+	For Local j:Int = 0 Until Height
+		For Local i:Int = 0 Until Width
+			Character = Chr(CPU.MMU.Memory[$29c500 + Width*j + i]) ' Chr(CPU.MMU.MMIO[Width*j + i])
 			
 			Select Character
 				Case "~0"
@@ -223,31 +231,34 @@ End Function
 
 ' Dumps registers
 Function DrawRegisters(CPU:RV64i_core)
-	Local PosX:Int = 0
-	Local PosY:Int = 0
+	Local HorizontalStep:Int = 300
+	Local Rows:Int = 8
+	
+	Local OffsetX:Int
+	Local OffsetY:Int
 	
 	For Local i:Int = 0 To 31
-		PosY = i Mod 8
-		PosX = i / 8
+		OffsetY = i Mod Rows
+		OffsetX = i / Rows
 	
-		DrawText register_name(i) + ": " + Shorten(LongHex(CPU.Registers[i])), PosX*300, 270 + PosY*10
+		DrawText register_name(i) + ": " + Shorten(LongHex(CPU.Registers[i])), OffsetX*HorizontalStep, OffsetY*10
 	Next
 	
-	DrawText "Latest read: " + Shorten(LongHex(Long(CPU.MMU.LatestReadAddress))), 0, 370
-	DrawText "Latest write: " + Shorten(LongHex(Long(CPU.MMU.LatestWriteAddress))), 0, 380
+	DrawText "Latest read: " + Shorten(LongHex(Long(CPU.MMU.LatestReadAddress))), 0, 10*(Rows + 2)
+	DrawText "Latest write: " + Shorten(LongHex(Long(CPU.MMU.LatestWriteAddress))), 0, 10*(Rows + 3)
 End Function
 
 ' Draw the short dump of the latest read memory address
 Function ShowMemoryDump(CPU:RV64i_core)	
 	Local Character:String
 	
-	DrawText "Memory dump: ", 0, 538
-	DrawLine 0, 550, 800, 550
-	DrawLine 800, 550, 800, 600
+	DrawText "Memory dump: ", 0, -12
+	DrawLine 0, 0, 800, 0
+	DrawLine 800, 0, 800, 50
 		
 	' Warn on bad address
 	If CPU.MMU.LatestReadAddress & CPU.MMU.AddressBusMask = 0
-		DrawText "Zero address", 0, 550
+		DrawText "Zero address", 0, 0
 		Return
 	End If
 	
@@ -257,7 +268,7 @@ Function ShowMemoryDump(CPU:RV64i_core)
 	' It is only 8 bytes long and we are going to read way more than that
 	' Problem: we still cause pauses on behalf of calling AddressThroughMMU()
 	If DumpAddr = CPU.MMU.Zero
-		DrawText "Invalid address (MMU redirecting to zero bank)", 0, 550
+		DrawText "Invalid address (MMU redirecting to zero bank)", 0, 0
 		Return
 	End If
 	
@@ -272,7 +283,7 @@ Function ShowMemoryDump(CPU:RV64i_core)
 					Continue
 				
 				Default
-					DrawText Character, i*10, 550 + j*10
+					DrawText Character, i*10, j*10
 			End Select
 		Next
 	Next
