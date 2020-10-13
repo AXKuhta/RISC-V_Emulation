@@ -146,3 +146,15 @@ Function Shorten:String(HexText:String)
 	
 	Return Mid(HexText, i + 1)
 End Function
+
+' Generic single-function logging to file
+Global LogFile:TStream
+
+Function LogToFile(Text:String)
+	If Not LogFile
+		LogFile = WriteFile("log.txt")
+	End If
+	
+	WriteLine(LogFile, Text)
+End Function
+

@@ -45,7 +45,10 @@ Function ExecuteTrace(Trace:TTrace, MaxIterationCount:Int)
 	
 	' Dispatch Loop
 	' Run while we are in range of the trace
-	For i = 1 To MaxIterationCount	
+	For i = 1 To MaxIterationCount
+		' [Optional] log the Program Counter
+		' LogToFile(Hex(Int(CPU.PC) | $80000000:Int))
+	
 		' Calculate the index of instruction in the trace
 		' This is our equivalent of the Fetch stage
 		InsnIdx = (MMUTrim(CPU.PC, CPU) - Trace.StartAddress) / 4
