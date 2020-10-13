@@ -123,7 +123,7 @@ Local StepMode:Int = 0
 Local Trace:TTrace
 Local Insn:TInstruction ' For single instruction debugging
 
-CPU.Breakpoint = $77768 ' <printk>
+CPU.Breakpoint = $77778 ' <printk>
 
 ' Currently broken:
 ' - Setting breakpoints
