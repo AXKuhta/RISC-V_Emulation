@@ -112,7 +112,7 @@ CloseFile(ELFFile)
 
 ' Graphics startup
 AppTitle = "RISC-V Emulator. Hold F for fast mode. Press / to set breakpoint"
-Graphics 1200, 600
+Graphics 1920, 1080
 
 Print "~r~n~r~n"
 Print "Starting the trace-based execution!"
@@ -189,10 +189,10 @@ Function UpdateScreen(CPU:RV64i_core)
 	
 	' Screen at the top
 	SetOrigin 0, 0
-	ShowScreen(CPU, 80, 25)
+	ShowScreen(CPU, 160, 70)
 	
 	' Registers below the screen
-	SetOrigin 0, 260
+	SetOrigin 0, 720
 	DrawRegisters(CPU)
 	
 	' Memory dump at the bottom
