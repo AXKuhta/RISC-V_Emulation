@@ -206,7 +206,7 @@ Function ShowScreen(CPU:RV64i_core)
 	
 	For Local j:Int = 0 To (25 - 1)
 		For Local i:Int = 0 To (80 - 1)
-			Character = Chr(CPU.MMU.MMIO[80*j + i])
+			Character = Chr(CPU.MMU.Memory[$29c500 + 80*j + i]) ' Chr(CPU.MMU.MMIO[80*j + i])
 			
 			Select Character
 				Case "~0"
