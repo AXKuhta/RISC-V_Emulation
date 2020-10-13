@@ -118,23 +118,26 @@ Print "~r~n~r~n"
 Print "Starting the trace-based execution!"
 Print "==================================="
 
-Local Breakpoint:String = ""
 Local StepMode:Int = 0
 
 Local Trace:TTrace
 Local Insn:TInstruction ' For single instruction debugging
 
+CPU.Breakpoint = $77768 ' <printk>
+
 ' Currently broken:
-' - Breakpoints
+' - Setting breakpoints
 ' - Program Counter Tracing
 
 While True
-
-	If Lower(Shorten(LongHex(CPU.PC))) = Breakpoint
+	
+	If CPU.BreakpointHit
 		Print "Breakpoint!"
-		StepMode = 1
+		
+		CPU.BreakpointHit = 0
+		StepMode = 1	
 	End If
-
+	
 	If StepMode
 		Print "Step mode -- press Enter to step, C to continue normal execution"
 		
@@ -175,11 +178,6 @@ While True
 	' Graphics
 	UpdateScreen(CPU)
 	
-	' Breakpoint
-	If KeyHit(KEY_SLASH)
-		Breakpoint = Input("[!] Please type the breakpoint address (in lowercase shortened hex): 0x")
-	End If
-
 Wend
 
 Input("Press enter to exit")

@@ -24,6 +24,14 @@ Type RV64i_core
 	
 	' Decoded instruction cache
 	Field TraceCache:TTrace[8]
+	
+	' The breakpoint address
+	Field Breakpoint:Long
+	
+	' Flag that the breakpoint was hit
+	' Set if PC equals Breakpoint
+	' Can also be set by EBREAK handler
+	Field BreakpointHit:Int
 End Type
 
 ' Include allows you to import the source code without compiling it first

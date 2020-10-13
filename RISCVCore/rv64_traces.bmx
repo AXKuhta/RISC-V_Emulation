@@ -56,6 +56,13 @@ Function ExecuteTrace(Trace:TTrace, MaxIterationCount:Int)
 		' Execute
 		Trace.Insn[InsnIdx].Handler(Trace.Insn[InsnIdx], CPU)
 		
+		' If we hit a breakpoint, set the flag and exit
+		' This check needs to be the first one
+		If MMUTrim(CPU.PC, CPU) = CPU.Breakpoint
+			CPU.BreakpointHit = 1
+			Exit
+		End If
+		
 		' If we lost the permission to run, exit immidiately
 		If Trace.AllowedToRun = 0 Then Exit
 		
