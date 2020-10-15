@@ -123,11 +123,13 @@ Local StepMode:Int = 0
 Local Trace:TTrace
 Local Insn:TInstruction ' For single instruction debugging
 
-CPU.Breakpoint = $77778 ' <printk>
+CPU.Breakpoint = $627b4
+' Locations of interest:
+' $627b4	<printk>
+' $549c		<workqueue_init_early>
 
 ' Currently broken:
 ' - Setting breakpoints
-' - Program Counter Tracing
 
 While True
 	
@@ -214,7 +216,7 @@ Function ShowScreen(CPU:RV64i_core, Width:Int = 80, Height:Int = 25)
 	
 	For Local j:Int = 0 Until Height
 		For Local i:Int = 0 Until Width
-			Character = Chr(CPU.MMU.Memory[$29c500 + Width*j + i]) ' Chr(CPU.MMU.MMIO[Width*j + i])
+			Character = Chr(CPU.MMU.Memory[$240500 + Width*j + i]) ' Chr(CPU.MMU.MMIO[Width*j + i])
 			
 			Select Character
 				Case "~0"
