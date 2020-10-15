@@ -40,7 +40,7 @@ CPU.MMU.Memory = MemAlloc(CPU.MMU.MemorySize)
 CPU.MMU.AddressBusMask = $7FFFFFFF
 
 ' Allocate some integrated interrupt controller memory
-CPU.MMU.INTCSize = 1 * 1024 * 1024
+CPU.MMU.INTCSize = 64 * 1024
 CPU.MMU.INTC = MemAlloc(CPU.MMU.INTCSize)
 
 ' INTC memory to start at 0x10010000
