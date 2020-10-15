@@ -1420,6 +1420,7 @@ End Function
 ' Treat those as a breakpoint
 Function EBREAK_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Print "Breaking on EBREAK!"
+	CPU.CurrentTrace.AllowedToRun = 0
 	CPU.BreakpointHit = 1
 End Function
 ' ======================================================================

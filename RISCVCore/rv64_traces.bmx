@@ -36,6 +36,8 @@ Function ExecuteTrace(Trace:TTrace, MaxIterationCount:Int)
 	' Pull in as variable for code cleanliness
 	Local CPU:RV64i_core = Trace.CPU
 	
+	CPU.CurrentTrace = Trace
+	
 	' Check that we are allowed to run
 	Assert(Trace.AllowedToRun)
 	Assert(Trace.NotDirty)
@@ -75,6 +77,8 @@ Function ExecuteTrace(Trace:TTrace, MaxIterationCount:Int)
 	
 	' Responsibly remove the AllowedToRun flag on exit
 	Trace.AllowedToRun = 0
+	
+	CPU.CurrentTrace = Null
 End Function
 
 ' Will walk through the traces and disable AllowedToRun flag UNLESS:

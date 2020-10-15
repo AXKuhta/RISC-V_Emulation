@@ -131,7 +131,7 @@ Local StepMode:Int = 0
 Local Trace:TTrace
 Local Insn:TInstruction ' For single instruction debugging
 
-CPU.Breakpoint = $627b4
+CPU.Breakpoint = $7514
 ' Locations of interest:
 ' $627b4	<printk>
 ' $549c		<workqueue_init_early>

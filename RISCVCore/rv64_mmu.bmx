@@ -34,7 +34,7 @@ Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core)
 	TranslatedAddress = MMUTrim(Addr, CPU)
 	
 	' Warn on misaligned accesses
-	If TranslatedAddress Mod Width <> 0 Then Print "MMU: Warning: misaligned access for width " + Width
+	' If TranslatedAddress Mod Width <> 0 Then Print "MMU: Warning: misaligned access for width " + Width
 	
 	' ### Option 1: RAM access
 	' Optimization: assume RAM starts from 0x0 and all other areas are placed beyond the RAM address space
