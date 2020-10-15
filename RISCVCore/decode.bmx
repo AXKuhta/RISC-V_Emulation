@@ -240,8 +240,8 @@ Function Decode(Insn:TInstruction)
 							Log_RxR("MULHSU", Insn)
 							Return 0
 						Case ALU_MULHU
+							Insn.Handler = MULHU_Handler
 							Log_RxR("MULHU", Insn)
-							Return 0
 						Case ALU_DIV
 							Insn.Handler = DIV_Handler
 							Log_RxR("DIV", Insn)

@@ -221,10 +221,31 @@ End Function
 
 ' Multiply and store higher bits (Unsigned x Unsigned)
 Function MULHU_Handler(Insn:TInstruction, CPU:RV64i_core)
-	' Broken: do not use
-	' TODO: Research if we can use 128 bit math
-	' Hook a C function?
-	' SIMD intrinsics?
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+	
+	Local Arg1:ULong = CPU.Registers[SrcA]
+	Local Arg2:ULong = CPU.Registers[SrcB]
+	
+	Local A:ULong = Arg1 Shr 32
+	Local B:ULong = Arg1 & $FFFFFFFF:ULong
+	Local C:ULong = Arg2 Shr 32
+	Local D:ULong = Arg2 & $FFFFFFFF:ULong
+	
+	Local AC:ULong = A * C
+	Local BC:ULong = B * C
+	Local AD:ULong = A * D
+	Local BD:ULong = B * D
+	
+	Local Mid34 = (BD Shr 32) + (BC & $FFFFFFFF:ULong) + (AD & $FFFFFFFF:ULong)
+	
+	Local Upper64:ULong = AC + (BC Shr 32) + (AD Shr 32) + (Mid34 Shr 32)
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		CPU.Registers[Dest] = Upper64
+	End If
 End Function
 
 ' Division
