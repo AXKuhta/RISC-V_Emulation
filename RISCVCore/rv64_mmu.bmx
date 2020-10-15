@@ -38,8 +38,8 @@ Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core)
 	
 	' Check whether we are hitting our INTC/MMIO address ranges
 	' Bug: second check should be less than, not less than or equal
-	Local IsMMIO:Int = TranslatedAddress >= CPU.MMU.MMIOStart And TranslatedAddress <= (CPU.MMU.MMIOStart + CPU.MMU.MMIOSize)
-	Local IsINTC:Int = TranslatedAddress >= CPU.MMU.INTCStart And TranslatedAddress <= (CPU.MMU.INTCStart + CPU.MMU.INTCSize)
+	Local IsMMIO:Int = TranslatedAddress >= CPU.MMU.MMIOStart And TranslatedAddress < (CPU.MMU.MMIOStart + CPU.MMU.MMIOSize)
+	Local IsINTC:Int = TranslatedAddress >= CPU.MMU.INTCStart And TranslatedAddress < (CPU.MMU.INTCStart + CPU.MMU.INTCSize)
 	
 	If IsMMIO
 		Return CPU.MMU.MMIO + (TranslatedAddress - CPU.MMU.MMIOStart)
