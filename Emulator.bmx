@@ -73,7 +73,7 @@ CPU.ProcessorID = 0
 Local ELFMetadata:ELFLoaderMetadata = LoadELF(ELFFile, CPU.MMU.Memory)
 
 ' Set the entry point and the global pointer
-CPU.PC = ELFMetadata.EntryPoint
+CPU.PC = ELFMetadata.EntryPoint | $80000000
 CPU.Registers[3] = ELFMetadata.LastLoadedSection + $800 - 4
 
 ' Check for invalid entry point info
