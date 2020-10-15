@@ -36,58 +36,52 @@ Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core)
 	' Warn on misaligned accesses
 	If TranslatedAddress Mod Width <> 0 Then Print "MMU: Warning: misaligned access for width " + Width
 	
-	' Check whether we are hitting our INTC/MMIO address ranges
-	' Bug: second check should be less than, not less than or equal
+	' ### Option 1: RAM access
+	' Optimization: assume RAM starts from 0x0 and all other areas are placed beyond the RAM address space
+	Local IsMemory:Int = TranslatedAddress < CPU.MMU.MemorySize
+	
+	If IsMemory
+		' Warn on null accesses
+		If TranslatedAddress = 0
+			Print "MMU: Error: Access to 0! Null pointer error?"
+			Input "(Press Enter to continue)"
+		End If
+	
+		Return CPU.MMU.Memory + TranslatedAddress
+	End If
+	
+	' ### Option 2: MMIO access
+	' Check whether we are hitting our MMIO address range
 	Local IsMMIO:Int = TranslatedAddress >= CPU.MMU.MMIOStart And TranslatedAddress < (CPU.MMU.MMIOStart + CPU.MMU.MMIOSize)
-	Local IsINTC:Int = TranslatedAddress >= CPU.MMU.INTCStart And TranslatedAddress < (CPU.MMU.INTCStart + CPU.MMU.INTCSize)
 	
 	If IsMMIO
 		Return CPU.MMU.MMIO + (TranslatedAddress - CPU.MMU.MMIOStart)
-	ElseIf IsINTC
+	End If
+	
+	' ### Option 3: INTC access
+	' Check whether we are hitting INTC address range
+	Local IsINTC:Int = TranslatedAddress >= CPU.MMU.INTCStart And TranslatedAddress < (CPU.MMU.INTCStart + CPU.MMU.INTCSize)
+		
+	If IsINTC
 		Print "INTC Access; Offset: 0x" + Shorten(LongHex(Long(TranslatedAddress - CPU.MMU.INTCStart)))
 		Input "(Press Enter to continue)"
 		Return CPU.MMU.INTC + (TranslatedAddress - CPU.MMU.INTCStart)
-	Else
-		If ValidateAddress(TranslatedAddress, CPU)
-			' Return physical bank if the address is OK
-			Return CPU.MMU.Memory + TranslatedAddress
-		Else 
-			' Return our special 8 bytes long zero-bank if address is bad
-			' This is done to prevent crashing
-			Return CPU.MMU.Zero
-		End If
 	End If
 	
+	' ### Option 4: Out of bound access
+	' Warn about that
+	Print "MMU: Error: out of bounds memory access!"
+	Print "Offending address: 0x" + Shorten(LongHex(Long(Addr)))
+	Input "(Press Enter to continue)"
+	
+	' Return our special 8 bytes long zero-bank if address is bad
+	' This is done to prevent crashing
+	Return CPU.MMU.Zero
 End Function
 
 ' Removes meaningless bits from the address
 Function MMUTrim:Long(Addr:Long, CPU:RV64i_core)
 	Return Addr & CPU.MMU.AddressBusMask
-End Function
-
-' Error check function that will warn about possible problems with the supplied address
-' Takes adderss
-' Returns 1 if OK
-' Returns 0 if address is bad
-Function ValidateAddress(Addr:ULong, CPU:RV64i_core)
-	' Fail if access will overflow memory
-	If (Addr > CPU.MMU.MemorySize)
-		Print "MMU: Error: out of bounds memory access!"
-		Print "Offending address: 0x" + Shorten(LongHex(Long(Addr)))
-		Input "(Press Enter to continue)"
-		
-		Return 0
-	End If
-	
-	' Warn but return OK if access to null
-	If (Addr = 0)
-		Print "MMU: Error: Access to 0! Null pointer error?"
-		Input "(Press Enter to continue)"
-		
-		Return 1
-	End If
-	
-	Return 1
 End Function
 
 ' Wrappers that will run the address through the MMU before reading/writing
