@@ -7,16 +7,19 @@ Type RV64i_mmu
 	' Be sure to initialize this value!
 	Field AddressBusMask:ULong
 	
-	' Memory and MMIO pointer
+	' Memory, interrupt controller and MMIO pointer
 	Field Memory:Byte Ptr
+	Field INTC:Byte Ptr
 	Field MMIO:Byte Ptr
 	Field Zero:Byte Ptr
 	
-	' How many bytes of memory and MMIO is available
+	' How many bytes of memory is available for each one
 	Field MemorySize:Size_T
+	Field INTCSize:Size_T
 	Field MMIOSize:Size_T
 	
-	' Address of the guest memory where the MMIO starts
+	' Address of the guest memory where INTC and MMIO zones start
+	Field INTCStart:ULong
 	Field MMIOStart:ULong
 End Type
 
@@ -33,11 +36,17 @@ Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core)
 	' Warn on misaligned accesses
 	If TranslatedAddress Mod Width <> 0 Then Print "MMU: Warning: misaligned access for width " + Width
 	
-	' Check whether we are hitting our MMIO address range
+	' Check whether we are hitting our INTC/MMIO address ranges
+	' Bug: second check should be less than, not less than or equal
 	Local IsMMIO:Int = TranslatedAddress >= CPU.MMU.MMIOStart And TranslatedAddress <= (CPU.MMU.MMIOStart + CPU.MMU.MMIOSize)
+	Local IsINTC:Int = TranslatedAddress >= CPU.MMU.INTCStart And TranslatedAddress <= (CPU.MMU.INTCStart + CPU.MMU.INTCSize)
 	
 	If IsMMIO
 		Return CPU.MMU.MMIO + (TranslatedAddress - CPU.MMU.MMIOStart)
+	ElseIf IsINTC
+		Print "INTC Access!"
+		Input ""
+		Return CPU.MMU.INTC + (TranslatedAddress - CPU.MMU.INTCStart)
 	Else
 		If ValidateAddress(TranslatedAddress, CPU)
 			' Return physical bank if the address is OK

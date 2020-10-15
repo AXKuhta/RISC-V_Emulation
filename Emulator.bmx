@@ -39,6 +39,14 @@ CPU.MMU.Memory = MemAlloc(CPU.MMU.MemorySize)
 ' Maximum MMU capability of 2GB
 CPU.MMU.AddressBusMask = $7FFFFFFF
 
+' Allocate some integrated interrupt controller memory
+CPU.MMU.INTCSize = 1 * 1024 * 1024
+CPU.MMU.INTC = MemAlloc(CPU.MMU.INTCSize)
+
+' INTC memory to start at 0x10010000
+' And End at 0x1001FFFF
+CPU.MMU.INTCStart = $10010000
+
 ' Allocate some MMIO memory (A 80x25 text-mode screen)
 CPU.MMU.MMIOSize = 80*25
 CPU.MMU.MMIO = MemAlloc(CPU.MMU.MMIOSize)
