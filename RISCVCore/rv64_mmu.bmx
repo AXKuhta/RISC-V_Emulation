@@ -44,8 +44,8 @@ Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core)
 	If IsMMIO
 		Return CPU.MMU.MMIO + (TranslatedAddress - CPU.MMU.MMIOStart)
 	ElseIf IsINTC
-		Print "INTC Access!"
-		Input ""
+		Print "INTC Access; Offset: 0x" + Shorten(LongHex(Long(TranslatedAddress - CPU.MMU.INTCStart)))
+		Input "(Press Enter to continue)"
 		Return CPU.MMU.INTC + (TranslatedAddress - CPU.MMU.INTCStart)
 	Else
 		If ValidateAddress(TranslatedAddress, CPU)
