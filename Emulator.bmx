@@ -203,8 +203,12 @@ Function UpdateScreen(CPU:RV64i_core)
 	
 	' By default Flip will limit the main loop to 60 Hz (Or whatever the monitor refresh rate is)
 	' You can disable than by passing 0 as an argument
-	' But we'll leave it at 60 Hz for now for the aesthetic value
-	Flip
+	' Uncage the framerate if F key is held
+	If Not KeyDown(KEY_F)
+		Flip
+	Else
+		Flip 0
+	End If
 End Function
 
 ' Draw a 80x25 screendump
@@ -216,7 +220,7 @@ Function ShowScreen(CPU:RV64i_core, Width:Int = 80, Height:Int = 25)
 	
 	For Local j:Int = 0 Until Height
 		For Local i:Int = 0 Until Width
-			Character = Chr(CPU.MMU.Memory[$240500 + Width*j + i]) ' Chr(CPU.MMU.MMIO[Width*j + i])
+			Character = Chr(CPU.MMU.Memory[$20F500 + Width*j + i]) ' Chr(CPU.MMU.MMIO[Width*j + i])
 			
 			Select Character
 				Case "~0"
