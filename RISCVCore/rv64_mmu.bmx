@@ -30,7 +30,7 @@ End Type
 ' Receives an address /of the guest memory/
 ' Returns an address /of the host memory/ that the caller should read
 ' Has a hardcoded implementation of MMIO remapping right now
-Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core)
+Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core, Verbose:Int = 1)
 	Local TranslatedAddress:ULong = 0
 	
 	' Remove meaningless bits
@@ -46,8 +46,10 @@ Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core)
 	If IsMemory
 		' Warn on null accesses
 		If TranslatedAddress = 0
-			Print "MMU: Error: Access to 0! Null pointer error?"
-			Input "(Press Enter to continue)"
+			If Verbose
+				Print "MMU: Error: Access to 0! Null pointer error?"
+				Input "(Press Enter to continue)"
+			End If
 		End If
 	
 		Return CPU.MMU.Memory + TranslatedAddress
@@ -66,16 +68,20 @@ Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core)
 	Local IsINTC:Int = TranslatedAddress >= CPU.MMU.INTCStart And TranslatedAddress < (CPU.MMU.INTCStart + CPU.MMU.INTCSize)
 		
 	If IsINTC
-		Print "INTC Access; Offset: 0x" + Shorten(LongHex(Long(TranslatedAddress - CPU.MMU.INTCStart)))
-		Input "(Press Enter to continue)"
+		If Verbose
+			Print "INTC Access; Offset: 0x" + Shorten(LongHex(Long(TranslatedAddress - CPU.MMU.INTCStart)))
+			Input "(Press Enter to continue)"
+		End If
 		Return CPU.MMU.INTC + (TranslatedAddress - CPU.MMU.INTCStart)
 	End If
 	
 	' ### Option 4: Out of bound access
 	' Warn about that
-	Print "MMU: Error: out of bounds memory access!"
-	Print "Offending address: 0x" + Shorten(LongHex(Long(Addr)))
-	Input "(Press Enter to continue)"
+	If Verbose
+		Print "MMU: Error: out of bounds memory access!"
+		Print "Offending address: 0x" + Shorten(LongHex(Long(Addr)))
+		Input "(Press Enter to continue)"
+	End If
 	
 	' Return our special 8 bytes long zero-bank if address is bad
 	' This is done to prevent crashing
