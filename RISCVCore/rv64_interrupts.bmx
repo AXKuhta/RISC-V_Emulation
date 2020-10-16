@@ -12,6 +12,9 @@ Type RV64i_intc
 	' This flag is set when a write to `mtimecmp` occured
 	' Unset when the time is reached
 	Field TimerArmed:Int
+	
+	' To what address do we return on `MRET`
+	Field InterruptReturnAddress:Long
 End Type
 
 
@@ -108,9 +111,32 @@ Function ProcessInterrupts(CPU:RV64i_core)
 		If MilliSecs() >= ReadMemory64(CPU.MMU.INTC + INTC_TIME_CMP)
 			' Unset the armed status first thing
 			CPU.INTC.TimerArmed = 0
-		
+			
+			
+			' Has to go into HandleInterrupt()
+			' =========================================
 			Print "Timer interrupt tripped!"
 			Input "(Press Enter to continue)"
+			CPU.BreakpointHit = 1
+			
+			' Disable interrupts
+			' Has to go into DisableInterrupts()
+			CPU.INTC.Enabled = 0
+			CPU.CSR.MStatus = MSTATUS_MACHINE_INTERRUPT_PREV
+			
+			' Fill out the cause information
+			CPU.CSR.MCause = TRAP_TYPE_INTERRUPT | TIMER_INTERRUPT_M
+			CPU.CSR.MEPC = CPU.PC ' Do we need to subtract 4??
+			CPU.CSR.MTVal = 0
+			
+			' Store the return address
+			CPU.INTC.InterruptReturnAddress = CPU.PC
+			
+			' Finally alter the Program Counter
+			CPU.PC = CPU.CSR.MTVec | CPU.MMU.ForcedMask
+			' =========================================
+			
+			Return
 		End If
 	End If
 End Function
