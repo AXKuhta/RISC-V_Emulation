@@ -4,7 +4,11 @@
 Type RV64i_csr
 	Field MScratch:Long
 	Field MStatus:Long
+	
 	Field MTVec:Long
+	Field MCause:Long
+	Field MEPC:Long ' Program counter when the interrupt happened
+	Field MTVal:Long ' Exception-specific info; unset for interrupts
 	
 	' Which machine interrupts are enabled
 	' This is a register, not a flag
@@ -43,13 +47,13 @@ Const MISA_RV64IMAFD = MISA_RV64 | MISA_I | MISA_M | MISA_A
 ' Fields of the MStatus CSR, aka the main CSR of a RISC-V processor
 ' Incomplete
 ' ======================================================================
-Const MSTATUS_USER_INTERRUPTS =		 	%0001
-Const MSTATUS_SUPERVISOR_INTERRUPTS = 	%0010
-Const MSTATUS_MACHINE_INTERRUPTS = 		%1000
+Const MSTATUS_USER_INTERRUPT =		 	%0001
+Const MSTATUS_SUPERVISOR_INTERRUPT = 	%0010
+Const MSTATUS_MACHINE_INTERRUPT = 		%1000
 
-Const MSTATUS_USER_INTERRUPTS_PREV =		 	%00010000
-Const MSTATUS_SUPERVISOR_INTERRUPTS_PREV = 		%00100000
-Const MSTATUS_MACHINE_INTERRUPTS_PREV = 		%10000000
+Const MSTATUS_USER_INTERRUPT_PREV =			 	%00010000
+Const MSTATUS_SUPERVISOR_INTERRUPT_PREV = 		%00100000
+Const MSTATUS_MACHINE_INTERRUPT_PREV = 			%10000000
 ' ======================================================================
 
 
@@ -60,9 +64,9 @@ Function MStatusUpdateNotification(CPU:RV64i_core, Value:Long)
 	Print "CSR: MStatus CSR updated"
 	
 	' Use logic operations to get the enabled statuses
-	Local UIE:Int = 0 < (Value & MSTATUS_USER_INTERRUPTS)
-	Local SIE:Int = 0 < (Value & MSTATUS_SUPERVISOR_INTERRUPTS)
-	Local MIE:Int = 0 < (Value & MSTATUS_MACHINE_INTERRUPTS)
+	Local UIE:Int = 0 < (Value & MSTATUS_USER_INTERRUPT)
+	Local SIE:Int = 0 < (Value & MSTATUS_SUPERVISOR_INTERRUPT)
+	Local MIE:Int = 0 < (Value & MSTATUS_MACHINE_INTERRUPT)
 	
 	' Complain if UIE or SIE were set
 	' We only support MIE
@@ -83,8 +87,8 @@ Function MStatusUpdateNotification(CPU:RV64i_core, Value:Long)
 	' Update the CSR itself
 	CPU.CSR.Mstatus = 0
 	
-	If CPU.INTC.Enabled Then CPU.CSR.Mstatus :| MSTATUS_MACHINE_INTERRUPTS
-	If CPU.INTC.EnabledPrevious Then CPU.CSR.Mstatus :| MSTATUS_SUPERVISOR_INTERRUPTS_PREV
+	If CPU.INTC.Enabled Then CPU.CSR.Mstatus :| MSTATUS_MACHINE_INTERRUPT
+	If CPU.INTC.EnabledPrevious Then CPU.CSR.Mstatus :| MSTATUS_MACHINE_INTERRUPT_PREV
 
 	
 	' Pause if the state has actually changed
@@ -132,17 +136,23 @@ End Function
 
 ' List of known CSRs
 ' ======================================================================
-Const CSR_MIE = 772 ' Machine Interrupts Enabled -- enabled interrupts
-Const CSR_MIP = 836 ' Machine Interrupts Pending
-Const CSR_MSCRATCH = 832 ' Machine Scratch -- ???
-Const CSR_MISA = 769 ' Machine ISA -- read only
-Const CSR_MSTATUS = 768 ' Machine status
-Const CSR_MTVEC = 773 ' Machine Interrupt Vector + mode flag
+Const CSR_MHARTID = $F14 ' ID of the current processor
+
+Const CSR_MSTATUS = $300 ' Machine status
+Const CSR_MISA = 	$301 ' Machine ISA -- read only
+Const CSR_MIE = 	$304 ' Machine Interrupts Enabled -- enabled interrupts
+Const CSR_MTVEC = 	$305 ' Machine Interrupt Vector + mode flag
+
+Const CSR_MSCRATCH = $340 ' Machine Status Scratchpad?
+Const CSR_MEPC = 	 $341
+Const CSR_MCAUSE =	 $342
+Const CSR_MTVAL = 	 $343
+Const CSR_MIP = 	 $344 ' Machine Interrupts Pending
 
 Const CSR_PMPADDR0 = 944 ' Physical Memory Protection
 Const CSR_PMPCFG0 = 928 ' Physical Memory Protection
 
-Const CSR_MHARTID = 3860 ' ID of the current processor
+
 ' ======================================================================
 
 
@@ -166,8 +176,17 @@ Function WriteCSR(CSR_ID:Int, Value:Long, CPU:RV64i_core)
 		Case CSR_MIP
 			WarnReadonlyCSR("mip")
 			
+		Case CSR_MCAUSE
+			WarnReadonlyCSR("mcause")
+			
+		Case CSR_MTVAL
+			WarnReadonlyCSR("mtval")
+			
 		Case CSR_MSCRATCH 
 			CPU.CSR.MScratch = Value
+			
+		Case CSR_MEPC
+			CPU.CSR.MEPC = Value
 			
 		Case CSR_MISA
 			WarnReadonlyCSR("misa")
@@ -208,8 +227,17 @@ Function ReadCSR:Long(CSR_ID:Int, CPU:RV64i_core)
 		Case CSR_MIP
 			Return CPU.CSR.MIP
 			
+		Case CSR_MCAUSE
+			Return CPU.CSR.MCause
+			
+		Case CSR_MTVAL
+			Return CPU.CSR.MTVal
+			
 		Case CSR_MSCRATCH
 			Return CPU.CSR.MScratch
+			
+		Case CSR_MEPC
+			Return CPU.CSR.MEPC
 			
 		Case CSR_MISA
 			Return MISA_RV64IMAFD
