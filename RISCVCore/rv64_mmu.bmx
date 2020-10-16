@@ -28,6 +28,8 @@ End Type
 
 Const MMU_READ = 1
 Const MMU_WRITE = 2
+Const MMU_EXECUTE = 3
+Const MMU_TEST = 4
 
 ' MMU translation function
 ' Receives an address /of the guest memory/

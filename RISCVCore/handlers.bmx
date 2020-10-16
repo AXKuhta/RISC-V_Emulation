@@ -874,7 +874,7 @@ Function JAL_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	' Check the address just in case
 	' But do not alter the register state!
-	AddressThroughMMU(Addr, 4, CPU, MMU_READ)
+	AddressThroughMMU(Addr, 4, CPU, MMU_EXECUTE)
 		
 	' Only store PC if the destination is not the `zero`
 	' Thankfully the adjusted PC is useful here
@@ -902,7 +902,7 @@ Function JALR_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	' Check the address just in case
 	' But do not alter the register state!
-	AddressThroughMMU(Addr, 4, CPU, MMU_READ)
+	AddressThroughMMU(Addr, 4, CPU, MMU_EXECUTE)
 		
 	' Only store PC if the destination is not the `zero`
 	' Thankfully the adjusted PC is useful here
@@ -934,7 +934,7 @@ Function BGE_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	' Check the address just in case
 	' But do not alter the register state!
-	AddressThroughMMU(Addr, 4, CPU, MMU_READ)
+	AddressThroughMMU(Addr, 4, CPU, MMU_EXECUTE)
 	
 	If CPU.Registers[SrcA] >= CPU.Registers[SrcB]
 		' Update the traces allowed for execution
@@ -957,7 +957,7 @@ Function BGEU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	' Check the address just in case
 	' But do not alter the register state!
-	AddressThroughMMU(Addr, 4, CPU, MMU_READ)
+	AddressThroughMMU(Addr, 4, CPU, MMU_EXECUTE)
 	
 	If ULong(CPU.Registers[SrcA]) >= ULong(CPU.Registers[SrcB])
 		' Update the traces allowed for execution
@@ -980,7 +980,7 @@ Function BLT_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	' Check the address just in case
 	' But do not alter the register state!
-	AddressThroughMMU(Addr, 4, CPU, MMU_READ)
+	AddressThroughMMU(Addr, 4, CPU, MMU_EXECUTE)
 	
 	If CPU.Registers[SrcA] < CPU.Registers[SrcB]
 		' Update the traces allowed for execution
@@ -1003,7 +1003,7 @@ Function BLTU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	' Check the address just in case
 	' But do not alter the register state!
-	AddressThroughMMU(Addr, 4, CPU, MMU_READ)
+	AddressThroughMMU(Addr, 4, CPU, MMU_EXECUTE)
 	
 	If ULong(CPU.Registers[SrcA]) < ULong(CPU.Registers[SrcB])
 		' Update the traces allowed for execution
@@ -1026,7 +1026,7 @@ Function BEQ_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	' Check the address just in case
 	' But do not alter the register state!
-	AddressThroughMMU(Addr, 4, CPU, MMU_READ)
+	AddressThroughMMU(Addr, 4, CPU, MMU_EXECUTE)
 	
 	If CPU.Registers[SrcA] = CPU.Registers[SrcB]
 		' Update the traces allowed for execution
@@ -1049,7 +1049,7 @@ Function BNE_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	' Check the address just in case
 	' But do not alter the register state!
-	AddressThroughMMU(Addr, 4, CPU, MMU_READ)
+	AddressThroughMMU(Addr, 4, CPU, MMU_EXECUTE)
 	
 	If CPU.Registers[SrcA] <> CPU.Registers[SrcB]
 		' Update the traces allowed for execution
