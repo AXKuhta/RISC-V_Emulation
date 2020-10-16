@@ -37,7 +37,8 @@ CPU.MMU.MemorySize = 128 * 1024 * 1024
 CPU.MMU.Memory = MemAlloc(CPU.MMU.MemorySize)
 
 ' Maximum MMU capability of 2GB
-CPU.MMU.AddressBusMask = $7FFFFFFF
+CPU.MMU.AddressBusMask = $7FFFFFFF:ULong
+CPU.MMU.ForcedMask = $80000000:ULong
 
 ' Allocate some integrated interrupt controller memory
 CPU.MMU.INTCSize = 64 * 1024
@@ -73,16 +74,16 @@ CPU.ProcessorID = 0
 Local ELFMetadata:ELFLoaderMetadata = LoadELF(ELFFile, CPU.MMU.Memory)
 
 ' Set the entry point and the global pointer
-CPU.PC = ELFMetadata.EntryPoint | $80000000
+CPU.PC = ELFMetadata.EntryPoint | CPU.MMU.ForcedMask
 CPU.Registers[3] = ELFMetadata.LastLoadedSection + $800 - 4
 
 ' Check for invalid entry point info
 ' Attempt to execute from 0x0 if invalid
 ' Required to run `vmlinux`
-If CPU.PC > CPU.MMU.MemorySize
+If ELFMetadata.EntryPoint > CPU.MMU.MemorySize
 	Print "Invalid entry point: 0x" + Shorten(LongHex(CPU.PC))
-	Print "Will start execution from 0x0"
-	CPU.PC = 0
+	Print "Will start execution from 0x80000000"
+	CPU.PC = $80000000:ULong
 	
 	' Because we now we are loading linux, load the device tree also
 	' I believe DTB pointer is passed via `a1` by the bootloader
@@ -260,6 +261,7 @@ Function DrawRegisters(CPU:RV64i_core)
 	
 	DrawText "Latest read: " + Shorten(LongHex(Long(CPU.MMU.LatestReadAddress))), 0, 10*(Rows + 2)
 	DrawText "Latest write: " + Shorten(LongHex(Long(CPU.MMU.LatestWriteAddress))), 0, 10*(Rows + 3)
+	DrawText "Program Counter: " + Shorten(LongHex(CPU.PC)), 0, 10*(Rows + 5)
 End Function
 
 ' Draw the short dump of the latest read memory address

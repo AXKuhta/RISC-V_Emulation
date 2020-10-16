@@ -869,6 +869,9 @@ Function JAL_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' we have to subtract 4 to get the right value
 	Local Addr:Long = CPU.PC - 4 + Offset
 	
+	' Force the 32nd bit
+	Addr :| CPU.MMU.ForcedMask
+	
 	' Check the address just in case
 	' But do not alter the register state!
 	AddressThroughMMU(Addr, 4, CPU)
@@ -893,6 +896,9 @@ Function JALR_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local Dest:Int = Insn.Destination
 	
 	Local Addr:Long = CPU.Registers[SrcA] + Insn.Argument12
+	
+	' Force the 32nd bit
+	Addr :| CPU.MMU.ForcedMask
 	
 	' Check the address just in case
 	' But do not alter the register state!
@@ -923,6 +929,9 @@ Function BGE_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' Be sure the adjustment made by the Fetch stage
 	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
 	
+	' Force the 32nd bit
+	Addr :| CPU.MMU.ForcedMask
+	
 	' Check the address just in case
 	' But do not alter the register state!
 	AddressThroughMMU(Addr, 4, CPU)
@@ -942,6 +951,9 @@ Function BGEU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	' Be sure the adjustment made by the Fetch stage
 	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
+	
+	' Force the 32nd bit
+	Addr :| CPU.MMU.ForcedMask
 	
 	' Check the address just in case
 	' But do not alter the register state!
@@ -963,6 +975,9 @@ Function BLT_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' Be sure the adjustment made by the Fetch stage
 	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
 	
+	' Force the 32nd bit
+	Addr :| CPU.MMU.ForcedMask
+	
 	' Check the address just in case
 	' But do not alter the register state!
 	AddressThroughMMU(Addr, 4, CPU)
@@ -982,6 +997,9 @@ Function BLTU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	' Be sure the adjustment made by the Fetch stage
 	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
+	
+	' Force the 32nd bit
+	Addr :| CPU.MMU.ForcedMask
 	
 	' Check the address just in case
 	' But do not alter the register state!
@@ -1003,6 +1021,9 @@ Function BEQ_Handler(Insn:TInstruction, CPU:RV64i_core)
 	' Be sure the adjustment made by the Fetch stage
 	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
 	
+	' Force the 32nd bit
+	Addr :| CPU.MMU.ForcedMask
+	
 	' Check the address just in case
 	' But do not alter the register state!
 	AddressThroughMMU(Addr, 4, CPU)
@@ -1022,6 +1043,9 @@ Function BNE_Handler(Insn:TInstruction, CPU:RV64i_core)
 	
 	' Be sure the adjustment made by the Fetch stage
 	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
+	
+	' Force the 32nd bit
+	Addr :| CPU.MMU.ForcedMask
 	
 	' Check the address just in case
 	' But do not alter the register state!

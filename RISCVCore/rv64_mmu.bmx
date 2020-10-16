@@ -7,6 +7,9 @@ Type RV64i_mmu
 	' Be sure to initialize this value!
 	Field AddressBusMask:ULong
 	
+	' Used to hold the 32nd bit high in the internal state
+	Field ForcedMask:ULong
+	
 	' Memory, interrupt controller and MMIO pointer
 	Field Memory:Byte Ptr
 	Field INTC:Byte Ptr
