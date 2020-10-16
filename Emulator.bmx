@@ -132,7 +132,7 @@ Local StepMode:Int = 0
 Local Trace:TTrace
 Local Insn:TInstruction ' For single instruction debugging
 
-CPU.Breakpoint = $7514
+CPU.Breakpoint = -1
 ' Locations of interest:
 ' $627b4	<printk>
 ' $549c		<workqueue_init_early>
@@ -203,7 +203,7 @@ Function UpdateScreen(CPU:RV64i_core)
 	ShowScreen(CPU, 160, 70)
 	
 	' Registers below the screen
-	SetOrigin 0, 720
+	SetOrigin 0, 730
 	DrawRegisters(CPU)
 	
 	' Memory dump at the bottom
@@ -251,6 +251,13 @@ Function DrawRegisters(CPU:RV64i_core)
 	
 	Local OffsetX:Int
 	Local OffsetY:Int
+	
+	Local RightEdge:Int = (32 / Rows) * HorizontalStep
+	
+	DrawText "Register state: ", 0, -12
+	DrawLine 0, 0, RightEdge, 0
+	DrawLine RightEdge, 0, RightEdge, (Rows + 7) * 10
+	DrawLine 0, (Rows + 7) * 10, RightEdge, (Rows + 7) * 10
 	
 	For Local i:Int = 0 To 31
 		OffsetY = i Mod Rows
