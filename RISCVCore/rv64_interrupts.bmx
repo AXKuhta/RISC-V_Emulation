@@ -20,7 +20,7 @@ Const INTC_TIME_CMP = $4000
 Const INTC_TIME_VAL = $BFF8
 
 ' Updates the INTC memory on impending read/write
-Function INTCNotify(CPU:RV64i_core, Offset:ULong)
+Function INTCNotify(CPU:RV64i_core, Offset:ULong, Mode:Int)
 	' Print the offset first
 	Print "INTC Access; Offset: 0x" + Shorten(LongHex(Long(Offset)))
 
@@ -31,8 +31,11 @@ Function INTCNotify(CPU:RV64i_core, Offset:ULong)
 			' Do nothing for now
 			
 		Case INTC_TIME_CMP
-			' Set the TimerArmed flag
-			CPU.INTC.TimerArmed = 1
+			' Set the TimerArmed flag if a write to mtimecmp is to occur
+			' /DO NOT/ set it if the register was simply read
+			If Mode = MMU_WRITE
+				CPU.INTC.TimerArmed = 1
+			End If
 			
 		Case INTC_TIME_VAL
 			' Update the time

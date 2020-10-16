@@ -5,7 +5,12 @@ Type RV64i_csr
 	Field MScratch:Long
 	Field MStatus:Long
 	Field MTVec:Long
+	
+	' Which machine interrupts are enabled
 	Field MIE:Long
+	
+	' Which machine interrupts are pending (same field order as in `MIE`)
+	Field MIP:Long
 	
 	Field PMPAddr0:Long
 	Field PMPCfg0:Long
@@ -58,16 +63,14 @@ Function MStatusUpdateNotification(CPU:RV64i_core)
 	Local SIE:Int = 0 < (CPU.CSR.MStatus & MSTATUS_SUPERVISOR_INTERRUPTS)
 	Local MIE:Int = 0 < (CPU.CSR.MStatus & MSTATUS_MACHINE_INTERRUPTS)
 	
-	' Pause if some of the interrupts were enabled
-	If (UIE Or SIE Or MIE)
-		Print "CSR: Mstatus is now: " + Shorten(LongBin(CPU.CSR.MStatus))
-		
-		Print "CSR: UIE: " + UIE
-		Print "CSR: SIE: " + SIE
-		Print "CSR: MIE: " + MIE
-
-		Input ""
+	' Complain if UIE or SIE were set
+	' We only support MIE
+	If (UIE Or SIE)
+		Print "UIE or SIE set in MStatus -- we don't support anything but MIE"
+		Input "(Press Enter to continue)"
 	End If
+	
+	
 End Function
 
 ' This function gets called when Interrupt Vector is updated
@@ -101,8 +104,8 @@ End Function
 
 ' List of known CSRs
 ' ======================================================================
-Const CSR_MIE = 772 ' Machine Interrupt Enable -- enabled interrupts
-Const CSR_MIP = 836 ' Machine Interrupt Pending -- same mapping as MIE
+Const CSR_MIE = 772 ' Machine Interrupts Enabled -- enabled interrupts
+Const CSR_MIP = 836 ' Machine Interrupts Pending
 Const CSR_MSCRATCH = 832 ' Machine Scratch -- ???
 Const CSR_MISA = 769 ' Machine ISA -- read only
 Const CSR_MSTATUS = 768 ' Machine status
@@ -129,8 +132,11 @@ End Function
 
 Function WriteCSR(CSR_ID:Int, Value:Long, CPU:RV64i_core)
 	Select CSR_ID
-		Case CSR_MIE, CSR_MIP
+		Case CSR_MIE
 			CPU.CSR.MIE = Value
+			
+		Case CSR_MIP
+			WarnReadonlyCSR("mip")
 			
 		Case CSR_MSCRATCH 
 			CPU.CSR.MScratch = Value
@@ -169,8 +175,11 @@ End Function
 
 Function ReadCSR:Long(CSR_ID:Int, CPU:RV64i_core)
 	Select CSR_ID
-		Case CSR_MIE, CSR_MIP
+		Case CSR_MIE
 			Return CPU.CSR.MIE
+			
+		Case CSR_MIP
+			Return CPU.CSR.MIP
 			
 		Case CSR_MSCRATCH
 			Return CPU.CSR.MScratch

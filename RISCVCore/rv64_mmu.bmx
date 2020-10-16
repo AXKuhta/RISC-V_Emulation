@@ -76,7 +76,7 @@ Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core, Mode:I
 		
 	If IsINTC		
 		' Notify what offset was accessed
-		INTCNotify(CPU, TranslatedAddress - CPU.MMU.INTCStart)
+		INTCNotify(CPU, TranslatedAddress - CPU.MMU.INTCStart, Mode:Int)
 		
 		Return CPU.MMU.INTC + (TranslatedAddress - CPU.MMU.INTCStart)
 	End If
