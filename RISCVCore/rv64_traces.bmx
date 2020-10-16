@@ -49,7 +49,7 @@ Function ExecuteTrace(Trace:TTrace, MaxIterationCount:Int)
 	' Run while we are in range of the trace
 	For i = 1 To MaxIterationCount
 		' [Optional] log the Program Counter
-		' LogToFile(Hex(Int(CPU.PC) | $80000000:Int))
+		' LogToFile(Hex(Int(CPU.PC)))
 	
 		' Calculate the index of instruction in the trace
 		' This is our equivalent of the Fetch stage
