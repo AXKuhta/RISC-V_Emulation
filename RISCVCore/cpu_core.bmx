@@ -22,6 +22,9 @@ Type RV64i_core
 	' Control and Status registers
 	Field CSR:RV64i_csr
 	
+	' Interrupt controller
+	Field INTC:RV64i_intc
+	
 	' Decoded instruction cache
 	Field TraceCache:TTrace[12]
 	
