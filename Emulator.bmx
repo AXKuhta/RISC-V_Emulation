@@ -206,6 +206,10 @@ Function UpdateScreen(CPU:RV64i_core)
 	SetOrigin 0, 730
 	DrawRegisters(CPU)
 	
+	' Interrupts below the registers
+	SetOrigin 0, 730 + 180
+	DrawInterruptInformation(CPU)
+	
 	' Memory dump at the bottom
 	SetOrigin 0, GraphicsHeight() - 50
 	ShowMemoryDump(CPU)
@@ -269,6 +273,22 @@ Function DrawRegisters(CPU:RV64i_core)
 	DrawText "Latest read: " + Shorten(LongHex(Long(CPU.MMU.LatestReadAddress))), 0, 10*(Rows + 2)
 	DrawText "Latest write: " + Shorten(LongHex(Long(CPU.MMU.LatestWriteAddress))), 0, 10*(Rows + 3)
 	DrawText "Program Counter: " + Shorten(LongHex(CPU.PC)), 0, 10*(Rows + 5)
+End Function
+
+' Draw interrupt enable states and vectors
+Function DrawInterruptInformation(CPU:RV64i_core)
+	DrawText "Interrupt state: ", 0, -12
+	DrawLine 0, 0, 400, 0
+	DrawLine 400, 0, 400, 80
+	DrawLine 0, 80, 400, 80
+	
+	' Registers
+	DrawText "MStatus: 0b" + Shorten(LongBin(CPU.CSR.MStatus)), 0, 0
+	DrawText "MTVec: 0x" + Shorten(LongHex(CPU.CSR.MTVec)), 0, 10
+	
+	' Memory-mapped registers
+	DrawText "INTC_Timeval: 0x" + Shorten(LongHex(ReadMemory64(CPU.MMU.INTC + INTC_TIME_VAL))), 0, 20
+	DrawText "INTC_Timecmp: 0x" + Shorten(LongHex(ReadMemory64(CPU.MMU.INTC + INTC_TIME_CMP))), 0, 30
 End Function
 
 ' Draw the short dump of the latest read memory address
