@@ -16,6 +16,8 @@ Function INTCNotify(CPU:RV64i_core, Offset:ULong)
 			
 		Case INTC_TIME_CMP
 			' Do nothing for now
+			Print "TIME_CMP read/write!"
+			Input "(Press Enter to continue)"
 			
 		Case INTC_TIME_VAL
 			' Update the time
