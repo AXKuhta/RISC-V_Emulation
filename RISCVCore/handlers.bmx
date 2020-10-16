@@ -412,6 +412,31 @@ Function REMW_Handler(Insn:TInstruction, CPU:RV64i_core)
 		End If
 	End If
 End Function
+
+' Remainder (Unsigned) (32 bit)
+Function REMUW_Handler(Insn:TInstruction, CPU:RV64i_core)
+	Local SrcA:Int = Insn.SourceA
+	Local SrcB:Int = Insn.SourceB
+	Local Dest:Int = Insn.Destination
+	
+	' Note the cast to UInt
+	Local Arg1:UInt = CPU.Registers[SrcA]
+	Local Arg2:UInt = CPU.Registers[SrcB]
+	
+	Local Result:UInt
+	
+	' Only write if the destination is not the `zero`
+	If Dest
+		' Also handle remainder by zero
+		If Arg2 = 0
+			CPU.Registers[Dest] = Arg1
+		Else
+			Result = Arg1 Mod Arg2
+		
+			CPU.Registers[Dest] = Int(Result)
+		End If
+	End If
+End Function
 ' ======================================================================
 
 

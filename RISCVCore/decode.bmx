@@ -329,8 +329,8 @@ Function Decode(Insn:TInstruction)
 							Log_RxR("REMW", Insn)
 							
 						Case ALU_REMU
+							Insn.Handler = REMUW_Handler
 							Log_RxR("REMUW", Insn)
-							Return 0
 						
 						Default
 							LogError("Unknown 32 bit RxR ALU Instruction (%0000001)", Insn)
