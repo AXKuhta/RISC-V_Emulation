@@ -305,7 +305,7 @@ Function ShowMemoryDump(CPU:RV64i_core)
 		Return
 	End If
 	
-	Local DumpAddr:Byte Ptr = AddressThroughMMU(Long(CPU.MMU.LatestReadAddress), 1, CPU, 0)
+	Local DumpAddr:Byte Ptr = AddressThroughMMU(Long(CPU.MMU.LatestReadAddress), 1, CPU, MMU_TEST, 0)
 	
 	' Also disengage right off if the address points to zero bank
 	' It is only 8 bytes long and we are going to read way more than that
