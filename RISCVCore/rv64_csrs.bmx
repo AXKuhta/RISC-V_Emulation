@@ -91,10 +91,10 @@ Function MStatusUpdateNotification(CPU:RV64i_core, Value:Long)
 	If CPU.INTC.EnabledPrevious <> CPU.INTC.Enabled
 		If CPU.INTC.Enabled
 			Print "Machine interrupts are now ENABLED"
-			Input "(Press Enter to continue)"
+			'Input "(Press Enter to continue)"
 		Else 
 			Print "Machine interrupts are now DISABLED"
-			Input "(Press Enter to continue)"
+			'Input "(Press Enter to continue)"
 		End If
 	End If
 	
