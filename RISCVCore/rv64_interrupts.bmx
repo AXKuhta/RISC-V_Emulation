@@ -1,13 +1,13 @@
 
 ' RV64 interrupt controller
 Type RV64i_intc
-	' Machine Interrupt Enabled flag
-	Field MIE:Int
+	' Interrupt Controller Enable Flag
+	' Stored into `EnabledPrevious` on an interrupt
+	' Restored on `MRET` instruction
+	Field Enabled:Int
 	
-	' Previous state of MIE
-	' MIE is stored into MIEP on interrupt
-	' And restored back on `MRET` instruction
-	Field MIEP:Int
+	' Previous state of enable flag
+	Field EnabledPrevious:Int
 	
 	' This flag is set when a write to `mtimecmp` occured
 	' Unset when the time is reached

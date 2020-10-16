@@ -7,6 +7,7 @@ Type RV64i_csr
 	Field MTVec:Long
 	
 	' Which machine interrupts are enabled
+	' This is a register, not a flag
 	Field MIE:Long
 	
 	' Which machine interrupts are pending (same field order as in `MIE`)
@@ -55,19 +56,46 @@ Const MSTATUS_MACHINE_INTERRUPTS_PREV = 		%10000000
 ' Handers for changes of certain CSRs
 ' ======================================================================
 ' This function gets called when MStatus register is updated
-Function MStatusUpdateNotification(CPU:RV64i_core)
+Function MStatusUpdateNotification(CPU:RV64i_core, Value:Long)
 	Print "CSR: MStatus CSR updated"
 	
 	' Use logic operations to get the enabled statuses
-	Local UIE:Int = 0 < (CPU.CSR.MStatus & MSTATUS_USER_INTERRUPTS)
-	Local SIE:Int = 0 < (CPU.CSR.MStatus & MSTATUS_SUPERVISOR_INTERRUPTS)
-	Local MIE:Int = 0 < (CPU.CSR.MStatus & MSTATUS_MACHINE_INTERRUPTS)
+	Local UIE:Int = 0 < (Value & MSTATUS_USER_INTERRUPTS)
+	Local SIE:Int = 0 < (Value & MSTATUS_SUPERVISOR_INTERRUPTS)
+	Local MIE:Int = 0 < (Value & MSTATUS_MACHINE_INTERRUPTS)
 	
 	' Complain if UIE or SIE were set
 	' We only support MIE
 	If (UIE Or SIE)
 		Print "UIE or SIE set in MStatus -- we don't support anything but MIE"
 		Input "(Press Enter to continue)"
+	End If
+	
+	
+	' Sync between the CSRs and the INTC
+	' Preserve the previous state
+	CPU.INTC.EnabledPrevious = CPU.INTC.Enabled
+	
+	' Set the new INTC state
+	CPU.INTC.Enabled = MIE
+	
+	
+	' Update the CSR itself
+	CPU.CSR.Mstatus = 0
+	
+	If CPU.INTC.Enabled Then CPU.CSR.Mstatus :| MSTATUS_MACHINE_INTERRUPTS
+	If CPU.INTC.EnabledPrevious Then CPU.CSR.Mstatus :| MSTATUS_SUPERVISOR_INTERRUPTS_PREV
+
+	
+	' Pause if the state has actually changed
+	If CPU.INTC.EnabledPrevious <> CPU.INTC.Enabled
+		If CPU.INTC.Enabled
+			Print "Machine interrupts are now ENABLED"
+			Input "(Press Enter to continue)"
+		Else 
+			Print "Machine interrupts are now DISABLED"
+			Input "(Press Enter to continue)"
+		End If
 	End If
 	
 	
@@ -145,8 +173,7 @@ Function WriteCSR(CSR_ID:Int, Value:Long, CPU:RV64i_core)
 			WarnReadonlyCSR("misa")
 			
 		Case CSR_MSTATUS
-			CPU.CSR.MStatus = Value
-			MStatusUpdateNotification(CPU)
+			MStatusUpdateNotification(CPU, Value)
 			
 		Case CSR_MTVEC
 			CPU.CSR.MTVec = Value
