@@ -26,11 +26,14 @@ Type RV64i_mmu
 	Field MMIOStart:ULong
 End Type
 
+Const MMU_READ = 1
+Const MMU_WRITE = 2
+
 ' MMU translation function
 ' Receives an address /of the guest memory/
 ' Returns an address /of the host memory/ that the caller should read
 ' Has a hardcoded implementation of MMIO remapping right now
-Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core, Verbose:Int = 1)
+Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core, Mode:Int, Verbose:Int = 1)
 	Local TranslatedAddress:ULong = 0
 	
 	' Remove meaningless bits
@@ -94,7 +97,7 @@ End Function
 
 ' Wrappers that will run the address through the MMU before reading/writing
 Function MMUReadMemory8:Byte(Addr:Long, CPU:RV64i_core)
-	Local HostAddr:Byte Ptr = AddressThroughMMU(Addr, 1, CPU)
+	Local HostAddr:Byte Ptr = AddressThroughMMU(Addr, 1, CPU, MMU_READ)
 	
 	CPU.MMU.LatestReadAddress = Addr
 	
@@ -102,7 +105,7 @@ Function MMUReadMemory8:Byte(Addr:Long, CPU:RV64i_core)
 End Function
 
 Function MMUReadMemory16:Short(Addr:Long, CPU:RV64i_core)
-	Local HostAddr:Short Ptr = AddressThroughMMU(Addr, 2, CPU)
+	Local HostAddr:Short Ptr = AddressThroughMMU(Addr, 2, CPU, MMU_READ)
 
 	CPU.MMU.LatestReadAddress = Addr
 
@@ -110,7 +113,7 @@ Function MMUReadMemory16:Short(Addr:Long, CPU:RV64i_core)
 End Function
 
 Function MMUReadMemory32:Int(Addr:Long, CPU:RV64i_core)
-	Local HostAddr:Int Ptr = AddressThroughMMU(Addr, 4, CPU)
+	Local HostAddr:Int Ptr = AddressThroughMMU(Addr, 4, CPU, MMU_READ)
 
 	CPU.MMU.LatestReadAddress = Addr
 
@@ -119,7 +122,7 @@ Function MMUReadMemory32:Int(Addr:Long, CPU:RV64i_core)
 End Function
 
 Function MMUReadMemory64:Long(Addr:Long, CPU:RV64i_core)
-	Local HostAddr:Long Ptr = AddressThroughMMU(Addr, 8, CPU)
+	Local HostAddr:Long Ptr = AddressThroughMMU(Addr, 8, CPU, MMU_READ)
 
 	CPU.MMU.LatestReadAddress = Addr
 	
@@ -128,7 +131,7 @@ End Function
 
 
 Function MMUWriteMemory8(Value:Byte, Addr:Long, CPU:RV64i_core)
-	Local HostAddr:Byte Ptr = AddressThroughMMU(Addr, 1, CPU)
+	Local HostAddr:Byte Ptr = AddressThroughMMU(Addr, 1, CPU, MMU_WRITE)
 	
 	CPU.MMU.LatestWriteAddress = Addr
 	
@@ -138,7 +141,7 @@ Function MMUWriteMemory8(Value:Byte, Addr:Long, CPU:RV64i_core)
 End Function
 
 Function MMUWriteMemory16(Value:Short, Addr:Long, CPU:RV64i_core)
-	Local HostAddr:Short Ptr = AddressThroughMMU(Addr, 2, CPU)
+	Local HostAddr:Short Ptr = AddressThroughMMU(Addr, 2, CPU, MMU_WRITE)
 
 	CPU.MMU.LatestWriteAddress = Addr
 	
@@ -148,7 +151,7 @@ Function MMUWriteMemory16(Value:Short, Addr:Long, CPU:RV64i_core)
 End Function
 
 Function MMUWriteMemory32(Value:Int, Addr:Long, CPU:RV64i_core)
-	Local HostAddr:Int Ptr = AddressThroughMMU(Addr, 4, CPU)
+	Local HostAddr:Int Ptr = AddressThroughMMU(Addr, 4, CPU, MMU_WRITE)
 
 	CPU.MMU.LatestWriteAddress = Addr
 	
@@ -158,7 +161,7 @@ Function MMUWriteMemory32(Value:Int, Addr:Long, CPU:RV64i_core)
 End Function
 
 Function MMUWriteMemory64(Value:Long, Addr:Long, CPU:RV64i_core)
-	Local HostAddr:Long Ptr = AddressThroughMMU(Addr, 8, CPU)
+	Local HostAddr:Long Ptr = AddressThroughMMU(Addr, 8, CPU, MMU_WRITE)
 	
 	CPU.MMU.LatestWriteAddress = Addr
 	

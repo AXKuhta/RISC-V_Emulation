@@ -47,16 +47,7 @@ End Type
 Function Fetch:TInstruction(Addr:Long, CPU:RV64i_core)
 	Local Insn:TInstruction = New TInstruction
 	
-	Insn.Entire = ReadMemory32(AddressThroughMMU(Addr, 4, CPU))
-	
-	Return Insn
-End Function 
-
-' Returns an instruction
-Function FetchOld:TInstruction(CPU:RV64i_core)
-	Local Insn:TInstruction = New TInstruction
-	
-	Insn.Entire = ReadMemory32(AddressThroughMMU(CPU.PC, 4, CPU))
+	Insn.Entire = ReadMemory32(AddressThroughMMU(Addr, 4, CPU, MMU_READ))
 	
 	Return Insn
 End Function 
