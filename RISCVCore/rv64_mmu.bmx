@@ -26,6 +26,8 @@ Type RV64i_mmu
 	Field MMIOStart:ULong
 End Type
 
+' Various modes
+' MMU_TEST is intended for dry-run type checks
 Const MMU_READ = 1
 Const MMU_WRITE = 2
 Const MMU_EXECUTE = 3
