@@ -67,11 +67,10 @@ Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core, Verbos
 	' Check whether we are hitting INTC address range
 	Local IsINTC:Int = TranslatedAddress >= CPU.MMU.INTCStart And TranslatedAddress < (CPU.MMU.INTCStart + CPU.MMU.INTCSize)
 		
-	If IsINTC
-		If Verbose
-			Print "INTC Access; Offset: 0x" + Shorten(LongHex(Long(TranslatedAddress - CPU.MMU.INTCStart)))
-			Input "(Press Enter to continue)"
-		End If
+	If IsINTC		
+		' Notify what offset was accessed
+		INTCNotify(CPU, TranslatedAddress - CPU.MMU.INTCStart)
+		
 		Return CPU.MMU.INTC + (TranslatedAddress - CPU.MMU.INTCStart)
 	End If
 	

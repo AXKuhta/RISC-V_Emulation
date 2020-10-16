@@ -44,6 +44,7 @@ Include "rv64_mmu.bmx"
 Include "rv64_csrs.bmx"
 Include "rv64_traces.bmx"
 Include "rv64_instructions.bmx"
+Include "rv64_interrupts.bmx"
 
 ' TODO: When we convert the thing to proper object oriented style, with functions like AddressThroughMMU() a method, we need to compare the performance with the old-style version
 ' So please implement anything with high impact on performance, like Translation Blocks, BEFORE starting to cram functions into types
