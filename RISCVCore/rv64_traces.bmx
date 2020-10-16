@@ -78,6 +78,9 @@ Function ExecuteTrace(Trace:TTrace, MaxIterationCount:Int)
 	' Responsibly remove the AllowedToRun flag on exit
 	Trace.AllowedToRun = 0
 	
+	' Handle interrupts before leaving for good
+	ProcessInterrupts(CPU)
+	
 	CPU.CurrentTrace = Null
 End Function
 

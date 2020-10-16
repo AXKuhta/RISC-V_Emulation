@@ -46,5 +46,71 @@ Function INTCNotify(CPU:RV64i_core, Offset:ULong, Mode:Int)
 			Input "(Press Enter to continue)"
 			
 	End Select
+End Function
+
+
+
+' Interrupt codes
+' ======================================================================
+Const TRAP_TYPE_INTERRUPT:Long = $8000000000000000
+
+Const SOFTWARE_INTERRUPT_U = 0
+Const SOFTWARE_INTERRUPT_S = 1
+'Const RESERVED = 2
+Const SOFTWARE_INTERRUPT_M = 3
+
+Const TIMER_INTERRUPT_U = 4
+Const TIMER_INTERRUPT_S = 5
+'Const RESERVED = 6
+Const TIMER_INTERRUPT_M = 7
+
+Const EXTERNAL_INTERRUPT_U = 8
+Const EXTERNAL_INTERRUPT_S = 9
+'Const RESERVED = 10
+Const EXTERNAL_INTERRUPT_M = 11
+' ======================================================================
+
+
+' Exception codes
+' ======================================================================
+Const TRAP_TYPE_EXCEPTION:Long = $0000000000000000
+
+Const EXCEPTION_INSN_ADDR_MISALIGN = 0
+Const EXCEPTION_INSN_ACCESS_FAULT = 1
+Const EXCEPTION_UD = 2
+Const EXCEPTION_BREAKPOINT = 3
+Const EXCEPTION_LOAD_ADDR_MISALIGN = 4
+Const EXCEPTION_LOAD_ACCESS_FAULT = 5
+Const EXCEPTION_AMO_ADDR_MISALIGN = 6
+Const EXCEPTION_AMO_ACCESS_FAULT = 7
+Const EXCEPTION_ECALL_FROM_U = 8
+Const EXCEPTION_ECALL_FROM_S = 9
+' Const RESERVED = 10
+Const EXCEPTION_ECALL_FROM_M = 11
+Const EXCEPTION_INSN_PAGE_FAULT = 12
+Const EXCEPTION_LOAD_PAGE_FAILT = 13
+' Const RESERVED = 14
+Const EXCEPTION_STORE_AMO_PAGE_FAULT = 15
+' ... etc etc etc
+' See privileged spec page 37
+' ======================================================================
+
+
+' Checks if interrupts are enabled and whether there are any pending
+' Proceeds to handle the interrupt if so
+Function ProcessInterrupts(CPU:RV64i_core)
+	' Early return if interrupts disabled
+	If CPU.INTC.Enabled = 0 Then Return
 	
+	' Process the timer interrupt with highest priority
+	If CPU.INTC.TimerArmed = 1
+		' Check for timer trip
+		If MilliSecs() >= ReadMemory64(CPU.MMU.INTC + INTC_TIME_CMP)
+			' Unset the armed status first thing
+			CPU.INTC.TimerArmed = 0
+		
+			Print "Timer interrupt tripped!"
+			Input "(Press Enter to continue)"
+		End If
+	End If
 End Function
