@@ -23,7 +23,7 @@ Type RV64i_core
 	Field CSR:RV64i_csr
 	
 	' Decoded instruction cache
-	Field TraceCache:TTrace[8]
+	Field TraceCache:TTrace[12]
 	
 	' Link to the currently executing trace
 	Field CurrentTrace:TTrace
