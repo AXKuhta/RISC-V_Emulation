@@ -75,19 +75,18 @@ Function MStatusUpdateNotification(CPU:RV64i_core, Value:Long)
 		Input "(Press Enter to continue)"
 	End If
 	
+	' Exit early if this operation wouldn't actually alter the state
+	If MIE = CPU.INTC.Enabled Then Return
+	
 	' This function is defined in `rv64_interrupts.bmx`
 	' It /will/ overwrite the CSR
 	SetMIE(CPU, MIE)
 	
-	' Pause if the state has actually changed
-	If CPU.INTC.EnabledPrevious <> CPU.INTC.Enabled
-		If CPU.INTC.Enabled
-			Print "Machine interrupts are now ENABLED"
-			'Input "(Press Enter to continue)"
-		Else 
-			Print "Machine interrupts are now DISABLED"
-			'Input "(Press Enter to continue)"
-		End If
+	' Print the new state
+	If CPU.INTC.Enabled
+		Print "Machine interrupts are now ENABLED"
+	Else 
+		Print "Machine interrupts are now DISABLED"
 	End If
 End Function
 
