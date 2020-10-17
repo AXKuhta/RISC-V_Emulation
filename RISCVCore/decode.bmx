@@ -568,15 +568,27 @@ Function Decode(Insn:TInstruction)
 					Insn.Handler = CSRRCI_Handler
 					Log_AxR_CSR("CSRRCI", Insn)
 				
-				Case SYS_ECALL, SYS_EBREAK
+				Case SYS_CALL
 					Select Insn.Argument12
-						Case 0
+						Case CALL_ECALL
 							Log_SYSTEM("ECALL", Insn)
 							Return 0
 							
-						Case 1
+						Case CALL_EBREAK
 							Insn.Handler = EBREAK_Handler
 							Log_SYSTEM("EBREAK", Insn)
+					
+						Case CALL_URET
+							Log_SYSTEM("URET", Insn)
+							Return 0
+							
+						Case CALL_SRET
+							Log_SYSTEM("SRET", Insn)
+							Return 0
+							
+						Case CALL_MRET
+							Log_SYSTEM("MRET", Insn)
+							Return 0
 					
 						Default
 							LogError("Unacceptable type of ECALL/EBREAK", Insn)

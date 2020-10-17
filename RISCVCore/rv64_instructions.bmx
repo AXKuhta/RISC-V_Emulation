@@ -151,8 +151,13 @@ Const CSR_RWI = %101
 Const CSR_RSI = %110
 Const CSR_RCI = %111
 
-Const SYS_ECALL = %000
-Const SYS_EBREAK = %000
+Const SYS_CALL = %000
+
+Const CALL_ECALL = %000000000000
+Const CALL_EBREAK = %000000000001
+Const CALL_URET = %000000000010
+Const CALL_SRET = %000100000010
+Const CALL_MRET = %001100000010
 '=========================================
 
 
