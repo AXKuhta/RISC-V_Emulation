@@ -944,6 +944,32 @@ End Function
 ' ======================================================================
 
 
+' Interrupt return instructions (URET/SRET/MRET)
+' ======================================================================
+' Machine mode interrupt return
+Function MRET_Handler(Insn:TInstruction, CPU:RV64i_core)
+	' Extract our return address from MEPC CSR
+	Local Addr:Long = CPU.CSR.MEPC
+	
+	' Force the 32nd bit
+	Addr :| CPU.MMU.ForcedMask
+	
+	' Check the address just in case
+	' But do not alter the register state!
+	AddressThroughMMU(Addr, 4, CPU, MMU_EXECUTE)
+
+	' Restore the previous Interrupt Enable state
+	RestorePreviousMIEState(CPU)
+
+	' Update the traces allowed for execution
+	JumpNotify(Addr, CPU)
+
+	' And finally perform the return itself
+	CPU.PC = Addr
+End Function
+' ======================================================================
+
+
 ' Conditional Branch Instructions
 ' ======================================================================
 ' BGE, aka Branch If Greater or Equal

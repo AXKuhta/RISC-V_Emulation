@@ -75,21 +75,9 @@ Function MStatusUpdateNotification(CPU:RV64i_core, Value:Long)
 		Input "(Press Enter to continue)"
 	End If
 	
-	
-	' Sync between the CSRs and the INTC
-	' Preserve the previous state
-	CPU.INTC.EnabledPrevious = CPU.INTC.Enabled
-	
-	' Set the new INTC state
-	CPU.INTC.Enabled = MIE
-	
-	
-	' Update the CSR itself
-	CPU.CSR.Mstatus = 0
-	
-	If CPU.INTC.Enabled Then CPU.CSR.Mstatus :| MSTATUS_MACHINE_INTERRUPT
-	If CPU.INTC.EnabledPrevious Then CPU.CSR.Mstatus :| MSTATUS_MACHINE_INTERRUPT_PREV
-
+	' This function is defined in `rv64_interrupts.bmx`
+	' It /will/ overwrite the CSR
+	SetMIE(CPU, MIE)
 	
 	' Pause if the state has actually changed
 	If CPU.INTC.EnabledPrevious <> CPU.INTC.Enabled
@@ -101,8 +89,17 @@ Function MStatusUpdateNotification(CPU:RV64i_core, Value:Long)
 			'Input "(Press Enter to continue)"
 		End If
 	End If
+End Function
+
+' Sets bits in MStatus based on the current state of the INTC
+' Called from `rv64_interrupts.bmx`
+Function SyncMStatus(CPU:RV64i_core)
+	' Reset to zero
+	CPU.CSR.Mstatus = 0
 	
-	
+	' Set appropriate flags
+	If CPU.INTC.Enabled Then CPU.CSR.Mstatus :| MSTATUS_MACHINE_INTERRUPT
+	If CPU.INTC.EnabledPrevious Then CPU.CSR.Mstatus :| MSTATUS_MACHINE_INTERRUPT_PREV
 End Function
 
 ' This function gets called when Interrupt Vector is updated

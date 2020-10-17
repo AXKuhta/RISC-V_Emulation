@@ -118,12 +118,15 @@ Function ProcessInterrupts(CPU:RV64i_core)
 			Print "Timer interrupt tripped!"
 			Input "(Press Enter to continue)"
 			CPU.BreakpointHit = 1
+						
+			' Can't enter the interrupt handler if the
+			' interrupt are off!
+			Assert(CPU.INTC.Enabled = 1)
 			
-			' Disable interrupts
-			' Has to go into DisableInterrupts()
-			CPU.INTC.Enabled = 0
-			CPU.CSR.MStatus = MSTATUS_MACHINE_INTERRUPT_PREV
-			
+			' Disable the interrupts during handling
+			' Restored later by `MRET` instruction
+			SetMIE(CPU, 0)
+						
 			' Fill out the cause information
 			CPU.CSR.MCause = TRAP_TYPE_INTERRUPT | TIMER_INTERRUPT_M
 			CPU.CSR.MEPC = CPU.PC ' Do we need to subtract 4??
@@ -139,4 +142,27 @@ Function ProcessInterrupts(CPU:RV64i_core)
 			Return
 		End If
 	End If
+End Function
+
+' Used to enable/disable machine interrupts
+' State = 1 is Enable
+' State = 0 is Disable
+Function SetMIE(CPU:RV64i_core, State:Int)
+	CPU.INTC.EnabledPrevious = CPU.INTC.Enabled
+	CPU.INTC.Enabled = State
+	
+	SyncMStatus(CPU)
+End Function
+
+' Restores the previous machine interrupt state
+Function RestorePreviousMIEState(CPU:RV64i_core)
+	Local Temp:Int
+	
+	' Swap the flags
+	Temp = CPU.INTC.Enabled
+	CPU.INTC.Enabled = CPU.INTC.EnabledPrevious
+	CPU.INTC.EnabledPrevious = Temp
+	
+	' Synchronize MStatus CSR
+	SyncMStatus(CPU)
 End Function

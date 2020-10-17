@@ -587,8 +587,8 @@ Function Decode(Insn:TInstruction)
 							Return 0
 							
 						Case CALL_MRET
+							Insn.Handler = MRET_Handler
 							Log_SYSTEM("MRET", Insn)
-							Return 0
 					
 						Default
 							LogError("Unacceptable type of ECALL/EBREAK", Insn)
