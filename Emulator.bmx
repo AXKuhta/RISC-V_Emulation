@@ -194,7 +194,6 @@ While True
 	
 	' Graphics
 	UpdateScreen(CPU)
-	
 Wend
 
 Input("Press enter to exit")
@@ -202,6 +201,13 @@ Input("Press enter to exit")
 
 ' Update the graphical part of the emulator
 Function UpdateScreen(CPU:RV64i_core)
+	' In fast mode, update only on each 16th millisecond
+	' Do not even start drawing anything otherwise
+	If KeyDown(KEY_F)
+		If MilliSecs() Mod 16 <> 0 Then Return
+	End If
+	
+	' Clear the screen
 	Cls
 	
 	' Screen at the top
@@ -220,14 +226,8 @@ Function UpdateScreen(CPU:RV64i_core)
 	SetOrigin 0, GraphicsHeight() - 50
 	ShowMemoryDump(CPU)
 	
-	' By default Flip will limit the main loop to 60 Hz (Or whatever the monitor refresh rate is)
-	' You can disable than by passing 0 as an argument
-	' Uncage the framerate if F key is held
-	If Not KeyDown(KEY_F)
-		Flip
-	Else
-		Flip 0
-	End If
+	' Draw at next VBlank
+	Flip
 End Function
 
 ' Draw a 80x25 screendump
