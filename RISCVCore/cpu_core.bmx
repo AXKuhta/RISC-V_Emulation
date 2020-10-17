@@ -31,6 +31,9 @@ Type RV64i_core
 	' Link to the currently executing trace
 	Field CurrentTrace:TTrace
 	
+	
+	' Debugging variables
+	' ====================================
 	' The breakpoint address
 	Field Breakpoint:Long
 	
@@ -43,6 +46,10 @@ Type RV64i_core
 	' Set in `Emulator.bmx` on startup
 	' Later overwritten from `AddressThroughMMU()` if an MMIO write is detected
 	Field ScreenAddress:Long
+	
+	' Time of startup in host milliseconds
+	Field StartTime:ULong
+	' ====================================
 End Type
 
 ' Include allows you to import the source code without compiling it first

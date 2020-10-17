@@ -132,6 +132,8 @@ Local StepMode:Int = 0
 Local Trace:TTrace
 Local Insn:TInstruction ' For single instruction debugging
 
+CPU.StartTime = MilliSecs()
+
 CPU.ScreenAddress = $20F500
 ' Locations of interest
 ' $20F500	printk output buffer

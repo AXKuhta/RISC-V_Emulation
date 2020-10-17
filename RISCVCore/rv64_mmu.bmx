@@ -68,7 +68,12 @@ Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core, Mode:I
 	
 	If IsMMIO
 		' Switch the screen to display MMIO if an MMIO access is detected
-		CPU.ScreenAddress = CPU.MMU.MMIOStart
+		If CPU.ScreenAddress <> CPU.MMU.MMIOStart
+			CPU.ScreenAddress = CPU.MMU.MMIOStart
+			
+			Print "Boot to MMIO console initialization took " + (MilliSecs() - CPU.StartTime) + " ms"
+			Input "(Press Enter to continue)"
+		End If
 	
 		Return CPU.MMU.MMIO + (TranslatedAddress - CPU.MMU.MMIOStart)
 	End If
