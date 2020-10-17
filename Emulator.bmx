@@ -186,7 +186,7 @@ While True
 		
 		ExecuteTrace(Trace, 1)
 	Else
-		ExecuteTrace(Trace, 3000)
+		ExecuteTrace(Trace, 300000)
 	End If
 		
 	
