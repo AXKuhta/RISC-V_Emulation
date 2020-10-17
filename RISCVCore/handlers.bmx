@@ -976,18 +976,18 @@ End Function
 Function BGE_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
 	Local SrcB:Int = Insn.SourceB
-	
-	' Be sure the adjustment made by the Fetch stage
-	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
-	
-	' Force the 32nd bit
-	Addr :| CPU.MMU.ForcedMask
-	
-	' Check the address just in case
-	' But do not alter the register state!
-	AddressThroughMMU(Addr, 4, CPU, MMU_EXECUTE)
-	
+		
 	If CPU.Registers[SrcA] >= CPU.Registers[SrcB]
+		' Be sure the adjustment made by the Fetch stage
+		Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
+		
+		' Force the 32nd bit
+		Addr :| CPU.MMU.ForcedMask
+		
+		' Check the address just in case
+		' But do not alter the register state!
+		AddressThroughMMU(Addr, 4, CPU, MMU_EXECUTE)
+
 		' Update the traces allowed for execution
 		JumpNotify(Addr, CPU)
 	
@@ -999,18 +999,18 @@ End Function
 Function BGEU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
 	Local SrcB:Int = Insn.SourceB
-	
-	' Be sure the adjustment made by the Fetch stage
-	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
-	
-	' Force the 32nd bit
-	Addr :| CPU.MMU.ForcedMask
-	
-	' Check the address just in case
-	' But do not alter the register state!
-	AddressThroughMMU(Addr, 4, CPU, MMU_EXECUTE)
-	
+		
 	If ULong(CPU.Registers[SrcA]) >= ULong(CPU.Registers[SrcB])
+		' Be sure the adjustment made by the Fetch stage
+		Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
+		
+		' Force the 32nd bit
+		Addr :| CPU.MMU.ForcedMask
+		
+		' Check the address just in case
+		' But do not alter the register state!
+		AddressThroughMMU(Addr, 4, CPU, MMU_EXECUTE)
+	
 		' Update the traces allowed for execution
 		JumpNotify(Addr, CPU)
 	
@@ -1022,18 +1022,18 @@ End Function
 Function BLT_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
 	Local SrcB:Int = Insn.SourceB
-	
-	' Be sure the adjustment made by the Fetch stage
-	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
-	
-	' Force the 32nd bit
-	Addr :| CPU.MMU.ForcedMask
-	
-	' Check the address just in case
-	' But do not alter the register state!
-	AddressThroughMMU(Addr, 4, CPU, MMU_EXECUTE)
-	
+		
 	If CPU.Registers[SrcA] < CPU.Registers[SrcB]
+		' Be sure the adjustment made by the Fetch stage
+		Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
+		
+		' Force the 32nd bit
+		Addr :| CPU.MMU.ForcedMask
+		
+		' Check the address just in case
+		' But do not alter the register state!
+		AddressThroughMMU(Addr, 4, CPU, MMU_EXECUTE)
+	
 		' Update the traces allowed for execution
 		JumpNotify(Addr, CPU)
 	
@@ -1045,18 +1045,18 @@ End Function
 Function BLTU_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
 	Local SrcB:Int = Insn.SourceB
-	
-	' Be sure the adjustment made by the Fetch stage
-	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
-	
-	' Force the 32nd bit
-	Addr :| CPU.MMU.ForcedMask
-	
-	' Check the address just in case
-	' But do not alter the register state!
-	AddressThroughMMU(Addr, 4, CPU, MMU_EXECUTE)
-	
+		
 	If ULong(CPU.Registers[SrcA]) < ULong(CPU.Registers[SrcB])
+		' Be sure the adjustment made by the Fetch stage
+		Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
+		
+		' Force the 32nd bit
+		Addr :| CPU.MMU.ForcedMask
+		
+		' Check the address just in case
+		' But do not alter the register state!
+		AddressThroughMMU(Addr, 4, CPU, MMU_EXECUTE)
+	
 		' Update the traces allowed for execution
 		JumpNotify(Addr, CPU)
 	
@@ -1068,18 +1068,18 @@ End Function
 Function BEQ_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
 	Local SrcB:Int = Insn.SourceB
-	
-	' Be sure the adjustment made by the Fetch stage
-	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
-	
-	' Force the 32nd bit
-	Addr :| CPU.MMU.ForcedMask
-	
-	' Check the address just in case
-	' But do not alter the register state!
-	AddressThroughMMU(Addr, 4, CPU, MMU_EXECUTE)
-	
+		
 	If CPU.Registers[SrcA] = CPU.Registers[SrcB]
+		' Be sure the adjustment made by the Fetch stage
+		Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
+		
+		' Force the 32nd bit
+		Addr :| CPU.MMU.ForcedMask
+		
+		' Check the address just in case
+		' But do not alter the register state!
+		AddressThroughMMU(Addr, 4, CPU, MMU_EXECUTE)
+	
 		' Update the traces allowed for execution
 		JumpNotify(Addr, CPU)
 	
@@ -1091,18 +1091,18 @@ End Function
 Function BNE_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Local SrcA:Int = Insn.SourceA
 	Local SrcB:Int = Insn.SourceB
-	
-	' Be sure the adjustment made by the Fetch stage
-	Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
-	
-	' Force the 32nd bit
-	Addr :| CPU.MMU.ForcedMask
-	
-	' Check the address just in case
-	' But do not alter the register state!
-	AddressThroughMMU(Addr, 4, CPU, MMU_EXECUTE)
-	
+		
 	If CPU.Registers[SrcA] <> CPU.Registers[SrcB]
+		' Be sure the adjustment made by the Fetch stage
+		Local Addr:Long = CPU.PC - 4 + Insn.BR_Argument
+		
+		' Force the 32nd bit
+		Addr :| CPU.MMU.ForcedMask
+		
+		' Check the address just in case
+		' But do not alter the register state!
+		AddressThroughMMU(Addr, 4, CPU, MMU_EXECUTE)
+	
 		' Update the traces allowed for execution
 		JumpNotify(Addr, CPU)
 	
