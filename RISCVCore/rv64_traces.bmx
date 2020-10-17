@@ -35,6 +35,7 @@ Function ExecuteTrace(Trace:TTrace, MaxIterationCount:Int)
 	
 	' Pull in as variable for code cleanliness
 	Local CPU:RV64i_core = Trace.CPU
+	Local PCMask:ULong = CPU.MMU.AddressBusMask
 	
 	CPU.CurrentTrace = Trace
 	
@@ -53,7 +54,7 @@ Function ExecuteTrace(Trace:TTrace, MaxIterationCount:Int)
 	
 		' Calculate the index of instruction in the trace
 		' This is our equivalent of the Fetch stage
-		InsnIdx = (MMUTrim(CPU.PC, CPU) - Trace.StartAddress) / 4
+		InsnIdx = ((CPU.PC & PCMask) - Trace.StartAddress) / 4
 				
 		' Increment the program counter
 		CPU.PC :+ 4
@@ -63,7 +64,7 @@ Function ExecuteTrace(Trace:TTrace, MaxIterationCount:Int)
 		
 		' If we hit a breakpoint, set the flag and exit
 		' This check needs to be the first one
-		If MMUTrim(CPU.PC, CPU) = CPU.Breakpoint
+		If CPU.PC & PCMask = CPU.Breakpoint
 			CPU.BreakpointHit = 1
 			Exit
 		End If
@@ -72,7 +73,7 @@ Function ExecuteTrace(Trace:TTrace, MaxIterationCount:Int)
 		If Trace.AllowedToRun = 0 Then Exit
 		
 		' If we are now out of bound of the trace, exit immidiately
-		If MMUTrim(CPU.PC, CPU) >= Trace.EndAddress Then Exit
+		If CPU.PC & PCMask >= Trace.EndAddress Then Exit
 	Next
 	
 	' Responsibly remove the AllowedToRun flag on exit
