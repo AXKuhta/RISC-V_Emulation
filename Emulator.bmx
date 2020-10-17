@@ -48,8 +48,8 @@ CPU.MMU.INTC = MemAlloc(CPU.MMU.INTCSize)
 ' And End at 0x1001FFFF
 CPU.MMU.INTCStart = $10010000
 
-' Allocate some MMIO memory (A 80x25 text-mode screen)
-CPU.MMU.MMIOSize = 80*25
+' Allocate some MMIO memory (A 160x70 text-mode screen)
+CPU.MMU.MMIOSize = 160*70
 CPU.MMU.MMIO = MemAlloc(CPU.MMU.MMIOSize)
 
 ' Mark MMIO to start at 0x100B8000
@@ -131,6 +131,10 @@ Local StepMode:Int = 0
 
 Local Trace:TTrace
 Local Insn:TInstruction ' For single instruction debugging
+
+CPU.ScreenAddress = $20F500
+' Locations of interest
+' $20F500	printk output buffer
 
 CPU.Breakpoint = -1
 ' Locations of interest:
@@ -231,9 +235,11 @@ Function ShowScreen(CPU:RV64i_core, Width:Int = 80, Height:Int = 25)
 	DrawLine 0, 10*(Height+1), Width*10, 10*(Height+1)
 	DrawLine Width*10, 0, Width*10, 10*(Height+1)
 	
+	Local ScreenMemory:Byte Ptr = AddressThroughMMU(CPU.ScreenAddress, 1, CPU, MMU_READ, 0)
+	
 	For Local j:Int = 0 Until Height
 		For Local i:Int = 0 Until Width
-			Character = Chr(CPU.MMU.Memory[$20F500 + Width*j + i]) ' Chr(CPU.MMU.MMIO[Width*j + i])
+			Character = Chr( ScreenMemory[Width*j + i] )
 			
 			Select Character
 				Case "~0"

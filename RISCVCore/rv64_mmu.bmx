@@ -67,6 +67,9 @@ Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core, Mode:I
 	Local IsMMIO:Int = TranslatedAddress >= CPU.MMU.MMIOStart And TranslatedAddress < (CPU.MMU.MMIOStart + CPU.MMU.MMIOSize)
 	
 	If IsMMIO
+		' Switch the screen to display MMIO if an MMIO access is detected
+		CPU.ScreenAddress = CPU.MMU.MMIOStart
+	
 		Return CPU.MMU.MMIO + (TranslatedAddress - CPU.MMU.MMIOStart)
 	End If
 	

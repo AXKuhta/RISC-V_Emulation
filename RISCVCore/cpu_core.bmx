@@ -38,6 +38,11 @@ Type RV64i_core
 	' Set if PC equals Breakpoint
 	' Can also be set by EBREAK handler
 	Field BreakpointHit:Int
+	
+	' Used by the text-mode screen
+	' Set in `Emulator.bmx` on startup
+	' Later overwritten from `AddressThroughMMU()` if an MMIO write is detected
+	Field ScreenAddress:Long
 End Type
 
 ' Include allows you to import the source code without compiling it first
