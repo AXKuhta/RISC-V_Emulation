@@ -26,7 +26,7 @@ Type RV64i_core
 	Field INTC:RV64i_intc
 	
 	' Decoded instruction cache
-	Field TraceCache:TTrace[12]
+	Field TraceCache:TTrace[32]
 	
 	' Link to the currently executing trace
 	Field CurrentTrace:TTrace

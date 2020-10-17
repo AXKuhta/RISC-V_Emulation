@@ -116,7 +116,6 @@ Function ProcessInterrupts(CPU:RV64i_core)
 			' Has to go into HandleInterrupt()
 			' =========================================
 			Print "Timer interrupt tripped!"
-			CPU.BreakpointHit = 1
 						
 			' Can't enter the interrupt handler if the
 			' interrupt are off!
