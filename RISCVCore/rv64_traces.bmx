@@ -2,6 +2,11 @@
 Const TRACE_SIZE = 4*1024
 Const TRACE_INSN_COUNT = TRACE_SIZE / 4
 
+' Mask for the bits that are meaningful to determine the offset into the trace
+' Be sure to update this if you ever change the TRACE_SIZE
+Const TRACE_OFFSET_MASK = $FFF
+
+
 Type TTrace
 	' Set when PC is in range of this trace
 	Field AllowedToRun:Int
@@ -54,8 +59,8 @@ Function ExecuteTrace(Trace:TTrace, MaxIterationCount:Int)
 	
 		' Calculate the index of instruction in the trace
 		' This is our equivalent of the Fetch stage
-		InsnIdx = ((CPU.PC & PCMask) - Trace.StartAddress) / 4
-				
+		InsnIdx = (CPU.PC & TRACE_OFFSET_MASK) / 4
+		
 		' Increment the program counter
 		CPU.PC :+ 4
 		
