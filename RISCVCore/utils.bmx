@@ -147,6 +147,15 @@ Function Shorten:String(HexText:String)
 	Return Mid(HexText, i + 1)
 End Function
 
+' Two versions of PrettyHex that take Long and ULong arguments
+Function PrettyHex:String(Number:Long)
+	Return Shorten(LongHex(Number))
+End Function
+
+Function PrettyHex:String(Number:ULong)
+	Return Shorten(LongHex(Long(Number)))
+End Function
+
 ' Generic single-function logging to file
 Global LogFile:TStream
 

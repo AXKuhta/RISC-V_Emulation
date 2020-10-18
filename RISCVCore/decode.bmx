@@ -39,7 +39,7 @@ End Function
 ' Logs LUI instructions
 Function Log_LUI(InstructionName:String, Insn:TInstruction)
 	If Not Insn.Verbose Then Return
-	Print InstructionName + " " + register_name(Insn.Destination) + ", 0x" + Shorten(Hex(Insn.LUI_Argument20))
+	Print InstructionName + " " + register_name(Insn.Destination) + ", 0x" + PrettyHex(Insn.LUI_Argument20)
 End Function
 
 ' Logs LD instructions
@@ -788,7 +788,7 @@ Function DecodeTrace(Trace:TTrace)
 	Local InstructionsDecoded:Int = 0
 	Local InstructionsError:Int = 0
 	
-	Print "TRACE: Decoding block at 0x" + Shorten(LongHex(Trace.StartAddress))
+	Print "TRACE: Decoding block at 0x" + PrettyHex(Trace.StartAddress)
 	
 	For InsnIndex = 0 Until TRACE_INSN_COUNT
 		' Fetch

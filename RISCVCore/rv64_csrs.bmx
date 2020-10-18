@@ -117,15 +117,15 @@ Function MTVecUpdateNotification(CPU:RV64i_core)
 	' Delete two lower bits from the vector
 	CPU.InterruptVector = CPU.CSR.MTVec & $FFFFFFFFFFFFFFFC
 	
-	Print "CSR: Interrupt vector is now 0x" + Shorten(LongHex(CPU.InterruptVector))
+	Print "CSR: Interrupt vector is now 0x" + PrettyHex(CPU.InterruptVector)
 End Function
 
 ' This function gets called when Physical Memory Protection stuff is
 ' updated
 Function PMPUpdateNotification(CPU:RV64i_core)
 	Print "CSR: Physical Memory Protection settings updated"
-	Print "CSR: PMPAddr0 is now 0x" + Shorten(LongHex(CPU.CSR.PMPAddr0))
-	Print "CSR: PMPCfg0 is now 0x" + Shorten(LongHex(CPU.CSR.PMPCfg0))
+	Print "CSR: PMPAddr0 is now 0x" + PrettyHex(CPU.CSR.PMPAddr0)
+	Print "CSR: PMPCfg0 is now 0x" + PrettyHex(CPU.CSR.PMPCfg0)
 End Function
 ' ======================================================================
 

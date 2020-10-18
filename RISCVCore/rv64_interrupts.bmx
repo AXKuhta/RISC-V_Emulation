@@ -25,7 +25,7 @@ Const INTC_TIME_VAL = $BFF8
 ' Updates the INTC memory on impending read/write
 Function INTCNotify(CPU:RV64i_core, Offset:ULong, Mode:Int)
 	' Print the offset first
-	Print "INTC Access; Offset: 0x" + Shorten(LongHex(Long(Offset)))
+	Print "INTC Access; Offset: 0x" + PrettyHex(Offset)
 
 	' Check the offset
 	' Complain on unknown offsets
@@ -45,7 +45,7 @@ Function INTCNotify(CPU:RV64i_core, Offset:ULong, Mode:Int)
 			WriteMemory64(MilliSecs(), CPU.MMU.INTC + Offset)
 			
 		Default
-			Print "Unknown INTC memory offset: 0x" + Shorten(LongHex(Long(Offset)))
+			Print "Unknown INTC memory offset: 0x" + PrettyHex(Offset)
 			Input "(Press Enter to continue)"
 			
 	End Select

@@ -127,7 +127,7 @@ Function WriteNotify(Addr:Long, CPU:RV64i_core)
 			' Check if entry was active / ready to run
 			' Complain loudly if so
 			If CPU.TraceCache[i].AllowedToRun = 1
-				Print "TRACE: Invalidating ACTIVE entry " + i + " because of overlapping memory write (0x" + Shorten(LongHex(Addr)) + ")"
+				Print "TRACE: Invalidating ACTIVE entry " + i + " because of overlapping memory write (0x" + PrettyHex(Addr) + ")"
 				Input ""
 			End If
 			

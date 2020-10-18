@@ -1486,7 +1486,7 @@ End Function
 ' ======================================================================
 Function UNKNOWN_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Print "Attempted to execute unknown instruction!"
-	Print "Offending address: 0x" + Shorten(LongHex(CPU.PC - 4))
+	Print "Offending address: 0x" + PrettyHex(CPU.PC - 4)
 	Input "Press enter to exit"
 End Function
 
