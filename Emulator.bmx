@@ -180,7 +180,7 @@ While True
 	If Not KeyDown(KEY_F)
 	
 		' In slow mode, also spill out instructions
-		WriteStdout("0x" + Shorten(LongHex(CPU.PC)) + " : ")
+		WriteStdout("0x" + PrettyHex(CPU.PC) + " : ")
 		
 		Insn = GetNextInstruction(Trace)
 		Insn.Verbose = 1
@@ -275,12 +275,12 @@ Function DrawRegisters(CPU:RV64i_core)
 		OffsetY = i Mod Rows
 		OffsetX = i / Rows
 	
-		DrawText register_name(i) + ": " + Shorten(LongHex(CPU.Registers[i])), OffsetX*HorizontalStep, OffsetY*10
+		DrawText register_name(i) + ": " + PrettyHex(CPU.Registers[i]), OffsetX*HorizontalStep, OffsetY*10
 	Next
 	
-	DrawText "Latest read: " + Shorten(LongHex(Long(CPU.MMU.LatestReadAddress))), 0, 10*(Rows + 2)
-	DrawText "Latest write: " + Shorten(LongHex(Long(CPU.MMU.LatestWriteAddress))), 0, 10*(Rows + 3)
-	DrawText "Program Counter: " + Shorten(LongHex(CPU.PC)), 0, 10*(Rows + 5)
+	DrawText "Latest read: " + PrettyHex(CPU.MMU.LatestReadAddress), 0, 10*(Rows + 2)
+	DrawText "Latest write: " + PrettyHex(CPU.MMU.LatestWriteAddress), 0, 10*(Rows + 3)
+	DrawText "Program Counter: " + PrettyHex(CPU.PC), 0, 10*(Rows + 5)
 End Function
 
 ' Draw interrupt enable states and vectors
@@ -292,11 +292,11 @@ Function DrawInterruptInformation(CPU:RV64i_core)
 	
 	' Registers
 	DrawText "MStatus: 0b" + Shorten(LongBin(CPU.CSR.MStatus)), 0, 0
-	DrawText "MTVec: 0x" + Shorten(LongHex(CPU.CSR.MTVec)), 0, 10
+	DrawText "MTVec: 0x" + PrettyHex(CPU.CSR.MTVec), 0, 10
 	
 	' Memory-mapped registers
-	DrawText "INTC_Timeval: 0x" + Shorten(LongHex(ReadMemory64(CPU.MMU.INTC + INTC_TIME_VAL))), 0, 20
-	DrawText "INTC_Timecmp: 0x" + Shorten(LongHex(ReadMemory64(CPU.MMU.INTC + INTC_TIME_CMP))), 0, 30
+	DrawText "INTC_Timeval: 0x" + PrettyHex(ReadMemory64(CPU.MMU.INTC + INTC_TIME_VAL)), 0, 20
+	DrawText "INTC_Timecmp: 0x" + PrettyHex(ReadMemory64(CPU.MMU.INTC + INTC_TIME_CMP)), 0, 30
 End Function
 
 ' Draw the short dump of the latest read memory address
