@@ -55,6 +55,7 @@ Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core, Mode:I
 		If TranslatedAddress = 0
 			If Verbose
 				Print "MMU: Error: Access to 0! Null pointer error?"
+				Print "Offending instruction address: 0x" + Shorten(LongHex(Long(CPU.PC - 4)))
 				Input "(Press Enter to continue)"
 			End If
 		End If
@@ -89,11 +90,12 @@ Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core, Mode:I
 		Return CPU.MMU.INTC + (TranslatedAddress - CPU.MMU.INTCStart)
 	End If
 	
-	' ### Option 4: Out of bound access
+	' ### Option 4: Out of bounds access
 	' Warn about that
 	If Verbose
 		Print "MMU: Error: out of bounds memory access!"
-		Print "Offending address: 0x" + Shorten(LongHex(Long(Addr)))
+		Print "Offending instruction address: 0x" + Shorten(LongHex(Long(CPU.PC - 4)))
+		Print "Offending access address: 0x" + Shorten(LongHex(Long(Addr)))
 		Input "(Press Enter to continue)"
 	End If
 	
