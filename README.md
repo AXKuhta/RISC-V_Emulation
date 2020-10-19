@@ -15,3 +15,5 @@ It is not finished by any means. There's a lot of missing functionality (see lis
 - Some sort of actual I/O; We need to emulate at least an 8250 serial port
 - Interrupt support is very very rudimentary
 - Some instructions are still missing
+
+See [this repository](https://github.com/AXKuhta/RISC-V_Emulation_supplementals) for the kernel binaries
