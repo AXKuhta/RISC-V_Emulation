@@ -5,7 +5,7 @@
 
 ---
 
-This emulator emulates a single-core RV64IMAFD machine. It uses a [cached interpreter](https://ps1.asuramaru.com/emulator-development/cached-interpreters) technique to achieve more speed.
+This emulator emulates a single-core RV64IMA machine. It uses a [cached interpreter](https://ps1.asuramaru.com/emulator-development/cached-interpreters) technique to achieve more speed.
 
 It is not finished by any means. There's a lot of missing functionality (see list below) and a lot of optimizations to be implemented. Also a lot of bugs to fix.
 
