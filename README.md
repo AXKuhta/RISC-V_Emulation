@@ -14,6 +14,6 @@ See [this repository](https://github.com/AXKuhta/RISC-V_Emulation_supplementals)
 [UserspaceEmulator series by Andreas Kling served as great inspiration](https://www.youtube.com/watch?v=NVPavP9DP-c)
 
 ### Missing features:
-- Some sort of actual I/O; We need to emulate at least an 8250 serial port
-- Interrupt support is very very rudimentary
+- 8250 serial port still doesn't support input
+- There's no actual MMU (as evident from the desription) 
 - Some instructions are still missing
