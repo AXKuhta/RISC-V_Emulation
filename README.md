@@ -5,7 +5,7 @@
 
 ---
 
-This emulator emulates a single-core RV64IMA machine. It is capable of running NOMMU builds of Linux. Unfortunately, you can't do much with it. NOMMU Linux or RISC-V currently doesn't support loading ELF files (!!!), only FLAT binaries. [ELF support _may_ be added in the future](https://linuxplumbersconf.org/event/4/contributions/386/attachments/298/502/RISC-V-NOMMU-Linux-Plumbers-2019.pdf), but for now it can't run anything really.
+This emulator emulates a single-core RV64IMA machine. It is capable of running NOMMU builds of Linux. Unfortunately, you can't do much with it. NOMMU Linux on RISC-V currently doesn't support loading ELF files (!!!), only FLAT binaries. [ELF support _may_ be added in the future](https://linuxplumbersconf.org/event/4/contributions/386/attachments/298/502/RISC-V-NOMMU-Linux-Plumbers-2019.pdf), but for now it can't run anything really.
 
 You would probably be better off using [QEMU](https://risc-v-getting-started-guide.readthedocs.io/en/latest/linux-qemu.html)
 
