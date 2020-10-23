@@ -5,9 +5,11 @@
 
 ---
 
-This emulator emulates a single-core RV64IMA machine. It uses a [cached interpreter](https://ps1.asuramaru.com/emulator-development/cached-interpreters) technique to achieve more speed.
+This emulator emulates a single-core RV64IMA machine. It is capable of running NOMMU builds of Linux.
 
-It is not finished by any means. There's a lot of missing functionality (see list below) and a lot of optimizations to be implemented. Also a lot of bugs to fix.
+You would probably be better off using [QEMU](https://risc-v-getting-started-guide.readthedocs.io/en/latest/linux-qemu.html)
+
+See [this repository](https://github.com/AXKuhta/RISC-V_Emulation_supplementals) for the kernel binaries
 
 [UserspaceEmulator series by Andreas Kling served as great inspiration](https://www.youtube.com/watch?v=NVPavP9DP-c)
 
@@ -15,5 +17,3 @@ It is not finished by any means. There's a lot of missing functionality (see lis
 - Some sort of actual I/O; We need to emulate at least an 8250 serial port
 - Interrupt support is very very rudimentary
 - Some instructions are still missing
-
-See [this repository](https://github.com/AXKuhta/RISC-V_Emulation_supplementals) for the kernel binaries
