@@ -1,4 +1,5 @@
 Import "utils.bmx"
+Import "../Devices/8250.bmx"
 
 Type RV64i_core
 	' Some highlights:
@@ -24,6 +25,9 @@ Type RV64i_core
 	
 	' Interrupt controller
 	Field INTC:RV64i_intc
+	
+	' Serial controller
+	Field Serial8250:TSerial8250
 	
 	' Decoded instruction cache
 	Field TraceCache:TTrace[32]

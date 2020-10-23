@@ -22,8 +22,8 @@ Type TTrace
 	Field StartAddress:Long
 	Field EndAddress:Long
 	
-	' Last time (in milliseconds) ExecuteTrace() was called on this trace
-	Field LastExecuted:Long
+	' Last time (in microseconds) ExecuteTrace() was called on this trace
+	Field LastExecuted:ULong
 	
 	' The chain of instructions with handlers
 	Field Insn:TInstruction[TRACE_INSN_COUNT]
@@ -49,7 +49,7 @@ Function ExecuteTrace(Trace:TTrace, MaxIterationCount:Int)
 	Assert(Trace.NotDirty)
 	
 	' Update the LastExecuted field of the trace
-	Trace.LastExecuted = MilliSecs()
+	Trace.LastExecuted = microseconds()
 	
 	' Dispatch Loop
 	' Run while we are in range of the trace
@@ -81,11 +81,11 @@ Function ExecuteTrace(Trace:TTrace, MaxIterationCount:Int)
 		If CPU.PC & PCMask >= Trace.EndAddress Then Exit
 	Next
 	
+	' Check for any pending interrupts now that we have some free time
+	ProcessInterrupts(CPU)
+	
 	' Responsibly remove the AllowedToRun flag on exit
 	Trace.AllowedToRun = 0
-	
-	' Handle interrupts before leaving for good
-	ProcessInterrupts(CPU)
 	
 	CPU.CurrentTrace = Null
 End Function
@@ -160,7 +160,7 @@ End Function
 ' Prefers uninitialized entries first
 ' Otherwise evicts the least recently used trace
 Function InsertNewTrace:TTrace(CPU:RV64i_core)
-	Local MinMillisecs:Long = MilliSecs()
+	Local uSecondsMin:ULong = microseconds()
 	Local MinIndex:Int = -1
 	Local i:Int = 0
 	
@@ -175,8 +175,8 @@ Function InsertNewTrace:TTrace(CPU:RV64i_core)
 		End If
 		
 		' Otherwise keep comparing
-		If CPU.TraceCache[i].LastExecuted < MinMillisecs
-			MinMillisecs = CPU.TraceCache[i].LastExecuted
+		If CPU.TraceCache[i].LastExecuted < uSecondsMin
+			uSecondsMin = CPU.TraceCache[i].LastExecuted
 			MinIndex = i
 		End If
 	Next

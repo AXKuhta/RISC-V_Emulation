@@ -74,20 +74,14 @@ Function MStatusUpdateNotification(CPU:RV64i_core, Value:Long)
 		Print "UIE or SIE set in MStatus -- we don't support anything but MIE"
 		Input "(Press Enter to continue)"
 	End If
-	
-	' Exit early if this operation wouldn't actually alter the state
-	If MIE = CPU.INTC.Enabled Then Return
-	
-	' This function is defined in `rv64_interrupts.bmx`
+		
+	' Store the state and sync
 	' It /will/ overwrite the CSR
-	SetMIE(CPU, MIE)
+	CPU.INTC.Enabled = MIE
+	SyncMStatus(CPU)
 	
-	' Print the new state
-	If CPU.INTC.Enabled
-		Print "Machine interrupts are now ENABLED"
-	Else 
-		Print "Machine interrupts are now DISABLED"
-	End If
+	' Always update/handle pending interrupts
+	ProcessInterrupts(CPU)
 End Function
 
 ' Sets bits in MStatus based on the current state of the INTC
@@ -102,7 +96,9 @@ Function SyncMStatus(CPU:RV64i_core)
 End Function
 
 ' This function gets called when Interrupt Vector is updated
-Function MTVecUpdateNotification(CPU:RV64i_core)
+Function MTVecUpdateNotification(CPU:RV64i_core, Value:Long)
+	CPU.CSR.MTVec = Value
+
 	Select (CPU.CSR.MTVec & %11)
 		Case 0
 			Print "CSR: Interrupt mode is now DIRECT"
@@ -118,6 +114,43 @@ Function MTVecUpdateNotification(CPU:RV64i_core)
 	CPU.InterruptVector = CPU.CSR.MTVec & $FFFFFFFFFFFFFFFC
 	
 	Print "CSR: Interrupt vector is now 0x" + PrettyHex(CPU.InterruptVector)
+End Function
+
+' Only declare consts for machine mode for now
+Const MIE_SOFTWARE_M = 	%000000001000
+Const MIE_TIMER_M = 	%000010000000
+Const MIE_EXTERNAL_M = 	%100000000000
+
+Const MIP_SOFTWARE_M = 	%000000001000
+Const MIP_TIMER_M = 	%000010000000
+Const MIP_EXTERNAL_M = 	%100000000000
+
+' Gets called when the list of enabled interrupts is updated
+Function MIEUpdateNotification(CPU:RV64i_core, Value:Long)
+	' A small safety check
+	Local AllowedMask:Int = (MIE_SOFTWARE_M | MIE_TIMER_M | MIE_EXTERNAL_M)
+	
+	If (Value | AllowedMask) <> AllowedMask
+		Print "CSR: Non machine-mode interrupt enable bits set in MIE!"
+		Input "(Press Enter to continue)"
+	End If
+	
+	' Set appropriate INTC flags
+	CPU.INTC.SoftwareInterruptsEnabled = 0 < (Value | MIE_SOFTWARE_M) 
+	CPU.INTC.TimerInterruptsEnabled = 0 < (Value | MIE_TIMER_M)
+	CPU.INTC.ExternalInterruptsEnabled = 0 < (Value | MIE_EXTERNAL_M)
+	
+	' Keep the value
+	CPU.CSR.MIE = Value
+End Function
+
+' Updates the pending interrupts register
+Function SyncMIP(CPU:RV64i_core)
+	CPU.CSR.MIP = 0
+	
+	If CPU.INTC.PendingSoftwareInterrupt Then CPU.CSR.MIP :| MIP_SOFTWARE_M
+	If CPU.INTC.PendingTimerInterrupt Then CPU.CSR.MIP :| MIP_TIMER_M
+	If CPU.INTC.PendingExternalInterrupt Then CPU.CSR.MIP :| MIP_EXTERNAL_M
 End Function
 
 ' This function gets called when Physical Memory Protection stuff is
@@ -167,7 +200,7 @@ End Function
 Function WriteCSR(CSR_ID:Int, Value:Long, CPU:RV64i_core)
 	Select CSR_ID
 		Case CSR_MIE
-			CPU.CSR.MIE = Value
+			MIEUpdateNotification(CPU, Value)
 			
 		Case CSR_MIP
 			WarnReadonlyCSR("mip")
@@ -191,8 +224,7 @@ Function WriteCSR(CSR_ID:Int, Value:Long, CPU:RV64i_core)
 			MStatusUpdateNotification(CPU, Value)
 			
 		Case CSR_MTVEC
-			CPU.CSR.MTVec = Value
-			MTVecUpdateNotification(CPU)
+			MTVecUpdateNotification(CPU, Value)
 		
 		' RV64 provides 16 memory regions for PMP
 		' Also, we should trim upper 10 bits

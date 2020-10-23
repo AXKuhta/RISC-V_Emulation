@@ -31,6 +31,7 @@ Local CPU:RV64i_core = New RV64i_core
 
 CPU.MMU = New RV64i_mmu
 CPU.CSR = New RV64i_csr
+CPU.Serial8250 = New TSerial8250
 
 ' Allocate some system memory
 CPU.MMU.MemorySize = 128 * 1024 * 1024
@@ -54,6 +55,16 @@ CPU.MMU.MMIO = MemAlloc(CPU.MMU.MMIOSize)
 
 ' Mark MMIO to start at 0x100B8000
 CPU.MMU.MMIOStart = $100B8000
+
+' Initialize our 8250 serial port
+' 8 bytes at 0x20000000
+CPU.MMU.Serial8250Size = 8
+CPU.MMU.Serial8250Start = $20000000
+
+' Put the serial port output into our MMIO
+CPU.Serial8250.DestinationAddress = CPU.MMU.MMIO
+CPU.Serial8250.DestinationLength = 160*70
+CPU.Serial8250.DestinationWidth = 160
 
 ' Initialize the zero bank
 CPU.MMU.Zero = MemAlloc(8)
@@ -93,22 +104,48 @@ If ELFMetadata.EntryPoint > CPU.MMU.MemorySize
 	' We then load the .dtc file; plop it right next to the executable
 	Local DTCFile:TStream = ReadFile("riscvemu.dtc")
 	
+	' Load right after the last allocated kernel section
+	Local DTCAddr:Long = ELFMetadata.AllocationsEnd
+	
+	Local Status:Int
+	
 	If Not DTCFile
 		Print "Couldn't open riscvemu.dtc; Aborting dtc load"
 	Else
-		Local Status:Int = DTCFile.Read(CPU.MMU.Memory + ELFMetadata.AllocationsEnd, StreamSize(DTCFile))
+		Status = DTCFile.Read(CPU.MMU.Memory + DTCAddr, StreamSize(DTCFile))
 		
-		Print "DTC: loaded " + Status + " bytes at 0x" + Shorten(LongHex(ELFMetadata.AllocationsEnd))
+		Print "DTC: loaded " + Unit(Status) + " at 0x" + PrettyHex(DTCAddr)
 		
 		CloseFile(DTCFile)
+	End If
+	
+	' Additionally, load the initrd
+	Local InitRDFile:TStream = ReadFile("ext2.img")
+	
+	' Load at the next megabyte-aligned address after the DTC
+	Local InitRDAddr:Long = (((DTCAddr + Status) / 1024 / 1024) + 1) * 1024 * 1024
+	
+	If Not InitRDFile
+		Print "Couldn't open ext2.img; aborting initrd load"
+	Else
+		Status = InitRDFile.Read(CPU.MMU.Memory + InitRDAddr, StreamSize(InitRDFile))
+		
+		Print "InitRD: loaded " + Unit(Status) + " at 0x" + PrettyHex(InitRDAddr)
+		
+		CloseFile(InitRDFile)
 	End If
 End If
 
 ' Close the ELF file now
 CloseFile(ELFFile)
 
+' Serial initialization hack
+' Should go into Flush8250()
+CPU.Serial8250.LSR = LSR_TX_EMPTY
 
-
+' This is the only time Modem Status register appears to be used
+' I think the kernel samples it for entropy
+CPU.Serial8250.MSR = $80 
 ' ======================================================================
 
 
@@ -120,7 +157,7 @@ CloseFile(ELFFile)
 
 
 ' Graphics startup
-AppTitle = "RISC-V Emulator. Hold F for fast mode. Press / to set breakpoint"
+AppTitle = "RISC-V Emulator. Hold S for slow mode."
 Graphics 1920, 1080
 
 Print "~r~n~r~n"
@@ -143,10 +180,15 @@ CPU.Breakpoint = -1
 ' $627b4	<printk>
 ' $549c		<workqueue_init_early>
 
-' Currently broken:
-' - Setting breakpoints
+' Currently missing:
+' - Setting breakpoints while running
 
-While True
+While True	
+	' Check whether 8250 port started writing something
+	' If so, switch the display to port destination
+	If CPU.Serial8250.DestinationOffset > 0
+		CPU.ScreenAddress = $100B8000
+	End If
 	
 	If CPU.BreakpointHit
 		Print "Breakpoint!"
@@ -159,7 +201,7 @@ While True
 		Print "Step mode -- press Enter to step, C to continue normal execution"
 		
 		While True
-			UpdateScreen(CPU)
+			UpdateScreen(CPU, 0)
 		
 			If KeyHit(KEY_ENTER)
 				Exit
@@ -175,9 +217,9 @@ While True
 	
 	Trace = NextTrace(CPU)
 	
-	' Outside of fast mode, execute at most 1 instructions
-	' In fast mode, execute at most 300 instructions
-	If Not KeyDown(KEY_F)
+	' In step mode, execute at most 1 instruction
+	' In fast mode, execute at most 300000 instructions
+	If StepMode Or KeyDown(KEY_S)
 	
 		' In slow mode, also spill out instructions
 		WriteStdout("0x" + PrettyHex(CPU.PC) + " : ")
@@ -193,17 +235,17 @@ While True
 		
 	
 	' Graphics
-	UpdateScreen(CPU)
+	UpdateScreen(CPU, Not KeyDown(KEY_S))
 Wend
 
 Input("Press enter to exit")
 
 
 ' Update the graphical part of the emulator
-Function UpdateScreen(CPU:RV64i_core)
+Function UpdateScreen(CPU:RV64i_core, Fast:Int = 1)
 	' In fast mode, update only on each 16th millisecond
 	' Do not even start drawing anything otherwise
-	If KeyDown(KEY_F)
+	If Fast
 		If MilliSecs() Mod 16 <> 0 Then Return
 	End If
 	
@@ -226,8 +268,13 @@ Function UpdateScreen(CPU:RV64i_core)
 	SetOrigin 0, GraphicsHeight() - 50
 	ShowMemoryDump(CPU)
 	
-	' Draw at next VBlank
-	Flip
+	If Fast
+		' Draw ASAP
+		Flip 0
+	Else
+		' Draw on the next VBlank
+		Flip
+	End If
 End Function
 
 ' Draw a 80x25 screendump
@@ -297,6 +344,21 @@ Function DrawInterruptInformation(CPU:RV64i_core)
 	' Memory-mapped registers
 	DrawText "INTC_Timeval: 0x" + PrettyHex(ReadMemory64(CPU.MMU.INTC + INTC_TIME_VAL)), 0, 20
 	DrawText "INTC_Timecmp: 0x" + PrettyHex(ReadMemory64(CPU.MMU.INTC + INTC_TIME_CMP)), 0, 30
+	
+	' Enabled and pending sources
+	Local EnabledSources:String = ""
+	Local PendingSources:String = ""
+	
+	If CPU.INTC.SoftwareInterruptsEnabled Then EnabledSources :+ "SOFTWARE "
+	If CPU.INTC.TimerInterruptsEnabled Then EnabledSources :+ "TIMER "
+	If CPU.INTC.ExternalInterruptsEnabled Then EnabledSources :+ "EXTERNAL "
+	
+	If CPU.INTC.PendingSoftwareInterrupt Then PendingSources :+ "SOFTWARE "
+	If CPU.INTC.PendingTimerInterrupt Then PendingSources :+ "TIMER "
+	If CPU.INTC.PendingExternalInterrupt Then PendingSources :+ "EXTERNAL "
+	
+	DrawText "Enabled: " + EnabledSources, 0, 50
+	DrawText "Pending: " + PendingSources, 0, 60
 End Function
 
 ' Draw the short dump of the latest read memory address

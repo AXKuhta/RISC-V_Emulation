@@ -963,7 +963,9 @@ Function MRET_Handler(Insn:TInstruction, CPU:RV64i_core)
 
 	' Update the traces allowed for execution
 	JumpNotify(Addr, CPU)
-
+	
+	Print "MRET: returning to 0x" + PrettyHex(Addr)
+	
 	' And finally perform the return itself
 	CPU.PC = Addr
 End Function
@@ -1487,7 +1489,12 @@ End Function
 Function UNKNOWN_Handler(Insn:TInstruction, CPU:RV64i_core)
 	Print "Attempted to execute unknown instruction!"
 	Print "Offending address: 0x" + PrettyHex(CPU.PC - 4)
-	Input "Press enter to exit"
+	Print "Will attempt to handle via an exception"
+	
+	CPU.CurrentTrace.AllowedToRun = 0
+	CPU.BreakpointHit = 1
+	
+	UndefinedInstructionException(CPU)
 End Function
 
 ' The `Environment Break` instruction

@@ -20,10 +20,12 @@ Type RV64i_mmu
 	Field MemorySize:Size_T
 	Field INTCSize:Size_T
 	Field MMIOSize:Size_T
+	Field Serial8250Size:Size_T
 	
 	' Address of the guest memory where INTC and MMIO zones start
 	Field INTCStart:ULong
 	Field MMIOStart:ULong
+	Field Serial8250Start:ULong
 End Type
 
 ' Various modes
@@ -37,7 +39,7 @@ Const MMU_TEST = 4
 ' Receives an address /of the guest memory/
 ' Returns an address /of the host memory/ that the caller should read
 ' Has a hardcoded implementation of MMIO remapping right now
-Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core, Mode:Int, Verbose:Int = 1)
+Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core, Mode:Int, Verbose:Int = 1, Value:Long = 0)
 	Local TranslatedAddress:ULong = 0
 	
 	' Remove meaningless bits
@@ -70,10 +72,8 @@ Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core, Mode:I
 	If IsMMIO
 		' Switch the screen to display MMIO if an MMIO access is detected
 		If CPU.ScreenAddress <> CPU.MMU.MMIOStart
-			CPU.ScreenAddress = CPU.MMU.MMIOStart
-			
+			CPU.ScreenAddress = CPU.MMU.MMIOStart			
 			Print "Boot to MMIO console initialization took " + (MilliSecs() - CPU.StartTime) + " ms"
-			Input "(Press Enter to continue)"
 		End If
 	
 		Return CPU.MMU.MMIO + (TranslatedAddress - CPU.MMU.MMIOStart)
@@ -90,7 +90,25 @@ Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core, Mode:I
 		Return CPU.MMU.INTC + (TranslatedAddress - CPU.MMU.INTCStart)
 	End If
 	
-	' ### Option 4: Out of bounds access
+	' ### Option 4: 8250 controller access
+	Local Is8250:Int = TranslatedAddress >= CPU.MMU.Serial8250Start And TranslatedAddress < (CPU.MMU.Serial8250Start + CPU.MMU.Serial8250Size)
+	
+	If Is8250
+		' 8250 implementation proposal here:
+		
+		Assert(Width = 1)
+		
+		Select Mode
+			Case MMU_WRITE
+				Handle8250Write(CPU.Serial8250, (TranslatedAddress - CPU.MMU.Serial8250Start), Byte(Value))
+				Return Varptr CPU.Serial8250.Zero
+			Case MMU_READ
+				Handle8250Read(CPU.Serial8250, (TranslatedAddress - CPU.MMU.Serial8250Start))
+				Return Varptr CPU.Serial8250.BusOutput
+		End Select
+	End If
+	
+	' ### Option 5: Out of bounds access
 	' Warn about that
 	If Verbose
 		Print "MMU: Error: out of bounds memory access!"
@@ -145,7 +163,7 @@ End Function
 
 
 Function MMUWriteMemory8(Value:Byte, Addr:Long, CPU:RV64i_core)
-	Local HostAddr:Byte Ptr = AddressThroughMMU(Addr, 1, CPU, MMU_WRITE)
+	Local HostAddr:Byte Ptr = AddressThroughMMU(Addr, 1, CPU, MMU_WRITE, 1, Value)
 	
 	CPU.MMU.LatestWriteAddress = Addr
 	
