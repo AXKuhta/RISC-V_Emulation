@@ -171,14 +171,13 @@ Local Insn:TInstruction ' For single instruction debugging
 
 CPU.StartTime = MilliSecs()
 
-CPU.ScreenAddress = $20F500
+CPU.ScreenAddress = $213500
 ' Locations of interest
-' $20F500	printk output buffer
+' $213500	printk output buffer
 
 CPU.Breakpoint = -1
 ' Locations of interest:
-' $627b4	<printk>
-' $549c		<workqueue_init_early>
+' $63928	<printk>
 
 ' Currently missing:
 ' - Setting breakpoints while running
