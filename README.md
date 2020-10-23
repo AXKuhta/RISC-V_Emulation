@@ -1,7 +1,7 @@
 # A RISC-V emulator written in BlitzMax NG
 
-![The thing booting Linux; the bug with initcalls returning with interrupts disabled has since been fixed](LinuxHasBeenBooted!.PNG)
-<sub>^^^ The thing booting Linux. Bug with "initcall 0x... returned with interrupts disabled" has since been fixed.</sub>
+![The thing booting Linux; it has successfully detected the filesystem in the initd image.](LinuxBusyReadingRamdisk.PNG)
+<sub>^^^ The thing booting Linux; it has successfully detected the filesystem in the initd image.</sub>
 
 ---
 
