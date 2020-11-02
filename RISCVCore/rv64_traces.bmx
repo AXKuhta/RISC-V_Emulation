@@ -181,8 +181,13 @@ Function InsertNewTrace:TTrace(CPU:RV64i_core)
 		End If
 	Next
 	
-	' Fail if we somehow didn't find anything
-	Assert(MinIndex > -1)
+	' Complain if we didn't find anything
+	If MinIndex = -1
+		Print "Trace cache timestamps can't keep up!"
+		
+		' Fall back to trace 0
+		MinIndex = 0
+	End If
 	
 	Print "TRACE: evicting entry " + MinIndex
 	
