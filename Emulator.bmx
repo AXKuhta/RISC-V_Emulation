@@ -32,6 +32,7 @@ Local CPU:RV64i_core = New RV64i_core
 CPU.MMU = New RV64i_mmu
 CPU.CSR = New RV64i_csr
 CPU.Serial8250 = New TSerial8250
+CPU.INTC = New RV64i_intc
 
 ' Allocate some system memory
 CPU.MMU.MemorySize = 128 * 1024 * 1024
