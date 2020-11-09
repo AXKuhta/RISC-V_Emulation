@@ -1,7 +1,7 @@
 # A RISC-V emulator written in BlitzMax NG
 
 ![The thing booting Linux; it has successfully detected the filesystem in the initd image.](AnimatedDemo.webp)
-<sub>^^^ The thing booting Linux; it has successfully detected the filesystem in the initd image.</sub>
+<sub>^^^ The thing booting Linux; crashing on unkown instructions in /sbin/init afterwards.</sub>
 
 ---
 
