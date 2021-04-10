@@ -18,9 +18,6 @@ Type RV64i_intc
 	Field PendingTimerInterrupt:Int
 	Field PendingExternalInterrupt:Int
 	
-	' To what address do we return on `MRET`
-	' Unused for now in favor of MEPC CSR
-	Field InterruptReturnAddress:Long
 End Type
 
 
@@ -181,12 +178,12 @@ Function HandleInterrupt(CPU:RV64i_core, MCause:Long, MTVal:ULong = 0)
 	
 	' Fill out the cause information
 	CPU.CSR.MCause = MCause
-	CPU.CSR.MEPC = CPU.PC ' Do we need to subtract 4??
+	CPU.CSR.MEPC = CPU.PC
 	CPU.CSR.MTVal = MTVal
-	
-	' Store the return address (Unused for now in favor of MEPC)
-	CPU.INTC.InterruptReturnAddress = CPU.PC
-	
+		
+	' I don't think we need to subtract 4 from MEPC
+	' In case we jumped somewhere when an interrupt happened, MEPC would end up pointing at a completely unrelated instruction
+		
 	' Finally alter the Program Counter
 	CPU.PC = CPU.CSR.MTVec | CPU.MMU.ForcedMask
 End Function
@@ -223,8 +220,6 @@ Function UndefinedInstructionException(CPU:RV64i_core)
 	CPU.CSR.MCause = TRAP_TYPE_EXCEPTION | EXCEPTION_UD
 	CPU.CSR.MEPC = CPU.PC
 	CPU.CSR.MTVal = 0
-	
-	CPU.INTC.InterruptReturnAddress = CPU.PC
 	
 	CPU.PC = CPU.CSR.MTVec | CPU.MMU.ForcedMask
 End Function

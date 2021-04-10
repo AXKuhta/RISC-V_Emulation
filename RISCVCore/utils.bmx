@@ -1,9 +1,4 @@
 Import BRL.Retro
-Import "microseconds.c"
-
-Extern
-	Function microseconds:ULong()
-End Extern
 
 ' Read a 16 bit value (normal)
 Function ReadMemory16:Short(Addr:Byte Ptr)

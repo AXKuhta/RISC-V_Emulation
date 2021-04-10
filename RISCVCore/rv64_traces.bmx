@@ -22,7 +22,7 @@ Type TTrace
 	Field StartAddress:Long
 	Field EndAddress:Long
 	
-	' Last time (in microseconds) ExecuteTrace() was called on this trace
+	' Last time (in top level loop iterations) ExecuteTrace() was called on this trace
 	Field LastExecuted:ULong
 	
 	' The chain of instructions with handlers
@@ -33,7 +33,7 @@ End Type
 
 
 ' Run the instruction handlers that belong to the chain
-Function ExecuteTrace(Trace:TTrace, MaxIterationCount:Int)
+Function ExecuteTrace(Trace:TTrace, TopLevelCounter:ULong, MaxIterationCount:Int)
 	Local InsnIdx:Int
 	Local PC:Long
 	Local i:Int
@@ -49,7 +49,7 @@ Function ExecuteTrace(Trace:TTrace, MaxIterationCount:Int)
 	Assert(Trace.NotDirty)
 	
 	' Update the LastExecuted field of the trace
-	Trace.LastExecuted = microseconds()
+	Trace.LastExecuted = TopLevelCounter
 	
 	' Dispatch Loop
 	' Run while we are in range of the trace
@@ -160,7 +160,7 @@ End Function
 ' Prefers uninitialized entries first
 ' Otherwise evicts the least recently used trace
 Function InsertNewTrace:TTrace(CPU:RV64i_core)
-	Local uSecondsMin:ULong = microseconds()
+	Local LastExecMin:ULong = $FFFFFFFFFFFFFFFF
 	Local MinIndex:Int = -1
 	Local i:Int = 0
 	
@@ -175,21 +175,26 @@ Function InsertNewTrace:TTrace(CPU:RV64i_core)
 		End If
 		
 		' Otherwise keep comparing
-		If CPU.TraceCache[i].LastExecuted < uSecondsMin
-			uSecondsMin = CPU.TraceCache[i].LastExecuted
+		If CPU.TraceCache[i].LastExecuted < LastExecMin
+			LastExecMin = CPU.TraceCache[i].LastExecuted
 			MinIndex = i
 		End If
 	Next
 	
-	' Complain if we didn't find anything
+	
 	If MinIndex = -1
-		Print "Trace cache timestamps can't keep up!"
-		
-		' Fall back to trace 0
+		' If we somehow didn't find anything, fall back To trace 0
+		' This happens if the app is running too fast (faster that the resolution of microseconds() ) and all timestamps get smeared with the same value
+		' We will have to fix this at some point, create some alternative selection system
 		MinIndex = 0
+		
+		Print "Trace cache eviction failed to evict anything!"
+		
+		' Complain loudly if this was encountered in debug mode
+		Assert(0)
 	End If
 	
-	Print "TRACE: evicting entry " + MinIndex
+	'Print "TRACE: evicting entry " + MinIndex
 	
 	' Return the trace we decided to evict
 	Return CPU.TraceCache[MinIndex]

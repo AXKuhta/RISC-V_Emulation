@@ -71,9 +71,9 @@ Function AddressThroughMMU:Byte Ptr(Addr:Long, Width:Int, CPU:RV64i_core, Mode:I
 	
 	If IsMMIO
 		' Switch the screen to display MMIO if an MMIO access is detected
+		' 8250 bypasses this check
 		If CPU.ScreenAddress <> CPU.MMU.MMIOStart
 			CPU.ScreenAddress = CPU.MMU.MMIOStart			
-			Print "Boot to MMIO console initialization took " + (MilliSecs() - CPU.StartTime) + " ms"
 		End If
 	
 		Return CPU.MMU.MMIO + (TranslatedAddress - CPU.MMU.MMIOStart)
@@ -215,3 +215,77 @@ Const PMP_ADDR_OFF = 0 ' Disable region
 Const PMP_ADDR_TOR = 1 ' Top Of Range. This PMPADDR is the top of the region, preceding PMPADDR is the bottom
 Const PMP_ADDR_NA4 = 2 ' 4 bytes fixed length
 Const PMP_ADDR_NAPOT = 3 ' Use lower bits of PMPADDR to determine the length
+
+
+' Translate virtual to physical
+Function TranslateAddress:Long(VirtualAddress:Long, CPU:RV64i_core)
+	Local L1_Entries:Long Ptr = HostMemory( (CPU.CSR.SATP & $FFFFFFFFFFF) Shl 12, CPU )
+	' 512 8-byte entries
+	' 4 KB total
+	
+	' The offset into the page
+	Local Offset:Int = VirtualAddress & $FFF
+	
+	' Extract L1, L2 and L3 keys
+	Local L1:Int = (VirtualAddress Shr 30) & $1FF
+	Local L2:Int = (VirtualAddress Shr 21) & $1FF
+	Local L3:Int = (VirtualAddress Shr 12) & $1FF
+
+	' Just sorta manually traverse it
+	Local Entry_L1:Long = L1_Entries[L1]
+	
+	Local Valid = Entry_L1 & %00000001
+	Local RWX 	= Entry_L1 & %00001110
+	
+	If Not Valid Then Return Null
+	
+	If RWX
+		Return (Entry_L1 & $FFFFFFFFFFF000) + Offset
+	End If
+	
+	' Traversing level 2 now
+	Local L2_Entries:Long Ptr = HostMemory( Entry_L1 & $FFFFFFFFFFF000, CPU )
+	Local Entry_L2:Long = L2_Entries[L2]
+	
+	Valid 	= Entry_L2 & %00000001
+	RWX 	= Entry_L2 & %00001110
+	
+	If Not Valid Then Return Null
+	
+	If RWX
+		Return (Entry_L2 & $FFFFFFFFFFF000) + Offset
+	End If
+
+	' Traversing level 3 now
+	Local L3_Entries:Long Ptr = HostMemory( Entry_L2 & $FFFFFFFFFFF000, CPU )
+	Local Entry_L3:Long = L3_Entries[L3]
+	
+	Valid 	= Entry_L3 & %00000001
+	RWX 	= Entry_L3 & %00001110
+
+	If Not Valid Then Return Null
+	
+	If RWX
+		Return (Entry_L3 & $FFFFFFFFFFF000) + Offset
+	End If
+	
+	RuntimeError "TranslateAddress: burned through all the levels but didn't find anything"
+End Function
+
+Function HostMemory:Byte Ptr(Addr:Long, CPU:RV64i_core)
+	If Addr >= CPU.MMU.MemorySize
+		RuntimeError "Out of bounds memory access"
+	End If
+	
+	Return CPU.MMU.Memory + Addr
+End Function
+
+' Page Table Entry flags
+Const PTE_V = %00000001
+Const PTE_R = %00000010
+Const PTE_W = %00000100
+Const PTE_X = %00001000
+Const PTE_U = %00010000
+Const PTE_G = %00100000
+Const PTE_A = %01000000
+Const PTE_D = %10000000

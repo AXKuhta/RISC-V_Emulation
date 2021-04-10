@@ -15,6 +15,18 @@ Type ELFLoaderMetadata
 	Field AllocationsEnd:Long
 End Type
 
+' 64 bit ELF program header (AKA virtual and physical addresses)
+Type ELFProgramHeader
+	Field PType:Int
+	Field Flags:Int
+	Field FileOffset:Long
+	Field VirtMemAddr:Long
+	Field PhysMemAddr:Long
+	Field Size:Long
+	Field SizeInMemory:Long
+	Field Alignment:Long
+End Type
+
 ' 64 bit ELF section header
 Type ELFSectionHeader
 	Field NameOffset:Int
@@ -80,12 +92,30 @@ Function LoadELF:ELFLoaderMetadata(FileStream:TStream, Memory:Byte Ptr)
 		Headers[i].NameOffset = ReadBytesLE(FileStream, 4) ' Offset from the StringTableOffset
 		Headers[i].SType = ReadBytesLE(FileStream, 4)
 		Headers[i].Flags = ReadBytesLE(FileStream, 8)
-		Headers[i].MemAddr = ReadBytesLE(FileStream, 8) & $7FFFFFFF
+		Headers[i].MemAddr = ReadBytesLE(FileStream, 8)
 		Headers[i].FileOffset = ReadBytesLE(FileStream, 8)
 		Headers[i].Size = ReadBytesLE(FileStream, 8)
 	Next
 	
+	Local Segments:ELFProgramHeader[ProgramHeaderEntries]
+	
+	For Local i=0 To (ProgramHeaderEntries - 1)
+		SeekStream(FileStream, ProgramHeaderOffset + ProgramHeaderEntrySize*i)
+		Segments[i] = New ELFProgramHeader
+
+		Segments[i].PType = ReadBytesLE(FileStream, 4)
+		Segments[i].Flags = ReadBytesLE(FileStream, 4)
+		Segments[i].FileOffset = ReadBytesLE(FileStream, 8)
+		Segments[i].VirtMemAddr = ReadBytesLE(FileStream, 8)
+		Segments[i].PhysMemAddr = ReadBytesLE(FileStream, 8)
+		Segments[i].Size = ReadBytesLE(FileStream, 8)
+		Segments[i].SizeInMemory = ReadBytesLE(FileStream, 8)
+		Segments[i].Alignment = ReadBytesLE(FileStream, 8)
+	Next
+	
 	Print Headers.length + " sections detected"
+	Print Segments.length + " segments detected"
+	Print "ELF format seemed good at first, but then this section/segment crap happened"
 	
 	' Load the section names
 	Local StringTableOffset:Long = Headers[StringsSectionHeaderIndex].FileOffset
@@ -99,7 +129,8 @@ Function LoadELF:ELFLoaderMetadata(FileStream:TStream, Memory:Byte Ptr)
 	' Create a return structure
 	Local Metadata:ELFLoaderMetadata = New ELFLoaderMetadata
 	
-	' Load the sections into memory
+	' List all the sections present in the file
+	' Take note of the last ALLOC section
 	For Local Header:ELFSectionHeader = EachIn Headers
 		Print "Section name: " + Header.Name
 			
@@ -112,12 +143,9 @@ Function LoadELF:ELFLoaderMetadata(FileStream:TStream, Memory:Byte Ptr)
 			Print "Section type: " + LongBin(Header.SType)
 			Print "Flags: " + LongBin(Header.Flags)
 			
-			' Only attempt to read the section from file if it's marked as PROGBITS
+			
 			If Header.SType = 1
-				SeekStream(FileStream, Header.FileOffset)
-				FileStream.Read(Memory + Header.MemAddr, Header.Size)
-				
-				' Also store the address of this section
+				' Store the address of this section
 				' We need the address of the last loaded section to determine the RISC-V global pointer
 				' Yes, this is indeed a hack; crt0.S is supposed to do that
 				Metadata.LastLoadedSection = Header.MemAddr
@@ -135,6 +163,19 @@ Function LoadELF:ELFLoaderMetadata(FileStream:TStream, Memory:Byte Ptr)
 		
 		Print "==============="
 	Next
+	
+	For Local Segment:ELFProgramHeader = EachIn Segments
+		If Segment.PType = 1
+			Print "Loading " + Unit(Segment.Size) + " segment at " + Unit(Segment.PhysMemAddr)
+		
+			SeekStream(FileStream, Segment.FileOffset)
+			FileStream.Read(Memory + Segment.PhysMemAddr, Segment.Size)
+		Else 
+			Print "Non-LOAD segment ignored"
+		End If
+	Next
+	
+	Print "==============="
 	
 	' Finish by filling in the entry point addr and returning
 	Metadata.EntryPoint = CodeEntryPoint

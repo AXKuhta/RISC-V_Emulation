@@ -30,7 +30,7 @@ Type RV64i_core
 	Field Serial8250:TSerial8250
 	
 	' Decoded instruction cache
-	Field TraceCache:TTrace[32]
+	Field TraceCache:TTrace[64]
 	
 	' Link to the currently executing trace
 	Field CurrentTrace:TTrace
@@ -51,8 +51,8 @@ Type RV64i_core
 	' Later overwritten from `AddressThroughMMU()` if an MMIO write is detected
 	Field ScreenAddress:Long
 	
-	' Time of startup in host milliseconds
-	Field StartTime:ULong
+	' Time of latest breakpoint break/resume in host milliseconds
+	Field ResumeMS:ULong
 	' ====================================
 End Type
 

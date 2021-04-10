@@ -17,6 +17,10 @@ Type RV64i_csr
 	' Which machine interrupts are pending (same field order as in `MIE`)
 	Field MIP:Long
 	
+	' Supervisor Address Translation / Protection
+	Field SATP:Long
+	
+	
 	Field PMPAddr0:Long
 	Field PMPCfg0:Long
 End Type
@@ -61,7 +65,7 @@ Const MSTATUS_MACHINE_INTERRUPT_PREV = 			%10000000
 ' ======================================================================
 ' This function gets called when MStatus register is updated
 Function MStatusUpdateNotification(CPU:RV64i_core, Value:Long)
-	Print "CSR: MStatus CSR updated"
+	'Print "CSR: MStatus CSR updated"
 	
 	' Use logic operations to get the enabled statuses
 	Local UIE:Int = 0 < (Value & MSTATUS_USER_INTERRUPT)
@@ -104,6 +108,7 @@ Function MTVecUpdateNotification(CPU:RV64i_core, Value:Long)
 			Print "CSR: Interrupt mode is now DIRECT"
 		Case 1
 			Print "CSR: Interrupt mode is now VECTORED"
+			RuntimeError "Not happening!"
 			
 		Default
 			Print "CSR: Unacceptable interrupt mode!"
@@ -215,6 +220,7 @@ Function WriteCSR(CSR_ID:Int, Value:Long, CPU:RV64i_core)
 			CPU.CSR.MScratch = Value
 			
 		Case CSR_MEPC
+			Print "MEPC write: was: 0x" + PrettyHex(CPU.CSR.MEPC) + "; now: 0x" + PrettyHex(Value)
 			CPU.CSR.MEPC = Value
 			
 		Case CSR_MISA

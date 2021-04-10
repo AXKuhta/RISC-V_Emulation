@@ -31,8 +31,8 @@ Local CPU:RV64i_core = New RV64i_core
 
 CPU.MMU = New RV64i_mmu
 CPU.CSR = New RV64i_csr
-CPU.Serial8250 = New TSerial8250
 CPU.INTC = New RV64i_intc
+CPU.Serial8250 = New TSerial8250
 
 ' Allocate some system memory
 CPU.MMU.MemorySize = 128 * 1024 * 1024
@@ -94,19 +94,19 @@ CPU.Registers[3] = ELFMetadata.LastLoadedSection + $800 - 4
 ' Required to run `vmlinux`
 If ELFMetadata.EntryPoint > CPU.MMU.MemorySize
 	Print "Invalid entry point: 0x" + Shorten(LongHex(CPU.PC))
-	Print "Will start execution from 0x80000000"
+	Print "Will start execution from 0x0"
 	CPU.PC = $80000000:ULong
 	
 	' Because we now we are loading linux, load the device tree also
+	' Load right after the last allocated kernel section
+	Local DTCAddr:Long = ELFMetadata.AllocationsEnd & CPU.MMU.AddressBusMask
+
 	' I believe DTB pointer is passed via `a1` by the bootloader
 	' Place it right after the last `allocated` section
-	CPU.Registers[11] = ELFMetadata.AllocationsEnd
+	CPU.Registers[11] = DTCAddr
 	
 	' We then load the .dtc file; plop it right next to the executable
 	Local DTCFile:TStream = ReadFile("riscvemu.dtc")
-	
-	' Load right after the last allocated kernel section
-	Local DTCAddr:Long = ELFMetadata.AllocationsEnd
 	
 	Local Status:Int
 	
@@ -165,25 +165,26 @@ Print "~r~n~r~n"
 Print "Starting the trace-based execution!"
 Print "==================================="
 
+Local TopLevelCounter:ULong = 0
 Local StepMode:Int = 0
 
 Local Trace:TTrace
 Local Insn:TInstruction ' For single instruction debugging
 
-CPU.StartTime = MilliSecs()
+CPU.ResumeMS = MilliSecs()
 
-CPU.ScreenAddress = $213500
+CPU.ScreenAddress = $1AF000
 ' Locations of interest
 ' $213500	printk output buffer
 
-CPU.Breakpoint = -1
+CPU.Breakpoint = Null' $136ED0
 ' Locations of interest:
 ' $63928	<printk>
 
 ' Currently missing:
 ' - Setting breakpoints while running
 
-While True	
+While Not AppTerminate()	
 	' Check whether 8250 port started writing something
 	' If so, switch the display to port destination
 	If CPU.Serial8250.DestinationOffset > 0
@@ -192,6 +193,7 @@ While True
 	
 	If CPU.BreakpointHit
 		Print "Breakpoint!"
+		Print "Time it took to get here: " + (MilliSecs() - CPU.ResumeMS) + " ms"
 		
 		CPU.BreakpointHit = 0
 		StepMode = 1	
@@ -208,6 +210,7 @@ While True
 			End If
 			
 			If KeyHit(KEY_C)
+				CPU.ResumeMS = MilliSecs()
 				StepMode = 0
 				Exit
 			End If
@@ -228,17 +231,19 @@ While True
 		Insn.Verbose = 1
 		Decode(Insn)
 		
-		ExecuteTrace(Trace, 1)
+		ExecuteTrace(Trace, TopLevelCounter, 1)
 	Else
-		ExecuteTrace(Trace, 300000)
+		ExecuteTrace(Trace, TopLevelCounter, 300000)
 	End If
-		
+	
+	If KeyDown(KEY_EQUALS) CPU.ScreenAddress :+ 1024
+	If KeyDown(KEY_MINUS) CPU.ScreenAddress :- 1024
 	
 	' Graphics
 	UpdateScreen(CPU, Not KeyDown(KEY_S))
+	
+	TopLevelCounter :+ 1
 Wend
-
-Input("Press enter to exit")
 
 
 ' Update the graphical part of the emulator
@@ -267,6 +272,10 @@ Function UpdateScreen(CPU:RV64i_core, Fast:Int = 1)
 	' Memory dump at the bottom
 	SetOrigin 0, GraphicsHeight() - 50
 	ShowMemoryDump(CPU)
+	
+	' Memory overview
+	'SetOrigin 1650, 15
+	'DrawMemoryOverview(CPU, 1650, 15)
 	
 	If Fast
 		' Draw ASAP
@@ -315,8 +324,8 @@ Function DrawRegisters(CPU:RV64i_core)
 	
 	DrawText "Register state: ", 0, -12
 	DrawLine 0, 0, RightEdge, 0
-	DrawLine RightEdge, 0, RightEdge, (Rows + 7) * 10
-	DrawLine 0, (Rows + 7) * 10, RightEdge, (Rows + 7) * 10
+	DrawLine RightEdge, 0, RightEdge, (Rows + 8) * 10
+	DrawLine 0, (Rows + 8) * 10, RightEdge, (Rows + 8) * 10
 	
 	For Local i:Int = 0 To 31
 		OffsetY = i Mod Rows
@@ -328,6 +337,7 @@ Function DrawRegisters(CPU:RV64i_core)
 	DrawText "Latest read: " + PrettyHex(CPU.MMU.LatestReadAddress), 0, 10*(Rows + 2)
 	DrawText "Latest write: " + PrettyHex(CPU.MMU.LatestWriteAddress), 0, 10*(Rows + 3)
 	DrawText "Program Counter: " + PrettyHex(CPU.PC), 0, 10*(Rows + 5)
+	DrawText "Screen: " + PrettyHex(CPU.ScreenAddress), 0, 10*(Rows + 6)
 End Function
 
 ' Draw interrupt enable states and vectors
@@ -400,4 +410,53 @@ Function ShowMemoryDump(CPU:RV64i_core)
 			End Select
 		Next
 	Next
+End Function
+
+Function DrawMemoryOverview(CPU:RV64i_core, X:Int, Y:Int)
+	Local Hint:String = "Hover to see the address"
+	Local W:Int = 256
+	Local H:Int = 1024
+
+
+	Local ZoomOutFactor:Int = 512 ' How many bytes represented within a pixel
+	Local Samples:Int = CPU.MMU.MemorySize / ZoomOutFactor
+	Local Map:TPixmap = CreatePixmap(W, H, PF_I8)
+	Local Pixels:Byte Ptr = Map.pixels
+	
+	Local i:Int
+	Local j:Int
+	
+	For i = 0 Until Samples
+		Local Avg:Int = 0
+		
+		For j = 0 Until ZoomOutFactor
+			Local Offset:Long = ZoomOutFactor * i + j
+			
+			If Offset >= CPU.MMU.MemorySize Then Exit
+			
+			Avg :+ CPU.MMU.Memory[Offset]
+		Next
+		
+		Pixels[i] = Max(Avg, 255)
+	Next
+	
+	If MouseX() >= X And MouseY() >= Y
+		If MouseX() <= (X + W) And MouseY() <= (Y + H)
+			Local OffsetX:Int = MouseX() - X
+			Local OffsetY:Int = MouseY() - Y
+			
+			Local BytesPerRow:Int = ZoomOutFactor * W
+			
+			Local Address:Int = BytesPerRow * OffsetY + ZoomOutFactor * OffsetX
+			Hint = PrettyHex(Address)
+		End If
+	End If
+		
+	DrawPixmap(Map, X, Y)
+	DrawText(Hint, 0, -15)
+	
+	DrawLine(-1, -1, W + 1, -1)
+	DrawLine(W + 1, -1, W + 1, H + 1)
+	DrawLine(W + 1, H + 1, -1, H + 1)
+	DrawLine(-1, H + 1, -1, -1)
 End Function

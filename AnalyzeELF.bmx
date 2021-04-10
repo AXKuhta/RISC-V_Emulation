@@ -20,7 +20,7 @@ Else
 End If
 
 ' Allocate some system memory
-Local Memory:Byte Ptr = MemAlloc(8 * 1024 * 1024)
+Local Memory:Byte Ptr = MemAlloc(128 * 1024 * 1024)
 
 ' Parse and load the sections
 LoadELF(ELFFile, Memory)
